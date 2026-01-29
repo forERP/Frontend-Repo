@@ -6,8 +6,8 @@ import NotFound from '../pages/NotFound.jsx'
 export default function AppRouter() {
   return (
     <Routes>
+      <Route path="/**" element={<Login />} />
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

@@ -1,42 +1,38 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* 전체 배경 */
+.pos-bg {
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  /* 검은 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* 포스기 화면 */
+.pos-container {
+  width: 1100px;
+  /* 포스기 느낌 */
+  height: 700px;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 헤더 영역 (2 비율) */
+.pos-header {
+  flex: 0.5;
+  background-color: #2b2b2b;
+  /* 어두운 회색 */
+  display: flex;
+  align-items: center;
+  color: #fff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+/* 메인 영역 (8 비율) */
+.pos-main {
+  flex: 9.5;
+  background-color: #fff;
+  /* 흰색 */
+  overflow: auto;
 }
