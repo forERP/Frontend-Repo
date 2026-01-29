@@ -1,0 +1,63 @@
+.menu-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 상단 4개 (8 비율) */
+.menu-top {
+    flex: 8;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+}
+
+/* 하단 2개 (2 비율) */
+.menu-bottom {
+    flex: 2;
+    display: flex;
+    padding: 12px;
+    gap: 12px;
+}
+
+/* 하단 좌우 8 : 2 */
+.menu-bottom .admin {
+    flex: 8;
+}
+
+.menu-bottom .close {
+    flex: 2;
+}
+
+/* 공통 버튼 스타일 */
+.menu-btn {
+    border: none;
+    border-radius: 12px;
+    background-color: #f5f5f5;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 버튼 클릭 느낌 */
+.menu-btn:active {
+    background-color: #ddd;
+}
+
+/* 하단 버튼 색 구분 */
+.admin {
+    background-color: #424242;
+    color: #fff;
+}
+
+.close {
+    background-color: #b71c1c;
+    color: #fff;
+}
