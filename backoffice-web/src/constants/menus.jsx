@@ -103,7 +103,7 @@ export const menus = [
 
     {
         key: 'purchase-inbound',
-        label: '발주/입고',
+        label: '발주/입고/배송',
         permissionCode: 'PURCHASE_INBOUND_MENU',
         children: [
             {
@@ -126,6 +126,12 @@ export const menus = [
                     { key: 'inbound-process', label: '입고 처리', path: '/inbounds/process' },
                     { key: 'inbound-history', label: '입고 이력', path: '/inbounds' },
                 ],
+            },
+            {
+                key: 'delivery',
+                label: '배송 정보',
+                path: '/deliveries',
+                permissionCode: 'DELIVERY_VIEW',
             },
         ],
     },
@@ -174,6 +180,31 @@ export const menus = [
             { key: 'return-history', label: '반품 이력', path: '/returns' },
         ],
     },
+    {
+        key: 'disposal',
+        label: '폐기',
+        permissionCode: 'DISPOSAL_MENU',
+        children: [
+            {
+                key: 'disposal-request',
+                label: '폐기 요청',
+                path: '/disposals/requests',
+                permissionCode: 'DISPOSAL_REQUEST',
+            },
+            {
+                key: 'disposal-approve',
+                label: '폐기 승인',
+                path: '/disposals/approvals',
+                permissionCode: 'DISPOSAL_APPROVE',
+            },
+            {
+                key: 'disposal-history',
+                label: '폐기 이력',
+                path: '/disposals',
+                permissionCode: 'DISPOSAL_HISTORY',
+            },
+        ],
+    },
 
     {
         key: 'sales-settlement',
@@ -200,7 +231,6 @@ export const menus = [
             },
         ],
     },
-
     {
         key: 'staff-auth',
         label: '직원/권한 관리',
