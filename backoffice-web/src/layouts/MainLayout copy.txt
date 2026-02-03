@@ -1,0 +1,49 @@
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import Header from '../components/Header/Header';
+import Sidebar from '../components/Sidebar/Sidebar';
+import { fetchMenus } from '../api/menuApi';
+
+
+export default function MainLayout({ children }) {
+
+  const [selectedTopMenu, setSelectedTopMenu] = useState('dashboard');
+  const [selectedSubMenu, setSelectedSubMenu] = useState(null);
+
+  const { data: menus, isLoading, isError } = useQuery(['menus'], fetchMenus);
+  
+  const handleTopMenuClick = (menu) => {
+    setSelectedTopMenu(menu);
+    setSelectedSubMenu(menus[menu]?.[0] || null)
+  }
+
+  useEffect(() => {
+    if (menus) {
+      const firstMenu = Object.keys(menus)[0];
+      setSelectedTopMenu(firstMenu);
+      setSelectedSubMenu(menus[firstMenu]?.[0] || null);
+    }
+  }, [menus]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>로딩 실패</div>;
+
+  return (
+    <div className="main-layout">
+      <Header
+        selectedTopMenu={selectedTopMenu}
+        onTopMenuClick={handleTopMenuClick}
+        menus={menus}
+      />
+      <Sidebar
+        selectedTopMenu={selectedTopMenu}
+        selectedSubMenu={selectedSubMenu}
+        onSubClick={setSelectedSubMenu}
+        menus={menus}
+      />
+      <main className="main-content">
+        {children}
+      </main>
+    </div>
+  );
+}

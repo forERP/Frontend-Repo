@@ -1,0 +1,22 @@
+.main-layout {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-body {
+    flex: 1;
+    display: flex;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #f4f6f8;
+    border-right: 1px solid #ddd;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
