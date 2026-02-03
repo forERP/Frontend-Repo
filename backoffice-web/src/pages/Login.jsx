@@ -1,7 +1,7 @@
 import { login } from '../api/authApi'
 
 export default function Login() {
-  
+
   const handleLogin = async () => {
     await login({ id, password })
   }
