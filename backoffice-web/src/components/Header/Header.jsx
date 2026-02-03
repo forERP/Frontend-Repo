@@ -2,7 +2,7 @@ import React from 'react';
 import './Header.css';
 
 export default function Header({ selectedTopMenu, onTopMenuClick, menus }) {
-  const topMenus = Object.keys(menus).filter(menu => menu !== 'Dashboard');
+  const topMenus = Object.keys(menus).filter(menu => menu !== 'Dashboard'); // 오른쪽 메뉴
 
   return (
     <header className="header">
@@ -16,7 +16,7 @@ export default function Header({ selectedTopMenu, onTopMenuClick, menus }) {
       </div>
 
       <div className="header-right">
-        <nav>
+        <div className="right-menu-wrapper">
           {topMenus.map((menu) => (
             <button
               key={menu}
@@ -26,7 +26,7 @@ export default function Header({ selectedTopMenu, onTopMenuClick, menus }) {
               {menu}
             </button>
           ))}
-        </nav>
+        </div>
       </div>
     </header>
   );
