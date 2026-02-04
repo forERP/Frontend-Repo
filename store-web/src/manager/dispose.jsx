@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import "../pages/Menu/menu.css";
+import "../pages/Menu/Menu.css";
 
 /* ===============================
    메뉴 데이터 (가격 추가)
