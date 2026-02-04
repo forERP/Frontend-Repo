@@ -106,7 +106,7 @@ export default function ReceiptPage() {
                     <p className="total">
                         총 금액 : {selected.amount.toLocaleString()}원
                     </p>
-                    
+
                     {/* 🔥 하단 고정 영역 */}
                     <div className="receipt-bottom">
                         <button className="print-btn">

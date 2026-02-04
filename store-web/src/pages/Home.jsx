@@ -28,7 +28,7 @@ export default function MenuButtons() {
       {/* 하단 2개 버튼 */}
       <div className="menu-bottom">
         <button className="menu-btn admin" onClick={() => navigate("/manager")}>⚙️<span>관리자</span></button>
-        <button className="menu-btn close">🔒<span>마감</span></button>
+        <button className="menu-btn close" onClick={() => navigate("/closed")}>🔒<span>마감</span></button>
       </div>
     </div>
 
