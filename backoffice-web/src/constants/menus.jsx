@@ -103,7 +103,7 @@ export const menus = [
 
     {
         key: 'purchase-inbound',
-        label: '발주/입고/배송',
+        label: '발주/입고',
         permissionCode: 'PURCHASE_INBOUND_MENU',
         children: [
             {
@@ -125,20 +125,15 @@ export const menus = [
                 children: [
                     { key: 'inbound-process', label: '입고 처리', path: '/inbounds/process' },
                     { key: 'inbound-history', label: '입고 이력', path: '/inbounds' },
+                    { key: 'inbound-delivery', label: '입고 배송 정보', path: '/inbounds/deliveries' },
                 ],
-            },
-            {
-                key: 'delivery',
-                label: '배송 정보',
-                path: '/deliveries',
-                permissionCode: 'DELIVERY_VIEW',
             },
         ],
     },
 
     {
         key: 'order-shipment',
-        label: '주문/출고/배송',
+        label: '주문/출고',
         permissionCode: 'ORDER_SHIPMENT_MENU',
         children: [
             {
@@ -159,13 +154,8 @@ export const menus = [
                 children: [
                     { key: 'shipment-process', label: '출고 처리', path: '/shipments/process' },
                     { key: 'shipment-history', label: '출고 이력', path: '/shipments' },
+                    { key: 'shipment-delivery', label: '출고 배송 정보', path: '/shipments/deliveries' },
                 ],
-            },
-            {
-                key: 'delivery',
-                label: '배송 정보',
-                path: '/deliveries',
-                permissionCode: 'DELIVERY_VIEW',
             },
         ],
     },

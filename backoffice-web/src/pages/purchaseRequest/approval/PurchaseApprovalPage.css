@@ -1,0 +1,127 @@
+.purchase-detail-page {
+    padding: 20px;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.status-change-wrapper {
+    margin-left: auto;
+    /* 오른쪽 끝 배치 */
+    position: relative;
+}
+
+.approval-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.approval-table th,
+.approval-table td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.status-wrapper {
+    position: relative;
+}
+
+.status-btn {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    min-width: 70px;
+}
+
+.status-btn.pending {
+    background-color: #0062d3;
+    color: white;
+}
+
+.status-btn.approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-btn.rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* 비활성화는 클릭만 막고 색상 유지 */
+.status-btn:disabled {
+    cursor: not-allowed;
+}
+
+/* 상태 메뉴 */
+.status-menu {
+    position: absolute;
+    /* 표와 독립적으로 */
+    top: 100%;
+    /* 부모 버튼 바로 아래 */
+    left: 0;
+    /* 왼쪽 정렬 */
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    /* 버튼 세로 정렬 */
+}
+
+.status-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    background: transparent;
+    /* 흰색 배경 제거 */
+    border: none;
+    /* 테두리 제거 */
+    padding: 0;
+    /* 패딩 제거 */
+}
+
+/* 메뉴 안 버튼 */
+.status-menu .status-btn {
+    padding: 5px 12px;
+    min-width: 70px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+    /* 버튼 사이 간격 제거 */
+}
+
+/* 색상 적용 */
+.status-menu .status-btn.pending {
+    background-color: #0062d3;
+}
+
+.status-menu .status-btn.approved {
+    background-color: #28a745;
+}
+
+.status-menu .status-btn.rejected {
+    background-color: #dc3545;
+}
+
+/* 호버 */
+.status-menu .status-btn:hover {
+    filter: brightness(1.1);
+}
