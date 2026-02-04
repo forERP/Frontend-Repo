@@ -1,9 +1,9 @@
 .header {
     display: flex;
     align-items: center;
-    background-color: #0d47a1; /* 기존 색상 */
+    background-color: #0d47a1;
     padding: 0 16px;
-    height: 60px; /* 최근 버전 높이 유지 */
+    height: 60px;
     color: white;
 }
 
@@ -11,8 +11,8 @@
     background: none;
     border: none;
     color: white;
-    padding: 8px 12px; /* 최근 버전 */
-    font-size: 16px; /* 최근 버전 */
+    padding: 8px 12px;
+    font-size: 16px;
     cursor: pointer;
     border-radius: 4px;
     transition: background 0.2s ease;
@@ -28,8 +28,8 @@
 
 .header-right {
     display: flex;
-    flex: 1; 
-    justify-content: center; 
+    flex: 1;
+    justify-content: center;
     align-items: center;
 }
 

@@ -1,32 +1,33 @@
 import React from 'react';
 import './Header.css';
 
-export default function Header({ selectedTopMenu, onTopMenuClick, menus }) {
-  const topMenus = Object.keys(menus).filter(menu => menu !== 'Dashboard'); // 오른쪽 메뉴
+export default function Header({ menus, activeTopKey, onTopMenuClick }) {
+  const dashboard = menus.find(m => m.key === 'dashboard');
+  const restMenus = menus.filter(m => m.key !== 'dashboard');
 
   return (
     <header className="header">
       <div className="header-left">
-        <button
-          className={selectedTopMenu === 'Dashboard' ? 'active' : ''}
-          onClick={() => onTopMenuClick('Dashboard')}
-        >
-          Dashboard
-        </button>
+        {dashboard && (
+          <button
+            className={activeTopKey === dashboard.key ? 'active' : ''}
+            onClick={() => onTopMenuClick(dashboard.key)}
+          >
+            {dashboard.label}
+          </button>
+        )}
       </div>
 
       <div className="header-right">
-        <div className="right-menu-wrapper">
-          {topMenus.map((menu) => (
-            <button
-              key={menu}
-              className={selectedTopMenu === menu ? 'active' : ''}
-              onClick={() => onTopMenuClick(menu)}
-            >
-              {menu}
-            </button>
-          ))}
-        </div>
+        {restMenus.map(menu => (
+          <button
+            key={menu.key}
+            className={activeTopKey === menu.key ? 'active' : ''}
+            onClick={() => onTopMenuClick(menu.key)}
+          >
+            {menu.label}
+          </button>
+        ))}
       </div>
     </header>
   );

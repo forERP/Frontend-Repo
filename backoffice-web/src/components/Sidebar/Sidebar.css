@@ -5,7 +5,7 @@
     border-right: 1px solid #ddd;
     padding: 12px 8px;
     transition: width 0.2s ease;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .sidebar.closed {
@@ -31,63 +31,67 @@
     width: 100%;
     background-color: #1976d2;
     border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.sidebar-toggle .bar.open:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-}
-
-.sidebar-toggle .bar.open:nth-child(2) {
-    opacity: 0;
-}
-
-.sidebar-toggle .bar.open:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
 }
 
 .sidebar-menu {
     list-style: none;
     padding: 0;
-    margin: 40px 0 0 0;
+    margin: 0;
 }
 
-.sidebar-btn {
-    width: 100%;
+.sidebar>.sidebar-menu {
+    margin-top: 50px;
+}
+
+.sidebar-item {
+    margin: 1px 0;
+}
+
+.sidebar-label {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 10px 12px;
-    background: none;
-    border: none;
+    padding: 6px 12px;
     cursor: pointer;
+    user-select: none;
+    border-radius: 6px;
     font-size: 14px;
     color: #333;
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.sidebar-btn:hover {
+.sidebar-label:hover {
     background-color: #e3f2fd;
     color: #1976d2;
 }
 
-.sidebar-btn.active {
-    background-color: #e3f2fd;
-    color: #1976d2;
-    font-weight: 600;
+.sidebar-label.depth-0 {
+    font-weight: 700;
+}
+
+.sidebar-label.depth-1 {
+    padding-left: 18px;
+    font-weight: 400;
+}
+
+.sidebar-label.depth-2 {
+    padding-left: 28px;
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #555;
     position: relative;
 }
 
-.sidebar-btn.active::before {
-    content: '';
+.sidebar-label.depth-2::before {
+    content: '•';
     position: absolute;
-    left: 0;
-    top: 6px;
-    bottom: 6px;
-    width: 4px;
-    background-color: #1976d2;
-    border-radius: 2px;
+    left: 18px;
+    color: #999;
+}
+
+.sidebar-label.depth-3 {
+    padding-left: 38px;
+    font-size: 13px;
+    color: #666;
 }
 
 .sidebar.closed .sidebar-menu {
