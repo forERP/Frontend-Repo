@@ -72,3 +72,11 @@
   background-color: #c62828;
   color: #fff;
 }
+
+.key.back {
+  grid-column: span 3;
+  /* 한 줄 전체 사용 */
+  background: #444;
+  color: white;
+  font-weight: bold;
+}

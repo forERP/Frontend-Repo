@@ -1,0 +1,108 @@
+.receipt-layout {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 5fr 5fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+/* 왼쪽 */
+.receipt-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 100px;
+    gap: 10px;
+    flex: 1;
+}
+
+.receipt-cell {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+.receipt-cell.active {
+    background: #222;
+    color: white;
+}
+
+.pagination {
+    text-align: center;
+    padding: 10px;
+}
+
+/* 오른쪽 */
+.receipt-right {
+    border-left: 2px solid #ddd;
+    padding: 20px;
+}
+
+.detail {
+    margin-top: 10px;
+}
+
+.item-row {
+    padding: 4px 0;
+}
+
+.total {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.receipt-right {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 내용 영역 */
+.detail {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+/* ===================== */
+/* 하단 고정 바 */
+/* ===================== */
+.receipt-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 5:5 */
+    height: 70px;
+    gap: 8px;
+}
+
+/* 버튼 공통 */
+.receipt-bottom button {
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+/* 인쇄 */
+.print-btn {
+    background: #666;
+    color: white;
+}
+
+/* 돌아가기 */
+.back-btn {
+    background: #222;
+    color: white;
+}
