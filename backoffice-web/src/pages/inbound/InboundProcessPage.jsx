@@ -1,18 +1,25 @@
 import { useEffect, useState } from 'react';
+import api from '../../lib/api';
 import './InboundProcessPage.css';
 
 export default function InboundProcessPage() {
     const [purchaseOrders, setPurchaseOrders] = useState([]);
     const [selectedPO, setSelectedPO] = useState(null);
     const [receivedItems, setReceivedItems] = useState({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // TODO: API 연동 예정
-        // const res = await fetch(...)
-        // setPurchaseOrders(res.data ?? []);
-
-        setPurchaseOrders([]);
+        fetchPurchaseOrders();
     }, []);
+
+    const fetchPurchaseOrders = async () => {
+        try {
+            const { data } = await api.get('/api/purchase-orders?status=CREATED');
+            setPurchaseOrders(data ?? []);
+        } catch (err) {
+            console.error('발주 목록 조회 실패', err);
+        }
+    };
 
     const handleSelectPO = (po) => {
         if (!po) return;
@@ -33,21 +40,51 @@ export default function InboundProcessPage() {
         }));
     };
 
-    const handleConfirmInbound = () => {
+    const handleConfirmInbound = async () => {
         if (!selectedPO) return;
 
         const payload = {
             purchaseOrderId: selectedPO.id,
+            storeId: selectedPO.storeId,
+            warehouseId: selectedPO.warehouseId ?? 1,
             items: (selectedPO.items ?? []).map(item => ({
                 productId: item.productId,
-                receivedQty: receivedItems[item.productId] ?? 0,
+                qty: receivedItems[item.productId] ?? 0,
+                unitCost: item.unitCost ?? 0,
             })),
         };
 
-        console.log('입고 처리 payload', payload);
+        try {
+            setLoading(true);
+            const { data } = await api.post('/api/inbounds', payload);
+            console.log('입고 처리 완료', data);
 
-        setSelectedPO(null);
-        setReceivedItems({});
+            setSelectedPO(null);
+            setReceivedItems({});
+            fetchPurchaseOrders();
+        } catch (err) {
+            console.error('입고 처리 실패', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancelInbound = async () => {
+        if (!selectedPO) return;
+
+        try {
+            setLoading(true);
+            await api.post(`/api/inbounds/${selectedPO.id}/cancel`);
+            console.log('입고 취소 완료');
+
+            setSelectedPO(null);
+            setReceivedItems({});
+            fetchPurchaseOrders();
+        } catch (err) {
+            console.error('입고 취소 실패', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -102,6 +139,7 @@ export default function InboundProcessPage() {
                                                 onChange={(e) =>
                                                     handleQtyChange(item.productId, e.target.value)
                                                 }
+                                                disabled={loading}
                                             />
                                         </td>
                                     </tr>
@@ -110,8 +148,20 @@ export default function InboundProcessPage() {
                         </table>
 
                         <div className="actions">
-                            <button className="confirm-btn" onClick={handleConfirmInbound}>
-                                입고 확정
+                            <button
+                                className="confirm-btn"
+                                onClick={handleConfirmInbound}
+                                disabled={loading}
+                            >
+                                {loading ? '처리중...' : '입고 확정'}
+                            </button>
+
+                            <button
+                                className="cancel-btn"
+                                onClick={handleCancelInbound}
+                                disabled={loading}
+                            >
+                                입고 취소
                             </button>
                         </div>
                     </section>
