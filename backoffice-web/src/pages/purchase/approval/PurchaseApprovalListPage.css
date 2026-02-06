@@ -1,0 +1,57 @@
+.purchase-page {
+    padding: 20px;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.erp-table th,
+.erp-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.status-action {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.status-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.action-buttons button {
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.action-buttons .approve {
+    background: #2e7d32;
+    color: white;
+    border: none;
+}
+
+.action-buttons .reject {
+    background: #c62828;
+    color: white;
+    border: none;
+}

@@ -11,6 +11,8 @@ import PurchaseRequestListPage from '../pages/purchase/request/PurchaseRequestLi
 import PurchaseRequestDetailPage from '../pages/purchase/request/PurchaseRequestDetailPage.jsx'
 import PurchaseRequestFormPage from '../pages/purchase/request/PurchaseRequestFormPage.jsx'
 
+import PurchaseApprovalListPage from '../pages/purchase/approval/PurchaseApprovalListPage.jsx'
+
 import InboundProcessPage from '../pages/inbound/InboundProcessPage.jsx';
 import InboundShipmentPage from '../pages/inbound/InboundShipmentPage.jsx';
 import InboundHistoryPage from '../pages/inbound/InboundHistoryPage.jsx';
@@ -26,6 +28,8 @@ export default function AppRouter() {
           <Route path="/purchases/requests" element={<PurchaseRequestListPage />} />
           <Route path="/purchases/requests/:id" element={<PurchaseRequestDetailPage />} />
           <Route path="/purchases/requests/new" element={<PurchaseRequestFormPage />} />
+
+          <Route path="/purchases/approvals" element={<PurchaseApprovalListPage />} />
 
           <Route path="/inbounds/process" element={<InboundProcessPage />} />
           <Route path="/inbounds/shipment" element={<InboundShipmentPage />} />
