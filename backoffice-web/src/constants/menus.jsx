@@ -124,8 +124,8 @@ export const menus = [
                 permissionCode: 'INBOUND_MENU',
                 children: [
                     { key: 'inbound-process', label: '입고 처리', path: '/inbounds/process' },
-                    { key: 'inbound-history', label: '입고 이력', path: '/inbounds' },
-                    { key: 'inbound-delivery', label: '입고 배송 정보', path: '/inbounds/deliveries' },
+                    { key: 'inbound-history', label: '입고 이력', path: '/inbounds/history' },
+                    { key: 'inbound-delivery', label: '입고 배송 정보', path: '/inbounds/shipment' },
                 ],
             },
         ],
