@@ -1,64 +1,43 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../lib/api';
-import PurchaseRequestFormPage from './PurchaseRequestFormPage';
-import PurchaseRequestDetailPage from './PurchaseRequestDetailPage';
-import { STATUS_LABEL, getMenuOptions } from '../../../constants/status';
+import { STATUS_LABEL } from '../../../constants/status';
 import './PurchaseRequestListPage.css';
+import './purchase.css';
 
-export default function PurchaseRequestPage({ storeId }) {
+export default function RequestsPage({ storeId }) {
+    const navigate = useNavigate();
     const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
     const [searchNo, setSearchNo] = useState('');
-    const [page, setPage] = useState(0);
-    const [size] = useState(20);
-
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const [showForm, setShowForm] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const fetchRequests = async () => {
         setLoading(true);
         try {
-            const params = {
-                storeId,
-                status: statusFilter || undefined,
-                page,
-                size,
-            };
+            const params = { storeId, status: statusFilter || undefined, page: 0, size: 20 };
             if (searchNo) params.purchaseRequestId = searchNo;
-
             const { data } = await api.get('/api/purchase-requests', { params });
             setRequests(data.content);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchRequests(); }, [statusFilter, searchNo, page]);
+    useEffect(() => { fetchRequests(); }, [statusFilter, searchNo]);
 
     return (
-        <div className="purchase-request-page">
+        <div className="purchase-page">
             <h1>발주 요청</h1>
 
             <div className="filter-bar">
-                <input
-                    placeholder="요청 번호 검색"
-                    value={searchNo}
-                    onChange={e => setSearchNo(e.target.value)}
-                />
-                <select
-                    value={statusFilter}
-                    onChange={e => setStatusFilter(e.target.value)}
-                >
+                <input placeholder="요청 번호 검색" value={searchNo} onChange={e => setSearchNo(e.target.value)} />
+                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
                     <option value="">전체</option>
-                    {Object.entries(STATUS_LABEL).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                    ))}
+                    {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
-                <button onClick={() => setShowForm(true)}>발주 요청 생성</button>
+                <button onClick={() => navigate('/purchases/requests/new')}>발주 요청 생성</button>
             </div>
 
-            <table className="request-table">
+            <table className="erp-table">
                 <thead>
                     <tr>
                         <th>요청번호</th>
@@ -78,30 +57,12 @@ export default function PurchaseRequestPage({ storeId }) {
                             <td>{r.purchaseRequestId}</td>
                             <td>{new Date(r.createdAt).toLocaleString()}</td>
                             <td>{r.storeName || '매장명 없음'}</td>
-                            <td>
-                                <button onClick={() => setSelectedRequest(r.purchaseRequestId)}>
-                                    보기
-                                </button>
-                            </td>
-                            <td>{STATUS_LABEL[r.status] || r.status}</td>
+                            <td><button onClick={() => navigate(`/purchases/requests/${r.purchaseRequestId}`)}>보기</button></td>
+                            <td>{STATUS_LABEL[r.status]}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-
-            {showForm && (
-                <PurchaseRequestFormPage
-                    storeId={storeId}
-                    onClose={() => { setShowForm(false); fetchRequests(); }}
-                />
-            )}
-
-            {selectedRequest && (
-                <PurchaseRequestDetailPage
-                    purchaseRequestId={selectedRequest}
-                    onClose={() => setSelectedRequest(null)}
-                />
-            )}
         </div>
     );
 }
