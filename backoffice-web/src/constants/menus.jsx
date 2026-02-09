@@ -16,12 +16,6 @@ export const menus = [
                 label: '매장 목록',
                 path: '/stores',
                 permissionCode: 'STORE_LIST_VIEW',
-            },
-            {
-                key: 'store-detail',
-                label: '매장 상세',
-                collapsible: true,
-                permissionCode: 'STORE_DETAIL_MENU',
                 children: [
                     {
                         key: 'store-basic',
