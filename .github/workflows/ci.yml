@@ -52,3 +52,57 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker-backoffice:
+    if: github.ref == 'refs/heads/develop'
+    needs: build-backoffice
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backoffice image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backoffice-web
+          file: ./backoffice-web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/forERP/Frontend-Repo/backoffice-web:dev
+
+  docker-store:
+    if: github.ref == 'refs/heads/develop'
+    needs: build-store
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push store image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./store-web
+          file: ./store-web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/forERP/Frontend-Repo/store-web:dev
