@@ -13,7 +13,7 @@ export default function InboundShipmentPage() {
     const fetchInbounds = async () => {
         try {
             setLoading(true);
-            const { data } = await api.get('/api/inbounds?status=CREATED'); // 배송 전 + 진행중
+            const { data } = await api.get('/api/inbounds?status=CREATED'); 
             setInbounds(data.content ?? []);
         } catch (err) {
             console.error('입고 목록 조회 실패', err);
