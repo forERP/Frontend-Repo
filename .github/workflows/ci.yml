@@ -78,7 +78,7 @@ jobs:
           file: ./backoffice-web/Dockerfile
           push: true
           tags: |
-            ghcr.io/forERP/Frontend-Repo/backoffice-web:dev
+            ghcr.io/forerp/frontend-repo/backoffice-web:dev
 
   docker-store:
     if: github.ref == 'refs/heads/develop'
@@ -105,4 +105,4 @@ jobs:
           file: ./store-web/Dockerfile
           push: true
           tags: |
-            ghcr.io/forERP/Frontend-Repo/store-web:dev
+            ghcr.io/forerp/frontend-repo/store-web:dev
