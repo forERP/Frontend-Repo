@@ -13,27 +13,27 @@ export const menus = [
         children: [
             {
                 key: 'store-list',
-                label: '매장 목록',
+                label: '매장 관리',
                 path: '/stores',
                 permissionCode: 'STORE_LIST_VIEW',
                 children: [
                     {
                         key: 'store-basic',
-                        label: '기본 정보',
-                        path: '/stores/:id/basic',
-                        permissionCode: 'STORE_BASIC_VIEW',
+                        label: '매장 목록',
+                        path: '/stores/list',
+                        permissionCode: 'STORE_LIST_VIEW',
                     },
                     {
                         key: 'store-status',
-                        label: '운영 상태',
-                        path: '/stores/:id/status',
-                        permissionCode: 'STORE_STATUS_UPDATE',
+                        label: '매장 신규 등록',
+                        path: '/stores/create',
+                        permissionCode: 'STORE_CREATE',
                     },
                     {
                         key: 'store-summary',
-                        label: '운영 현황',
-                        path: '/stores/:id/summary',
-                        permissionCode: 'STORE_SUMMARY_VIEW',
+                        label: '매장 상세 정보',
+                        path: '/stores/:id',
+                        permissionCode: 'STORE_DETAIL_VIEW',
                     },
                 ],
             },
