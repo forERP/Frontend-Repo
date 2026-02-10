@@ -110,7 +110,12 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/purchase-requests/:id" element={<PurchaseRequestDetail />} />
           <Route path="/purchase-orders" element={<PurchaseOrders />} />
           <Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
+          
+          {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
+          <Route path="/inbounds/process" element={<InboundProcessPage />} />
+          <Route path="/inbounds/shipment" element={<InboundShipmentPage />} />
+          <Route path="/inbounds/history" element={<InboundHistoryPage />} />
           <Route path="/inbounds/:id" element={<InboundDetail />} />
 
           {/* Order Routes */}
