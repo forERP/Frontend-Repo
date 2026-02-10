@@ -1,5 +1,5 @@
 ## 빌드 스테이지: Vite React 앱 빌드
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
