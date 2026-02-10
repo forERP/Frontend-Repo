@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar/Sidebar';
 import { menus } from '../constants/menus';
 import './MainLayout.css';
 
-export default function MainLayout() {
+export default function MainLayout({ user }) {
   const [activeTopKey, setActiveTopKey] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -33,6 +33,7 @@ export default function MainLayout() {
   return (
     <div className="main-layout">
       <Header
+        user={user}
         menus={menus}
         activeTopKey={activeTopKey}
         onTopMenuClick={handleTopMenuClick}
