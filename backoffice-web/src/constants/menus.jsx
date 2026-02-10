@@ -114,7 +114,7 @@ export const menus = [
                 children: [
                     { key: 'purchase-request', label: '발주 요청', path: '/purchases/requests' },
                     { key: 'purchase-approve', label: '발주 승인', path: '/purchases/approvals' },
-                    { key: 'purchase-history', label: '발주 이력', path: '/purchases' },
+                    { key: 'purchase-history', label: '발주 이력', path: '/purchases/history' },
                 ],
             },
             {
