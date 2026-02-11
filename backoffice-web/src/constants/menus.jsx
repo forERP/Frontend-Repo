@@ -22,9 +22,18 @@ export const menus = [
         label: '매장/창고',
         permissionCode: 'STORE_MENU',
         children: [
-            { key: 'store-list', label: '매장 목록', path: '/stores', permissionCode: 'STORE_LIST_VIEW' },
-            { key: 'store-detail', label: '매장 상세', path: '/stores/:id', hidden: true, permissionCode: 'STORE_DETAIL_VIEW' },
-            { key: 'warehouses', label: '창고 관리', path: '/warehouses', permissionCode: 'WAREHOUSE_VIEW' },
+            {
+                key: 'store-list', 
+                label: '매장 관리', 
+                path: '/stores', 
+                permissionCode: 'STORE_LIST_VIEW', 
+                children: [
+                    { key: 'store-basic', label: '매장 목록', path: '/stores/list', permissionCode: 'STORE_LIST_VIEW' },
+                    { key: 'store-summary', label: '매장 상세', path: '/stores/:id', hidden: true, permissionCode: 'STORE_DETAIL_VIEW' },
+                    { key: 'store-status', label: '매장 신규 등록', path: '/stores/create', permissionCode: 'STORE_CREATE' },
+                    { key: 'warehouses', label: '창고 관리', path: '/warehouses', permissionCode: 'WAREHOUSE_VIEW' },
+                ],
+            },
         ],
     },
 

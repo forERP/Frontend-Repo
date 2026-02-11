@@ -1,0 +1,45 @@
+.store-create-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.store-create-page h1 {
+    margin-bottom: 20px;
+}
+
+.store-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+}
+
+.store-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.store-form input,
+.store-form select {
+    margin-top: 5px;
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.store-form button {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.store-form button:hover {
+    background-color: #115293;
+}
