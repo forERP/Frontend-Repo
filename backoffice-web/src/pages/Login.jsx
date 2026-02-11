@@ -7,19 +7,19 @@ import "./Login.css";
 export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [credentials, setCredentials] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.username || !form.password) {
+    if (!credentials.identifier || !credentials.password) {
       setError("아이디와 비밀번호를 입력하세요.");
       return;
     }
@@ -28,9 +28,17 @@ export default function LoginPage({ setUser }) {
       setLoading(true);
       setError("");
 
-      const user = await login(form);
-      setUser?.(user);
+      const response = await login(credentials);
+      
+      // 로그인 성공 시 사용자 정보 저장
+      if (setUser) {
+        setUser({
+          userId: response.userId,
+          role: response.role,
+        });
+      }
 
+      // 대시보드로 이동
       navigate("/");
     } catch (err) {
       setError(err.message || "로그인에 실패했습니다.");
@@ -50,25 +58,27 @@ export default function LoginPage({ setUser }) {
         <h1>로그인</h1>
 
         <input
-          name="username"
+          name="identifier"
           placeholder="아이디"
-          value={form.username}
+          value={credentials.identifier}
           onChange={onChange}
           autoComplete="username"
+          disabled={loading}
         />
 
         <input
           type="password"
           name="password"
           placeholder="비밀번호"
-          value={form.password}
+          value={credentials.password}
           onChange={onChange}
           autoComplete="current-password"
+          disabled={loading}
         />
 
         {error && <p className="error">{error}</p>}
 
-        <button disabled={loading}>
+        <button type="submit" disabled={loading}>
           {loading ? "로그인 중..." : "로그인"}
         </button>
       </motion.form>
