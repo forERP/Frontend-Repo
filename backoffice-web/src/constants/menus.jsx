@@ -22,18 +22,10 @@ export const menus = [
         label: '매장/창고',
         permissionCode: 'STORE_MENU',
         children: [
-            {
-                key: 'store-list', 
-                label: '매장 관리', 
-                path: '/stores', 
-                permissionCode: 'STORE_LIST_VIEW', 
-                children: [
-                    { key: 'store-basic', label: '매장 목록', path: '/stores/list', permissionCode: 'STORE_LIST_VIEW' },
-                    { key: 'store-summary', label: '매장 상세', path: '/stores/:id', hidden: true, permissionCode: 'STORE_DETAIL_VIEW' },
-                    { key: 'store-status', label: '매장 신규 등록', path: '/stores/create', permissionCode: 'STORE_CREATE' },
-                    { key: 'warehouses', label: '창고 관리', path: '/warehouses', permissionCode: 'WAREHOUSE_VIEW' },
-                ],
-            },
+            { key: 'store-list', label: '매장 목록', path: '/stores', permissionCode: 'STORE_LIST_VIEW' },
+            { key: 'store-create', label: '매장 등록', path: '/stores/create', permissionCode: 'STORE_CREATE' },
+            { key: 'store-detail', label: '매장 상세', path: '/stores/:id', hidden: true, permissionCode: 'STORE_DETAIL_VIEW' },
+            { key: 'warehouses', label: '창고 관리', path: '/warehouses', permissionCode: 'WAREHOUSE_VIEW' },
         ],
     },
 
@@ -56,12 +48,10 @@ export const menus = [
         children: [
             { key: 'purchase-requests', label: '발주 요청', path: '/purchase-requests', permissionCode: 'PURCHASE_REQUEST_VIEW' },
             { key: 'purchase-request-detail', label: '발주 요청 상세', path: '/purchase-requests/:id', hidden: true, permissionCode: 'PURCHASE_REQUEST_VIEW' },
-            { key: 'purchase-orders', label: '발주서(작성/승인)', path: '/purchase-orders', permissionCode: 'PURCHASE_ORDER_VIEW' },
+            { key: 'purchase-request-form', label: '발주 요청 작성', path: '/purchase-requests/new', hidden: true, permissionCode: 'PURCHASE_REQUEST_CREATE' },
+            { key: 'purchase-orders', label: '발주', path: '/purchase-orders', permissionCode: 'PURCHASE_ORDER_VIEW' },
             { key: 'purchase-order-detail', label: '발주 상세', path: '/purchase-orders/:id', hidden: true, permissionCode: 'PURCHASE_ORDER_VIEW' },
-            { key: 'inbound-list', label: '입고 목록', path: '/inbounds', permissionCode: 'INBOUND_VIEW' },
-            { key: 'inbound-process', label: '입고 처리', path: '/inbounds/process', permissionCode: 'INBOUND_VIEW' },
-            { key: 'inbound-shipment', label: '배송 정보', path: '/inbounds/shipment', permissionCode: 'INBOUND_VIEW' },
-            { key: 'inbound-history', label: '입고 이력', path: '/inbounds/history', permissionCode: 'INBOUND_VIEW' },
+            { key: 'inbounds', label: '입고', path: '/inbounds', permissionCode: 'INBOUND_VIEW' },
             { key: 'inbound-detail', label: '입고 상세', path: '/inbounds/:id', hidden: true, permissionCode: 'INBOUND_VIEW' },
         ],
     },

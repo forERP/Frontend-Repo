@@ -12,13 +12,9 @@ import ProductList from '../pages/products/ProductList.jsx';
 import ProductForm from '../pages/products/ProductForm.jsx';
 import ProductDetail from '../pages/products/ProductDetail.jsx';
 
-// 새 
-import StoreListPage from '../pages/store/StoreListPage';
-import StoreCreatePage from '../pages/store/StoreCreatePage';
-import StoreDetailPage from '../pages/store/StoreDetailPage';
-
 // Store Pages
 import StoreList from '../pages/stores/StoreList.jsx';
+import StoreCreate from '../pages/stores/StoreCreate.jsx';
 import StoreDetail from '../pages/stores/StoreDetail.jsx';
 import WarehouseList from '../pages/warehouses/WarehouseList.jsx';
 
@@ -29,10 +25,13 @@ import InventoryAdjust from '../pages/inventory/InventoryAdjust.jsx';
 import InventoryLogs from '../pages/inventory/InventoryLogs.jsx';
 
 // Purchase Pages
-import PurchaseRequests from '../pages/purchase/PurchaseRequests.jsx';
-import PurchaseRequestDetail from '../pages/purchase/PurchaseRequestDetail.jsx';
-import PurchaseOrders from '../pages/purchase/PurchaseOrders.jsx';
-import PurchaseOrderDetail from '../pages/purchase/PurchaseOrderDetail.jsx';
+import PurchaseRequestListPage from '../pages/purchase/request/PurchaseRequestListPage.jsx';
+import PurchaseRequestDetailPage from '../pages/purchase/request/PurchaseRequestDetailPage.jsx';
+import PurchaseRequestFormPage from '../pages/purchase/request/PurchaseRequestFormPage.jsx';
+import PurchaseApprovalListPage from '../pages/purchase/approval/PurchaseApprovalListPage.jsx';
+import PurchaseApprovalDetailPage from '../pages/purchase/approval/PurchaseApprovalDetailPage.jsx';
+import PurchaseHistoryListPage from '../pages/purchase/history/PurchaseHistoryListPage.jsx';
+import PurchaseHistoryDetailPage from '../pages/purchase/history/PurchaseHistoryDetailPage.jsx';
 import Inbounds from '../pages/purchase/Inbounds.jsx';
 import InboundDetail from '../pages/purchase/InboundDetail.jsx';
 
@@ -71,19 +70,6 @@ import InventoryLog from '../pages/historylogs/InventoryLog.jsx';
 import Suppliers from '../pages/settings/Suppliers.jsx';
 import Roles from '../pages/settings/Roles.jsx';
 
-// Legacy Pages (keeping for backward compatibility)
-import PurchaseRequestListPage from '../pages/purchase/request/PurchaseRequestListPage.jsx'
-import PurchaseRequestDetailPage from '../pages/purchase/request/PurchaseRequestDetailPage.jsx'
-import PurchaseRequestFormPage from '../pages/purchase/request/PurchaseRequestFormPage.jsx'
-import PurchaseApprovalListPage from '../pages/purchase/approval/PurchaseApprovalListPage.jsx'
-import PurchaseApprovalDetailPage from '../pages/purchase/approval/PurchaseApprovalDetailPage.jsx'
-import PurchaseHistoryListPage from '../pages/purchase/history/PurchaseHistoryListPage.jsx'
-import PurchaseHistoryDetailPage from '../pages/purchase/history/PurchaseHistoryDetailPage.jsx'
-
-import InboundProcessPage from '../pages/inbound/InboundProcessPage.jsx';
-import InboundShipmentPage from '../pages/inbound/InboundShipmentPage.jsx';
-import InboundHistoryPage from '../pages/inbound/InboundHistoryPage.jsx';
-
 export default function AppRouter({ user, setUser }) {
   return (
     <Routes>
@@ -92,10 +78,6 @@ export default function AppRouter({ user, setUser }) {
           {/* Dashboard */}
           <Route path="/" element={<Home />} />
 
-          // 새 
-          <Route path="/stores/list" element={<StoreListPage />} />
-          <Route path="/stores/create" element={<StoreCreatePage />} />
-          <Route path="/stores/:storeId" element={<StoreDetailPage />} />
           {/* Product Routes */}
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/new" element={<ProductForm />} />
@@ -103,6 +85,7 @@ export default function AppRouter({ user, setUser }) {
 
           {/* Store Routes */}
           <Route path="/stores" element={<StoreList />} />
+          <Route path="/stores/create" element={<StoreCreate />} />
           <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/warehouses" element={<WarehouseList />} />
 
@@ -113,16 +96,16 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/inventory/logs" element={<InventoryLogs />} />
 
           {/* Purchase Routes */}
-          <Route path="/purchase-requests" element={<PurchaseRequests />} />
-          <Route path="/purchase-requests/:id" element={<PurchaseRequestDetail />} />
-          <Route path="/purchase-orders" element={<PurchaseOrders />} />
-          <Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
+          <Route path="/purchase-requests" element={<PurchaseRequestListPage />} />
+          <Route path="/purchase-requests/new" element={<PurchaseRequestFormPage />} />
+          <Route path="/purchase-requests/:id" element={<PurchaseRequestDetailPage />} />
+          <Route path="/purchase-approvals" element={<PurchaseApprovalListPage />} />
+          <Route path="/purchase-approvals/:id" element={<PurchaseApprovalDetailPage />} />
+          <Route path="/purchase-orders" element={<PurchaseHistoryListPage />} />
+          <Route path="/purchase-orders/:id" element={<PurchaseHistoryDetailPage />} />
           
           {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
-          <Route path="/inbounds/process" element={<InboundProcessPage />} />
-          <Route path="/inbounds/shipment" element={<InboundShipmentPage />} />
-          <Route path="/inbounds/history" element={<InboundHistoryPage />} />
           <Route path="/inbounds/:id" element={<InboundDetail />} />
 
           {/* Order Routes */}
@@ -159,20 +142,6 @@ export default function AppRouter({ user, setUser }) {
           {/* Settings Routes */}
           <Route path="/settings/suppliers" element={<Suppliers />} />
           <Route path="/settings/roles" element={<Roles />} />
-
-          {/* Legacy Purchase Routes (for backward compatibility) */}
-          <Route path="/purchases/requests" element={<PurchaseRequestListPage />} />
-          <Route path="/purchases/requests/:id" element={<PurchaseRequestDetailPage />} />
-          <Route path="/purchases/requests/new" element={<PurchaseRequestFormPage />} />
-
-          <Route path="/purchases/approvals" element={<PurchaseApprovalListPage />} />
-          <Route path="/purchases/approvals/:id" element={<PurchaseApprovalDetailPage />} />
-          <Route path="/purchases/history" element={<PurchaseHistoryListPage />} />
-          <Route path="/purchases/history/:id" element={<PurchaseHistoryDetailPage />} />
-
-          <Route path="/inbounds/process" element={<InboundProcessPage />} />
-          <Route path="/inbounds/shipment" element={<InboundShipmentPage />} />
-          <Route path="/inbounds/history" element={<InboundHistoryPage />} />
 
         </Route>
       </Route>

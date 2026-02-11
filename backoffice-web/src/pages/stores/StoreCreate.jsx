@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './StoreCreatePage.css';
+import './StoreCreate.css';
 
 export default function StoreCreatePage() {
     const navigate = useNavigate();
