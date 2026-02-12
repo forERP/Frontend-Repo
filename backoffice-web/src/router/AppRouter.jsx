@@ -28,12 +28,12 @@ import InventoryLogs from '../pages/inventory/InventoryLogs.jsx';
 import PurchaseRequestListPage from '../pages/purchase/request/PurchaseRequestListPage.jsx';
 import PurchaseRequestDetailPage from '../pages/purchase/request/PurchaseRequestDetailPage.jsx';
 import PurchaseRequestFormPage from '../pages/purchase/request/PurchaseRequestFormPage.jsx';
+import PurchaseOrderListPage from '../pages/purchase/order/PurchaseOrderListPage.jsx';
+import PurchaseOrderDetailPage from '../pages/purchase/order/PurchaseOrderDetailPage.jsx';
 import PurchaseApprovalListPage from '../pages/purchase/approval/PurchaseApprovalListPage.jsx';
 import PurchaseApprovalDetailPage from '../pages/purchase/approval/PurchaseApprovalDetailPage.jsx';
-import PurchaseHistoryListPage from '../pages/purchase/history/PurchaseHistoryListPage.jsx';
-import PurchaseHistoryDetailPage from '../pages/purchase/history/PurchaseHistoryDetailPage.jsx';
-import Inbounds from '../pages/purchase/Inbounds.jsx';
-import InboundDetail from '../pages/purchase/InboundDetail.jsx';
+import Inbounds from '../pages/inbounds/InboundListPage.jsx';
+import InboundDetail from '../pages/inbounds/InboundDetailPage.jsx';
 
 // Order Pages
 import OrderList from '../pages/orders/OrderList.jsx';
@@ -99,10 +99,10 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/purchase-requests" element={<PurchaseRequestListPage />} />
           <Route path="/purchase-requests/new" element={<PurchaseRequestFormPage />} />
           <Route path="/purchase-requests/:id" element={<PurchaseRequestDetailPage />} />
+          <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
+          <Route path="/purchase-orders/:orderId" element={<PurchaseOrderDetailPage />} />
           <Route path="/purchase-approvals" element={<PurchaseApprovalListPage />} />
           <Route path="/purchase-approvals/:id" element={<PurchaseApprovalDetailPage />} />
-          <Route path="/purchase-orders" element={<PurchaseHistoryListPage />} />
-          <Route path="/purchase-orders/:id" element={<PurchaseHistoryDetailPage />} />
           
           {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
