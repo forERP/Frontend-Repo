@@ -1,38 +1,77 @@
-/* 전체 배경 */
+전체 배경
+/* .pos-bg { */
+/* width: 100vw; */
+/* height: 100vh; */
+/* background-color: #000; */
+/* 검은 배경 */
+/* display: flex; */
+/* justify-content: center; */
+/* align-items: center; */
+/* } */
+
+/* 포스기 화면 */
+/* .pos-container { */
+/* width: 1100px; */
+/* 포스기 느낌 */
+/* height: 700px; */
+/* display: flex; */
+/* flex-direction: column; */
+/* background-color: #000; */
+/* } */
+
+/* 헤더 영역 (2 비율) */
+/* .pos-header { */
+/* flex: 0.5; */
+/* background-color: #2b2b2b; */
+/* 어두운 회색 */
+/* display: flex; */
+/* align-items: center; */
+/* color: #fff; */
+/* } */
+
+/* 메인 영역 (8 비율) */
+/* .pos-main { */
+/* flex: 9.5; */
+/* background-color: #fff; */
+/* 흰색 */
+/* overflow: auto; */
+/* } */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* 전체 배경 (공통) */
 .pos-bg {
   width: 100vw;
   height: 100vh;
   background-color: #000;
-  /* 검은 배경 */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 포스기 화면 */
 .pos-container {
   width: 1100px;
-  /* 포스기 느낌 */
   height: 700px;
   display: flex;
   flex-direction: column;
   background-color: #000;
 }
 
-/* 헤더 영역 (2 비율) */
 .pos-header {
   flex: 0.5;
   background-color: #2b2b2b;
-  /* 어두운 회색 */
   display: flex;
   align-items: center;
   color: #fff;
 }
 
-/* 메인 영역 (8 비율) */
 .pos-main {
   flex: 9.5;
   background-color: #fff;
-  /* 흰색 */
   overflow: auto;
 }
