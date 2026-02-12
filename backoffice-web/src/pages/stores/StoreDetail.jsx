@@ -230,32 +230,7 @@ export default function StoreDetailPage() {
                                     </tr>
                                     <tr>
                                         <th>운영 상태</th>
-                                        <td>
-                                            <div className="status-dropdown">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDropdownOpen(prev => !prev)}
-                                                    className={`status-button ${store.status.toLowerCase()}`}
-                                                >
-                                                    {STATUS_LABEL[store.status]}
-                                                </button>
-                                                {dropdownOpen && (
-                                                    <ul className="status-options">
-                                                        {STATUS_OPTIONS.map(s => (
-                                                            <li key={s}>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleStatusSelect(s)}
-                                                                    className={s === store.status ? 'active' : s.toLowerCase()}
-                                                                >
-                                                                    {STATUS_LABEL[s]}
-                                                                </button>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        </td>
+                                        <td>{STATUS_LABEL[store.status]}</td>
                                     </tr>
                                 </tbody>
                             </table>
