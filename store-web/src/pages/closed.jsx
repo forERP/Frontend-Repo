@@ -59,7 +59,7 @@ export default function Closed() {
 
                 <div className="input-row" onClick={() => setActiveField('admin')}>
                     <span className="label">관리자 코드</span>
-                    <span className="value">{adminCode || '----'}</span>
+                    <span className="value">{employeeCode || '----'}</span>
                 </div>
             </div>
 
