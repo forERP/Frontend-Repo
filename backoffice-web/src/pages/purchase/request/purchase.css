@@ -11,6 +11,17 @@ h2 {
     color: #222;
 }
 
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-header h2 {
+    margin: 0;
+}
+
 .filter-bar {
     display: flex;
     gap: 12px;
@@ -36,6 +47,64 @@ h2 {
 
 .filter-bar button:hover {
     background: #1666c1;
+}
+
+/* 필터 섹션 */
+.filter-section {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #333;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.filter-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .erp-table {
@@ -322,4 +391,37 @@ textarea.memo {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+}
+
+/* 추가 버튼 스타일 */
+.btn-sm {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+}
+
+.btn-info {
+    background: #0066cc;
+    color: #fff;
+}
+
+.btn-info:hover:not(:disabled) {
+    background: #0052a3;
+}
+
+.btn-success {
+    background: #28A745;
+    color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #218838;
+}
+
+.btn-danger:not(.btn-sm):disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-info:disabled,
+.btn-success:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../lib/api';
 import { getStore, getUser } from '../../../lib/dataApi';
-import { STATUS_LABEL, PURCHASE_REQUEST_STATUS } from '../../../constants/status';
+import { PURCHASE_REQUEST_STATUS } from '../../../constants/status';
 import './PurchaseRequestListPage.css';
 import './purchase.css';
 
@@ -49,7 +49,7 @@ export default function PurchaseRequestListPage() {
 
                             return {
                                 ...req,
-                                storeName: store?.name || `매장 ${req.storeId}`,
+                                storeName: store?.storeName || store?.name || `매장 ${req.storeId}`,
                                 storeCode: store?.code || '',
                                 userName: user?.name || `사용자 ${req.requestedByUserId}`
                             };
@@ -78,26 +78,45 @@ export default function PurchaseRequestListPage() {
         fetchRequests();
     }, [statusFilter, storeIdFilter]);
 
+    const getStatusLabel = (status) => PURCHASE_REQUEST_STATUS[status]?.label || status;
+    const getStatusColor = (status) => PURCHASE_REQUEST_STATUS[status]?.color || '#666';
+
     return (
         <div className="purchase-page">
-            <h1>발주 요청</h1>
-
-            <div className="filter-bar">
-                <input
-                    type="number"
-                    placeholder="매장 ID 검색"
-                    value={storeIdFilter}
-                    onChange={e => setStoreIdFilter(e.target.value)}
-                />
-                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-                    <option value="">전체 상태</option>
-                    {Object.entries(PURCHASE_REQUEST_STATUS).map(([k, v]) => (
-                        <option key={k} value={v}>{STATUS_LABEL[v]}</option>
-                    ))}
-                </select>
-                <button onClick={() => navigate('/purchase-requests/new')} className="btn-primary">
-                    발주 요청 생성
+            <div className="page-header">
+                <h2>발주 요청 목록</h2>
+                <button className="btn-primary" onClick={() => navigate('/purchase-orders')}>
+                    발주 보기
                 </button>
+            </div>
+
+            <div className="filter-section">
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <label>매장 ID</label>
+                        <input
+                            type="number"
+                            placeholder="매장 ID 검색"
+                            value={storeIdFilter}
+                            onChange={e => setStoreIdFilter(e.target.value)}
+                        />
+                    </div>
+                    <div className="filter-group">
+                        <label>상태</label>
+                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                            <option value="">전체 상태</option>
+                            {Object.entries(PURCHASE_REQUEST_STATUS).map(([k, v]) => (
+                                <option key={k} value={k}>{v.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="filter-actions">
+                    <button className="btn-primary" onClick={() => navigate('/purchase-requests/new')}>
+                        발주 요청 생성
+                    </button>
+                </div>
             </div>
 
             <table className="erp-table">
@@ -108,7 +127,7 @@ export default function PurchaseRequestListPage() {
                         <th>매장명</th>
                         <th>요청자</th>
                         <th>상태</th>
-                        <th>상세보기</th>
+                        <th>작업</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,13 +141,20 @@ export default function PurchaseRequestListPage() {
                             <td>{new Date(r.createdAt).toLocaleString('ko-KR')}</td>
                             <td>{r.storeName}{r.storeCode ? ` (${r.storeCode})` : ''}</td>
                             <td>{r.userName}</td>
-                            <td>{STATUS_LABEL[r.status]}</td>
+                            <td>
+                                <span
+                                    className="status-badge"
+                                    style={{ backgroundColor: getStatusColor(r.status) }}
+                                >
+                                    {getStatusLabel(r.status)}
+                                </span>
+                            </td>
                             <td>
                                 <button
-                                    className="btn-secondary"
+                                    className="btn-sm btn-info"
                                     onClick={() => navigate(`/purchase-requests/${r.purchaseRequestId}`)}
                                 >
-                                    보기
+                                    상세
                                 </button>
                             </td>
                         </tr>

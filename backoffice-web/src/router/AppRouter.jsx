@@ -14,9 +14,11 @@ import ProductDetail from '../pages/products/ProductDetail.jsx';
 
 // Store Pages
 import StoreList from '../pages/stores/StoreList.jsx';
-import StoreForm from '../pages/stores/StoreForm.jsx';
+import StoreCreate from '../pages/stores/StoreCreate.jsx';
 import StoreDetail from '../pages/stores/StoreDetail.jsx';
 import WarehouseList from '../pages/warehouses/WarehouseList.jsx';
+import WarehouseCreate from '../pages/warehouses/WarehouseCreate.jsx';
+import WarehouseDetail from '../pages/warehouses/WarehouseDetail.jsx';
 
 // Inventory Pages
 import InventoryList from '../pages/inventory/InventoryList.jsx';
@@ -28,12 +30,12 @@ import InventoryLogs from '../pages/inventory/InventoryLogs.jsx';
 import PurchaseRequestListPage from '../pages/purchase/request/PurchaseRequestListPage.jsx';
 import PurchaseRequestDetailPage from '../pages/purchase/request/PurchaseRequestDetailPage.jsx';
 import PurchaseRequestFormPage from '../pages/purchase/request/PurchaseRequestFormPage.jsx';
+import PurchaseOrderListPage from '../pages/purchase/order/PurchaseOrderListPage.jsx';
+import PurchaseOrderDetailPage from '../pages/purchase/order/PurchaseOrderDetailPage.jsx';
 import PurchaseApprovalListPage from '../pages/purchase/approval/PurchaseApprovalListPage.jsx';
 import PurchaseApprovalDetailPage from '../pages/purchase/approval/PurchaseApprovalDetailPage.jsx';
-import PurchaseHistoryListPage from '../pages/purchase/history/PurchaseHistoryListPage.jsx';
-import PurchaseHistoryDetailPage from '../pages/purchase/history/PurchaseHistoryDetailPage.jsx';
-import Inbounds from '../pages/purchase/Inbounds.jsx';
-import InboundDetail from '../pages/purchase/InboundDetail.jsx';
+import Inbounds from '../pages/inbounds/InboundListPage.jsx';
+import InboundDetail from '../pages/inbounds/InboundDetailPage.jsx';
 
 // Order Pages
 import OrderList from '../pages/orders/OrderList.jsx';
@@ -55,8 +57,6 @@ import ShipmentTracking from '../pages/shipments/ShipmentTracking.jsx';
 // Staff Pages
 import Users from '../pages/staff/Users.jsx';
 import UserDetail from '../pages/staff/UserDetail.jsx';
-import UserForm from '../pages/staff/UserForm.jsx';
-import UserUpdate from '../pages/staff/UserUpdate.jsx';
 import Attendance from '../pages/staff/Attendance.jsx';
 import Salary from '../pages/staff/Salary.jsx';
 
@@ -87,9 +87,11 @@ export default function AppRouter({ user, setUser }) {
 
           {/* Store Routes */}
           <Route path="/stores" element={<StoreList />} />
-          <Route path="/stores/create" element={<StoreForm />} />
+          <Route path="/stores/create" element={<StoreCreate />} />
           <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/warehouses" element={<WarehouseList />} />
+          <Route path="/warehouses/create" element={<WarehouseCreate />} />
+          <Route path="/warehouses/:id" element={<WarehouseDetail />} />
 
           {/* Inventory Routes */}
           <Route path="/stores/:storeId/inventory" element={<InventoryList />} />
@@ -101,10 +103,10 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/purchase-requests" element={<PurchaseRequestListPage />} />
           <Route path="/purchase-requests/new" element={<PurchaseRequestFormPage />} />
           <Route path="/purchase-requests/:id" element={<PurchaseRequestDetailPage />} />
+          <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
+          <Route path="/purchase-orders/:orderId" element={<PurchaseOrderDetailPage />} />
           <Route path="/purchase-approvals" element={<PurchaseApprovalListPage />} />
           <Route path="/purchase-approvals/:id" element={<PurchaseApprovalDetailPage />} />
-          <Route path="/purchase-orders" element={<PurchaseHistoryListPage />} />
-          <Route path="/purchase-orders/:id" element={<PurchaseHistoryDetailPage />} />
 
           {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
@@ -130,8 +132,6 @@ export default function AppRouter({ user, setUser }) {
           {/* Staff Routes */}
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<UserDetail />} />
-          <Route path="/users/new" element={<UserForm />} />
-          <Route path="/users/:id/update" element={<UserUpdate />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/salary" element={<Salary />} />
 
