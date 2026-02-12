@@ -1,9 +1,11 @@
+import { BrowserRouter } from 'react-router-dom'
 import './App.css'
-import Header from './components/Header.jsx'
 import AppRouter from './router/AppRouter.jsx'
+import Header from "./components/Header.jsx"
 
 export default function App() {
   return (
+    <BrowserRouter>
     <div className="pos-bg">
       <div className="pos-container">
         <header className="pos-header">
@@ -14,5 +16,6 @@ export default function App() {
         </main>
       </div>
     </div>
+    </BrowserRouter>
   )
 }

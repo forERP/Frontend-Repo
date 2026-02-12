@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { login } from '../api/authApi'
+import { loginPos } from '../api/authApi'
 import { useNavigate } from "react-router-dom"
 import './css/Login.css'
 
-export default function Login() {
+export default function Closed() {
     const [storeCode, setStoreCode] = useState('')
-    const [adminCode, setAdminCode] = useState('')
+    const [employeeCode, setEmployeeCode] = useState('')
     const [activeField, setActiveField] = useState('store')
     const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ export default function Login() {
         if (activeField === 'store') {
             setStoreCode(prev => prev + num)
         } else {
-            setAdminCode(prev => prev + num)
+            setEmployeeCode(prev => prev + num)
         }
     }
 
@@ -23,25 +23,22 @@ export default function Login() {
         if (activeField === 'store') {
             setStoreCode(prev => prev.slice(0, -1))
         } else {
-            setAdminCode(prev => prev.slice(0, -1))
+            setEmployeeCode(prev => prev.slice(0, -1))
         }
     }
 
     const handleLogin = async () => {
-        if (storeCode.length >= 6 && adminCode.length >= 4) {
-            await login({
-                id: storeCode,
-                password: adminCode,
-            })
+        if (storeCode.length >= 1 && employeeCode.length >= 1) {
+          try{
+            await loginPos(storeCode, employeeCode);
+
+            alert("마감이 해제되었습니다.");
+            navigate('/home');
+        }catch(e){
+            alert("정보가 일치하지 않습니다.");
         }
     }
-
-    /* 자동 로그인 트리거 */
-    useEffect(() => {
-        if (storeCode.length >= 6 && adminCode.length >= 4) {
-            handleLogin()
-        }
-    }, [storeCode, adminCode])
+}
 
     /* =========================
         이전화면가기

@@ -34,5 +34,6 @@
   flex: 9.5;
   background-color: #fff;
   /* 흰색 */
-  overflow: auto;
+  overflow: hidden;
+  position: relative;
 }

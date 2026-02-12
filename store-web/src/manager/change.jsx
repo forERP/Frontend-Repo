@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { login } from '../api/authApi'
+import { loginPos } from '../api/authApi'
 import { useNavigate } from "react-router-dom";
 import '../pages/css/Login.css'
 
 export default function Login() {
     const [storeCode, setStoreCode] = useState('')
-    const [adminCode, setAdminCode] = useState('')
+    const [employeeCode, setEmployeeCode] = useState('')
     const [activeField, setActiveField] = useState('store')
     const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ export default function Login() {
         if (activeField === 'store') {
             setStoreCode(prev => prev + num)
         } else {
-            setAdminCode(prev => prev + num)
+            setEmployeeCode(prev => prev + num)
         }
     }
 
@@ -24,25 +24,22 @@ export default function Login() {
         if (activeField === 'store') {
             setStoreCode(prev => prev.slice(0, -1))
         } else {
-            setAdminCode(prev => prev.slice(0, -1))
+            setEmployeeCode(prev => prev.slice(0, -1))
         }
     }
 
     const handleLogin = async () => {
-        if (storeCode.length >= 6 && adminCode.length >= 4) {
-            await login({
-                id: storeCode,
-                password: adminCode,
-            })
+        if (storeCode.length >= 1 && employeeCode.length >= 1) {
+          try{
+            await loginPos(storeCode, employeeCode);
+
+            alert("매니저가 변경되었습니다.");
+            navigate('/home');
+        }catch(e){
+            alert("정보가 일치하지 않습니다.");
         }
     }
-
-    /* 자동 로그인 트리거 */
-    useEffect(() => {
-        if (storeCode.length >= 6 && adminCode.length >= 4) {
-            handleLogin()
-        }
-    }, [storeCode, adminCode])
+}
 
     /* =========================
         이전화면가기
@@ -58,12 +55,12 @@ export default function Login() {
             <div className="login-left">
                 <div className="input-row" onClick={() => setActiveField('store')}>
                     <span className="label">매장 코드</span>
-                    <span className="value">{storeCode || '------'}</span>
+                    <span className="value">{storeCode || '---'}</span>
                 </div>
 
-                <div className="input-row" onClick={() => setActiveField('admin')}>
+                <div className="input-row" onClick={() => setActiveField('employee')}>
                     <span className="label">관리자 코드</span>
-                    <span className="value">{adminCode || '----'}</span>
+                    <span className="value">{employeeCode || '----'}</span>
                 </div>
             </div>
 

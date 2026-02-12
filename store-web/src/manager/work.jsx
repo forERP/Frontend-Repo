@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import { login } from '../api/authApi'
+import { clockIn, clockOut, getAttendanceStatus } from '../api/attendanceApi'
 import '../pages/css/Login.css'
 
 export default function Login() {
@@ -8,11 +8,25 @@ export default function Login() {
     /* =========================
        상태 관리
     ========================= */
-
-    const [adminCode, setAdminCode] = useState('')
+    const [userName, setUserName] = useState('')
+    const [attendanceStatus, setAttendanceStatus] = useState(null)
+    const [employeeCode, setEmployeeCode] = useState('')
     const [currentTime, setCurrentTime] = useState('')
+    const [storeCode, setStoreCode] = useState('')
     const navigate = useNavigate();
 
+    const [clockInTime, setClockInTime] = useState(null)
+    const [clockOutTime, setClockOutTime] = useState(null)
+
+    /* =========================
+       매장 코드(자동 입력)
+    ========================= */
+    useEffect(() => {
+        const code = localStorage.getItem('storeCode');
+        if(code){
+            setStoreCode(code);
+        }
+    }, []);
 
     /* =========================
        실시간 현재시간 표시
@@ -21,53 +35,95 @@ export default function Login() {
     useEffect(() => {
         const updateTime = () => {
             const now = new Date()
-
-            const hh = String(now.getHours()).padStart(2, '0')
-            const mm = String(now.getMinutes()).padStart(2, '0')
-            const ss = String(now.getSeconds()).padStart(2, '0')
-
-            setCurrentTime(`${hh}:${mm}:${ss}`)
+            setCurrentTime(now.toLocaleTimeString('ko-KR'));
         }
-
-        updateTime()
+        updateTime();
         const timer = setInterval(updateTime, 1000)
-
         return () => clearInterval(timer)
     }, [])
 
+    /* =========================
+       직원 상태 조회
+    ========================= */
 
+    useEffect(() => {
+        if(employeeCode.length !==4){
+            setUserName('');
+            setAttendanceStatus(null);
+            return;
+        }
+
+        const fetchStatus = async () => {
+            try{
+                const data = await getAttendanceStatus(storeCode, employeeCode);
+                setUserName(data.userName);
+                setAttendanceStatus(data.status);
+                setClockInTime(data.attendance?.clockIn || null);
+                setClockOutTime(data.attendance?.clockOut || null);
+            }catch (e){
+                console.error("직원 조회 실패:", e);
+                alert("직원 코드를 확인해주세요.");
+                setEmployeeCode('');
+            }
+        };
+
+        fetchStatus();
+    },[employeeCode, storeCode]);
+    
     /* =========================
        키패드 입력
     ========================= */
 
     const handleNumberClick = (num) => {
-        setAdminCode(prev => prev + num)
+        if(employeeCode.length < 4){
+        setEmployeeCode(prev => prev + num)
+        }
+    };
+
+    const clearAll = () => {
+        setEmployeeCode('')
+        setUserName('')
+        setAttendanceStatus(null)
+        setClockInTime(null);
+        setClockOutTime(null);   
     }
 
     const handleDelete = () => {
-        setAdminCode(prev => prev.slice(0, -1))
-    }
+        setEmployeeCode(prev => prev.slice(0, -1));   
+    };
 
-
-    /* =========================
-       로그인
-    ========================= */
-
-    const handleLogin = async () => {
-        if (adminCode.length >= 4) {
-            await login({
-                password: adminCode,
-            })
+    const handleActionClick = async() => {
+        if(!userName){
+            alert("먼저 직원 코드 4자리를 입력해주세요.");
+            return;
         }
-    }
+        try{
+            if(attendanceStatus === 'WORK'){
+                const data = await clockOut(storeCode, employeeCode);
+                const formattedTime = new Date(data.clockOut).toLocaleTimeString('ko-KR');
+                alert(`퇴근 처리되었습니다.\n(처리 시각 : ${formattedTime})`);
+                setClockOutTime(data.clockOut);
+                setAttendanceStatus('OUT');
+                clearAll();
+            }else if(attendanceStatus === null) {
+                const data = await clockIn(storeCode, employeeCode);
+                const formattedTime = new Date(data.clockIn).toLocaleTimeString('ko-KR');
+                alert(`출근 처리되었습니다.\n(처리 시각 : ${formattedTime})`);
+                setClockInTime(data.clockIn);
+                setAttendanceStatus(data.status);
+                clearAll();
+            }else{
+                alert("이미 퇴근 처리되었습니다.");
+                clearAll();
+                return;
+            }
 
-    /* 자동 로그인 트리거 */
-    useEffect(() => {
-        if (adminCode.length >= 4) {
-            handleLogin()
+        }catch (e) {
+            console.error("처리 실패:", e);
+            alert("처리 실패:" + (e.response?.data?.message || "직원 코드를 확인해주세요."));
+            clearAll();
         }
-    }, [adminCode])
-
+    };
 
     /* =========================
         이전화면가기
@@ -77,7 +133,23 @@ export default function Login() {
         navigate(-1);
     };
 
-
+    const isReady = employeeCode.length === 4 && userName;
+    let buttonText = '입력';
+    let buttonStyle = {};
+    
+    if (isReady){
+        if (attendanceStatus === 'WORK'){
+            buttonText = '퇴근';
+            buttonStyle.background = '#e74c3c';
+        } else {
+            buttonText = '출근';
+            buttonStyle.background = '#27ae60';
+        }
+    }
+    if (attendanceStatus === 'OUT'){
+        buttonText = '완료';
+        buttonStyle.background = '#95a5a6'; 
+    }
 
     /* =========================
        UI
@@ -95,14 +167,13 @@ export default function Login() {
                     <span className="value">{currentTime}</span>
                 </div>
 
-                {/* 관리자 코드 */}
+                {/* 직원 코드 */}
                 <div className="input-row">
-                    <span className="label">관리자 코드</span>
-                    <span className="value">{adminCode || '----'}</span>
+                    <span className="label">직원 코드</span>
+                    <span className="value">{employeeCode ? '*'.repeat(employeeCode.length) :'----'}</span>
                 </div>
 
             </div>
-
 
             {/* 우측 키패드 */}
             <div className="login-right">
@@ -131,9 +202,12 @@ export default function Login() {
 
                     <button
                         className="key enter"
-                        onClick={handleLogin}
+                        onClick={handleActionClick}
+                        disabled={!isReady || attendanceStatus === 'OUT'} 
+                        style={buttonStyle}
+                        
                     >
-                        입력
+                        {buttonText}
                     </button>
 
                     <button

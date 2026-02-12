@@ -1,45 +1,76 @@
-import { useEffect, useState } from 'react'
-import { login } from '../api/authApi'
+import { useState } from 'react'
+import { loginPos, getUserInfo } from '../api/authApi'
 import './css/Login.css'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [storeCode, setStoreCode] = useState('')
-  const [adminCode, setAdminCode] = useState('')
+  const [employeeCode, setEmployeeCode] = useState('')
   const [activeField, setActiveField] = useState('store')
+  const [errorMsg, setErrorMsg] = useState('');
 
   
 
   const handleNumberClick = (num) => {
+    setErrorMsg('');
     if (activeField === 'store') {
+      if(storeCode.length <3){
       setStoreCode(prev => prev + num)
+      }
     } else {
-      setAdminCode(prev => prev + num)
+      if(employeeCode.length <4){
+      setEmployeeCode(prev => prev + num)
     }
   }
+}
 
   const handleDelete = () => {
+    setErrorMsg('');
     if (activeField === 'store') {
       setStoreCode(prev => prev.slice(0, -1))
     } else {
-      setAdminCode(prev => prev.slice(0, -1))
+      setEmployeeCode(prev => prev.slice(0, -1))
     }
   }
 
+  // 백엔드 연동
   const handleLogin = async () => {
-    if (storeCode.length >= 6 && adminCode.length >= 4) {
-      await login({
-        id: storeCode,
-        password: adminCode,
-      })
-    }
+    if (!storeCode || !employeeCode){
+      setErrorMsg("코드를 모두 입력해주세요.");
+    return;
   }
 
-  /* 자동 로그인 트리거 */
-  useEffect(() => {
-    if (storeCode.length >= 6 && adminCode.length >= 4) {
-      handleLogin()
+  try{
+    // POS 로그인 API 호출
+    const loginData = await loginPos(storeCode, employeeCode);
+
+    localStorage.setItem('accessToken', loginData.token);
+    localStorage.setItem('role', loginData.role);
+    localStorage.setItem('userId', loginData.userId);
+    localStorage.setItem('storeCode', storeCode);
+
+    const userData = await getUserInfo(loginData.userId);
+
+    // 권한 체크
+    if(!userData.storeId && loginData.role !== 'HQ_ADMIN'){
+      throw new Error("매장 정보가 없는 계정입니다.");
     }
-  }, [storeCode, adminCode])
+
+    localStorage.setItem('storeId', userData.storeId || '0');
+    localStorage.setItem('userName', userData.name);
+
+    console.log(`로그인 성공: ${userData.name}`);
+
+    navigate('/home');
+
+  }catch(err){
+    console.error(err);
+    localStorage.clear();
+    setErrorMsg("로그인 실패: 코드를 확인해주세요.");
+  }
+};
 
   return (
     <div className="login-container">
@@ -47,14 +78,17 @@ export default function Login() {
       <div className="login-left">
         <div className="input-row" onClick={() => setActiveField('store')}>
           <span className="label">매장 코드</span>
-          <span className="value">{storeCode || '------'}</span>
+          <span className="value">{storeCode ? '*'.repeat(storeCode.length):'---'}</span>
         </div>
 
-        <div className="input-row" onClick={() => setActiveField('admin')}>
+        <div className="input-row" onClick={() => setActiveField('employee')}>
           <span className="label">관리자 코드</span>
-          <span className="value">{adminCode || '----'}</span>
+          <span className="value">{employeeCode ? '*'.repeat(employeeCode.length):'----'}</span>
         </div>
-      </div>
+
+      {/*에러 메시지 표시 */}
+      {errorMsg && <div style={{color: 'red', marginTop:'10px'}}>{errorMsg}</div>}
+    </div>
 
       {/* 우측 키패드 */}
       <div className="login-right">

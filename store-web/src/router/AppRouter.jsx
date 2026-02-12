@@ -4,6 +4,7 @@ import Closed from '../pages/closed.jsx'
 import Login from '../pages/Login.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import MenuPage from '../pages/Menu/MenuPage.jsx'
+import StartPage from '../pages/StartPage.jsx'
 import Manager from '../manager/manager.jsx'
 import Change from '../manager/change.jsx'
 import Dispose from '../manager/dispose.jsx'
@@ -15,9 +16,11 @@ export default function AppRouter() {
   return (
     <Routes>
 
+      <Route path='/' element={<StartPage />} />
+
       <Route path="/login" element={<Login />} />
 
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
 
       <Route path="/closed" element={<Closed />} />
 
