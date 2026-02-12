@@ -83,7 +83,7 @@ export default function StoreList() {
         </tbody>
       </table>
 
-      <button onClick={() => navigate('/stores/new')}>
+      <button onClick={() => navigate('/stores/create')}>
         매장 등록
       </button>
     </div>

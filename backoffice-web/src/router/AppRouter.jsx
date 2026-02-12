@@ -14,7 +14,7 @@ import ProductDetail from '../pages/products/ProductDetail.jsx';
 
 // Store Pages
 import StoreList from '../pages/stores/StoreList.jsx';
-import StoreCreate from '../pages/stores/StoreCreate.jsx';
+import StoreForm from '../pages/stores/StoreForm.jsx';
 import StoreDetail from '../pages/stores/StoreDetail.jsx';
 import WarehouseList from '../pages/warehouses/WarehouseList.jsx';
 
@@ -85,7 +85,7 @@ export default function AppRouter({ user, setUser }) {
 
           {/* Store Routes */}
           <Route path="/stores" element={<StoreList />} />
-          <Route path="/stores/create" element={<StoreCreate />} />
+          <Route path="/stores/create" element={<StoreForm />} />
           <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/warehouses" element={<WarehouseList />} />
 
