@@ -94,7 +94,7 @@ export default function ProductList() {
                         className="create-btn"
                         onClick={() => navigate('/products/new')}
                     >
-                        + 상품 등록
+                        상품 등록
                     </button>
                 </div>
 
@@ -115,7 +115,7 @@ export default function ProductList() {
 
                     {!loading && products.length > 0 && (
                         <>
-                            <table className="products-table">
+                            <table className="erp-table">
                                 <thead>
                                     <tr>
                                         <th>SKU</th>

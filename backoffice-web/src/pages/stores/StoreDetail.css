@@ -1,75 +1,211 @@
+.store-detail-page {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f5f7fa;
+    min-height: 100vh;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.store-detail-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.store-detail-page h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.detail-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+}
+
+.erp-table th,
+.erp-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.erp-table th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    color: #333;
+    width: 120px;
+}
+
+.erp-table tr:last-child td {
+    border-bottom: none;
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    table-layout: fixed;
+}
+
+.erp-table input,
+.erp-table select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.erp-table input:focus,
+.erp-table select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
 .status-dropdown {
     position: relative;
     display: inline-block;
+    width: 100%;
 }
 
 .status-button {
-    padding: 6px 12px;
+    width: 100%;
+    padding: 8px 12px;
     cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-weight: bold;
-    min-width: 100px;
-    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-weight: 600;
+    text-align: left;
+    background-color: #fff;
+    transition: all 0.2s ease;
 }
 
 .status-button.open {
-    background-color: #28a745;
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
 }
 
 .status-button.inactive {
-    background-color: #ffc107;
-    color: #212529;
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #fcd34d;
 }
 
 .status-button.closed {
-    background-color: #dc3545;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
 }
-
 
 .status-options {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 4px);
     left: 0;
-    margin: 5px 0 0 0;
-    padding: 0;
+    right: 0;
+    margin: 0;
+    padding: 6px 0;
     list-style: none;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     background-color: #fff;
-    width: 100%;
     z-index: 10;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-options li {
+    padding: 0;
 }
 
 .status-options li button {
     width: 100%;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border: none;
     text-align: left;
     cursor: pointer;
-    font-weight: bold;
-    color: #fff;
-    border-radius: 0;
+    font-weight: 500;
+    background: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .status-options li button.open {
-    background-color: #28a745;
+    color: #166534;
 }
 
 .status-options li button.inactive {
-    background-color: #ffc107;
-    color: #212529;
+    color: #92400e;
 }
 
 .status-options li button.closed {
-    background-color: #dc3545;
-}
-
-.status-options li button.active {
-    outline: 2px solid #000;
+    color: #991b1b;
 }
 
 .status-options li button:hover {
-    opacity: 0.8;
+    background-color: #f5f7fa;
+}
+
+.status-options li button.active {
+    background-color: #ede9fe;
+    font-weight: 700;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.store-detail-page button {
+    flex: 1;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.store-detail-page button[type='submit'],
+.store-detail-page button:first-child {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.store-detail-page button[type='submit']:hover,
+.store-detail-page button:first-child:hover {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.store-detail-page button[type='button'] {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.store-detail-page button[type='button']:hover {
+    background-color: #d1d5db;
+}
+
+.error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border-left: 4px solid #dc2626;
 }

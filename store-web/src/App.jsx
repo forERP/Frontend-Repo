@@ -4,6 +4,7 @@ import AppRouter from './router/AppRouter.jsx'
 import Header from "./components/Header.jsx"
 
 export default function App() {
+
   return (
     <BrowserRouter>
       <div className="pos-bg">
@@ -19,3 +20,4 @@ export default function App() {
     </BrowserRouter>
   )
 }
+

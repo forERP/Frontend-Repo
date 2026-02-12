@@ -55,3 +55,70 @@ export const getAllProducts = async (page = 0, size = 100) => {
     const { data } = await api.get('/api/products', { params: { page, size } });
     return data;
 };
+// ===== PurchaseOrder (발주) =====
+export const getPurchaseOrder = async (purchaseOrderId) => {
+    const { data } = await api.get(`/api/purchase-orders/${purchaseOrderId}`);
+    return data;
+};
+
+export const getPurchaseOrderList = async (filters = {}) => {
+    const { storeId, supplierId, status, from, to, page = 0, size = 20 } = filters;
+    const params = { page, size };
+    if (storeId) params.storeId = storeId;
+    if (supplierId) params.supplierId = supplierId;
+    if (status) params.status = status;
+    if (from) params.from = from;
+    if (to) params.to = to;
+    const { data } = await api.get('/api/purchase-orders', { params });
+    return data;
+};
+
+export const confirmPurchaseOrder = async (purchaseOrderId) => {
+    const { data } = await api.post(`/api/purchase-orders/${purchaseOrderId}/order`);
+    return data;
+};
+
+export const cancelPurchaseOrder = async (purchaseOrderId) => {
+    const { data } = await api.post(`/api/purchase-orders/${purchaseOrderId}/cancel`);
+    return data;
+};
+
+// ===== Inbound (입고) =====
+export const getInbound = async (inboundId) => {
+    const { data } = await api.get(`/api/inbounds/${inboundId}`);
+    return data;
+};
+
+export const getInboundList = async (filters = {}) => {
+    const { storeId, status, from, to, page = 0, size = 20 } = filters;
+    const params = { page, size };
+    if (storeId) params.storeId = storeId;
+    if (status) params.status = status;
+    if (from) params.from = from;
+    if (to) params.to = to;
+    const { data } = await api.get('/api/inbounds', { params });
+    return data;
+};
+
+export const createInbound = async (purchaseOrderId) => {
+    const { data } = await api.post('/api/inbounds', { purchaseOrderId });
+    return data;
+};
+
+export const departShipment = async (inboundId, carrier, trackingNumber) => {
+    const { data } = await api.post(`/api/inbounds/${inboundId}/shipment/depart`, {
+        carrier,
+        trackingNumber
+    });
+    return data;
+};
+
+export const confirmInbound = async (inboundId) => {
+    const { data } = await api.post(`/api/inbounds/${inboundId}/confirm`);
+    return data;
+};
+
+export const cancelInbound = async (inboundId) => {
+    const { data } = await api.post(`/api/inbounds/${inboundId}/cancel`);
+    return data;
+};
