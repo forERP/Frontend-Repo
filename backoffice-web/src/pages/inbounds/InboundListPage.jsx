@@ -97,7 +97,7 @@ export default function InboundListPage() {
     return (
         <div className="purchase-page">
             <div className="page-header">
-                <h2>입고</h2>
+                <h2>입고 목록</h2>
                 <button className="btn-primary" onClick={() => navigate('/purchase-orders')}>
                     발주 보기
                 </button>

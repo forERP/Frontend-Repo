@@ -15,13 +15,24 @@ export default function Header({ user, menus, activeTopKey, onTopMenuClick }) {
     }
   };
 
+  const handleMenuClick = (menu) => {
+    onTopMenuClick(menu.key);
+    // 메뉴에 자식이 있으면 첫 번째 자식으로 이동
+    if (menu.children && menu.children.length > 0) {
+      const firstChild = menu.children[0];
+      navigate(firstChild.path);
+    } else if (menu.path) {
+      navigate(menu.path);
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-left">
         {dashboard && (
           <button
             className={activeTopKey === dashboard.key ? 'active' : ''}
-            onClick={() => onTopMenuClick(dashboard.key)}
+            onClick={() => handleMenuClick(dashboard)}
           >
             {dashboard.label}
           </button>
@@ -33,7 +44,7 @@ export default function Header({ user, menus, activeTopKey, onTopMenuClick }) {
           <button
             key={menu.key}
             className={activeTopKey === menu.key ? 'active' : ''}
-            onClick={() => onTopMenuClick(menu.key)}
+            onClick={() => handleMenuClick(menu)}
           >
             {menu.label}
           </button>

@@ -84,7 +84,7 @@ export default function PurchaseRequestListPage() {
     return (
         <div className="purchase-page">
             <div className="page-header">
-                <h2>발주 요청</h2>
+                <h2>발주 요청 목록</h2>
                 <button className="btn-primary" onClick={() => navigate('/purchase-orders')}>
                     발주 보기
                 </button>

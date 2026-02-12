@@ -94,7 +94,7 @@ export default function ProductList() {
                         className="create-btn"
                         onClick={() => navigate('/products/new')}
                     >
-                        + 상품 등록
+                        상품 등록
                     </button>
                 </div>
 
