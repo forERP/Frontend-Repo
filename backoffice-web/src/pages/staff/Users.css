@@ -1,0 +1,64 @@
+.users-container {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 2px solid #333;
+}
+
+.erp-table th,
+.erp-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.erp-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.role-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.role-badge.HQ_ADMIN {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.role-badge.STORE_ADMIN {
+    background: #f1f8e9;
+    color: #388e3c;
+}
+
+.create-btn {
+    padding: 10px 20px;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.detail-btn {
+    padding: 5px 10px;
+    background: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 3px;
+}
