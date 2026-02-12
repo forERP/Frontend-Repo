@@ -1,0 +1,135 @@
+/* =========================
+   전체 화면 (POS 영향 X)
+========================= */
+.kitchen-wrapper {
+    width: 100vw;
+    height: 100vh;
+
+    background: #111;
+    color: white;
+
+    display: grid;
+
+    /* ⭐ 1 : 5 : 5 : 1 */
+    grid-template-rows: 1fr 5fr 5fr 1fr;
+}
+
+
+/* =========================
+   헤더
+========================= */
+.kitchen-header {
+    display: grid;
+    grid-template-columns: 4fr 4fr 4fr;
+
+    align-items: center;
+    padding: 0 30px;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    background: #222;
+}
+
+
+/* =========================
+   주문 영역
+========================= */
+.kitchen-orders {
+    display: grid;
+
+    /* ⭐ 가로 4:4:4 */
+    grid-template-columns: 4fr 4fr 4fr;
+
+    gap: 14px;
+    padding: 14px;
+}
+
+
+/* =========================
+   주문 카드
+========================= */
+.order-card {
+    background: white;
+    color: black;
+
+    border-radius: 14px;
+
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    font-size: 20px;
+}
+
+
+/* 메뉴 리스트 */
+.menu-list {
+    flex: 1;
+    margin: 10px 0;
+}
+
+
+/* =========================
+   호출 버튼 (터치 친화)
+========================= */
+.call-btn {
+    height: 60px;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    background: red;
+    color: white;
+
+    border: none;
+    border-radius: 10px;
+
+    cursor: pointer;
+}
+
+.call-btn:active {
+    transform: scale(0.97);
+}
+
+
+/* =========================
+   페이징
+========================= */
+.kitchen-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+
+    background: #222;
+}
+
+
+/* ⭐ 터치용 크게 */
+.page-btn {
+    width: 120px;
+    height: 70px;
+
+    font-size: 32px;
+    font-weight: bold;
+
+    border-radius: 12px;
+    border: none;
+
+    background: #444;
+    color: white;
+
+    cursor: pointer;
+}
+
+.page-btn:active {
+    transform: scale(0.95);
+}
+
+
+.page-text {
+    font-size: 22px;
+}
