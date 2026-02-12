@@ -49,3 +49,10 @@ export const STATUS_LABEL = {
     ARRIVED: '배송완료',
 };
 
+// 매장 상태
+export const STORE_STATUS = {
+    OPEN: { label: '영업중', color: '#28A745' },
+    INACTIVE: { label: '휴무', color: '#FFC107' },
+    CLOSED: { label: '폐점', color: '#6C757D' },
+};
+

@@ -17,6 +17,8 @@ import StoreList from '../pages/stores/StoreList.jsx';
 import StoreCreate from '../pages/stores/StoreCreate.jsx';
 import StoreDetail from '../pages/stores/StoreDetail.jsx';
 import WarehouseList from '../pages/warehouses/WarehouseList.jsx';
+import WarehouseCreate from '../pages/warehouses/WarehouseCreate.jsx';
+import WarehouseDetail from '../pages/warehouses/WarehouseDetail.jsx';
 
 // Inventory Pages
 import InventoryList from '../pages/inventory/InventoryList.jsx';
@@ -88,6 +90,8 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/stores/create" element={<StoreCreate />} />
           <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/warehouses" element={<WarehouseList />} />
+          <Route path="/warehouses/create" element={<WarehouseCreate />} />
+          <Route path="/warehouses/:id" element={<WarehouseDetail />} />
 
           {/* Inventory Routes */}
           <Route path="/stores/:storeId/inventory" element={<InventoryList />} />

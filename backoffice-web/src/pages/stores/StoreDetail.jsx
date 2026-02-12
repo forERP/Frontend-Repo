@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchStoreDetail, updateStore, updateStoreStatus } from '../../api/storeApi';
+import { fetchWarehouses } from '../../api/warehouseApi';
 import './StoreDetail.css';
 
 const STATUS_LABEL = {
@@ -10,6 +11,11 @@ const STATUS_LABEL = {
 };
 
 const STATUS_OPTIONS = ['OPEN', 'INACTIVE', 'CLOSED'];
+
+const TYPE_LABEL = {
+    STORE: '지점',
+    HQ: '본사',
+};
 
 export default function StoreDetailPage() {
     const { id: storeId } = useParams();
@@ -128,18 +134,26 @@ export default function StoreDetailPage() {
                         <form onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                             <table className="erp-table">
                                 <tbody>
-                                    <tr>
-                                        <th>매장명</th>
-                                        <td>
-                                            <input
-                                                name="name"
-                                                value={editForm.name}
-                                                onChange={handleEditChange}
-                                                required
-                                                placeholder="매장 이름"
-                                            />
-                                        </td>
-                                    </tr>
+                                            <tr>
+                                                <th>매장 코드</th>
+                                                <td>{store.code || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>매장 타입</th>
+                                                <td>{TYPE_LABEL[store.type] || store.type}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>매장명</th>
+                                                <td>
+                                                    <input
+                                                        name="name"
+                                                        value={editForm.name}
+                                                        onChange={handleEditChange}
+                                                        required
+                                                        placeholder="매장 이름"
+                                                    />
+                                                </td>
+                                            </tr>
                                     <tr>
                                         <th>주소</th>
                                         <td>
@@ -206,12 +220,37 @@ export default function StoreDetailPage() {
                                 <button type="button" onClick={handleCancel} disabled={loading}>
                                     취소
                                 </button>
+                                <button type="button" onClick={() => console.log('매출관리')}>매출관리</button>
+                                <button type="button" onClick={() => console.log('직원관리')}>직원관리</button>
+                                <button type="button" onClick={async () => {
+                                    try {
+                                        const list = await fetchWarehouses(storeId);
+                                        if (list && list.length > 0) {
+                                            // navigate to first warehouse detail
+                                            window.location.href = `/warehouses/${list[0].warehouseId}`;
+                                        } else {
+                                            // no warehouse -> open create page with storeId prefilled
+                                            window.location.href = `/warehouses/create?storeId=${storeId}`;
+                                        }
+                                    } catch (err) {
+                                        console.error('창고 조회 실패', err);
+                                        setError('창고 조회 중 오류가 발생했습니다.');
+                                    }
+                                }}>창고관리</button>
                             </div>
                         </form>
                     ) : (
                         <>
                             <table className="erp-table">
                                 <tbody>
+                                    <tr>
+                                        <th>매장 코드</th>
+                                        <td>{store.code || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>매장 타입</th>
+                                        <td>{TYPE_LABEL[store.type] || store.type}</td>
+                                    </tr>
                                     <tr>
                                         <th>매장명</th>
                                         <td>{store.name}</td>
@@ -236,12 +275,23 @@ export default function StoreDetailPage() {
                             </table>
 
                             <div className="action-buttons">
-                                <button onClick={() => setIsEditing(true)}>
-                                    수정
-                                </button>
-                                <button onClick={() => navigate('/stores')}>
-                                    목록
-                                </button>
+                                <button onClick={() => setIsEditing(true)}>수정</button>
+                                <button onClick={() => navigate('/stores')}>목록</button>
+                                <button type="button" onClick={() => console.log('매출관리')}>매출관리</button>
+                                <button type="button" onClick={() => console.log('직원관리')}>직원관리</button>
+                                <button type="button" onClick={async () => {
+                                    try {
+                                        const list = await fetchWarehouses(storeId);
+                                        if (list && list.length > 0) {
+                                            window.location.href = `/warehouses/${list[0].warehouseId}`;
+                                        } else {
+                                            window.location.href = `/warehouses/create?storeId=${storeId}`;
+                                        }
+                                    } catch (err) {
+                                        console.error('창고 조회 실패', err);
+                                        setError('창고 조회 중 오류가 발생했습니다.');
+                                    }
+                                }}>창고관리</button>
                             </div>
                         </>
                     )}

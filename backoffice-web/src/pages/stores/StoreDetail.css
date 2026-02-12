@@ -50,6 +50,13 @@
     border-bottom: none;
 }
 
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    table-layout: fixed;
+}
+
 .erp-table input,
 .erp-table select {
     width: 100%;
@@ -58,6 +65,7 @@
     border-radius: 6px;
     font-size: 14px;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 .erp-table input:focus,

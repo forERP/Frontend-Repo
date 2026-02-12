@@ -115,7 +115,7 @@ export default function ProductList() {
 
                     {!loading && products.length > 0 && (
                         <>
-                            <table className="products-table">
+                            <table className="erp-table">
                                 <thead>
                                     <tr>
                                         <th>SKU</th>

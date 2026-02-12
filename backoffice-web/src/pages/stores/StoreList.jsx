@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchStores } from '../../api/storeApi';
+import { STORE_STATUS } from '../../constants/status';
 import './StoreList.css';
-
-const STATUS_LABEL = {
-    OPEN: '영업중',
-    INACTIVE: '휴무',
-    CLOSED: '폐점',
-};
 
 export default function StoreListPage() {
     const navigate = useNavigate();
@@ -55,7 +50,7 @@ export default function StoreListPage() {
                         <table className="erp-table">
                             <thead>
                                 <tr>
-                                    <th>매장명</th>
+                                    <th>매장명 (매장코드)</th>
                                     <th>주소</th>
                                     <th>전화번호</th>
                                     <th>운영 상태</th>
@@ -70,7 +65,14 @@ export default function StoreListPage() {
                                         <td>{store.code ? `${store.name} (${store.code})` : store.name}</td>
                                         <td>{store.address || '-'}</td>
                                         <td>{store.phone || '-'}</td>
-                                        <td>{STATUS_LABEL[store.status] || store.status}</td>
+                                        <td>
+                                            <span
+                                                className="status-badge"
+                                                style={{ backgroundColor: STORE_STATUS[store.status]?.color || '#6C757D', color: '#fff' }}
+                                            >
+                                                {STORE_STATUS[store.status]?.label || store.status}
+                                            </span>
+                                        </td>
                                         <td>
                                             <button onClick={() => navigate(`/stores/${store.id}`)}>
                                                 보기
