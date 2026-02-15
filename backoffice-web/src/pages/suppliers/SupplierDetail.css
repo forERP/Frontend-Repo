@@ -1,4 +1,4 @@
-.supplier-detail-page {
+﻿.supplier-detail-page {
     display: flex;
     justify-content: center;
     padding: 40px 20px;
@@ -7,7 +7,7 @@
     font-family: 'Noto Sans KR', sans-serif;
 }
 
-.supplier-detail-page .supplier-detail-container {
+.supplier-detail-container {
     width: 100%;
     max-width: 600px;
 }
@@ -41,14 +41,10 @@
 }
 
 .supplier-detail-page .erp-table th {
+    width: 120px;
     background-color: #f0f0f0;
     font-weight: 600;
     color: #333;
-    width: 120px;
-}
-
-.supplier-detail-page .erp-table tr:last-child td {
-    border-bottom: none;
 }
 
 .supplier-detail-page .erp-table input,
@@ -69,23 +65,14 @@
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-.supplier-detail-page .status-badge.active {
-    background: #28a745;
-    color: #fff;
-}
-
-.supplier-detail-page .status-badge.inactive {
-    background: #6c757d;
-    color: #fff;
-}
-
-.supplier-detail-page .action-buttons {
+.supplier-detail-page .detail-form-buttons {
     display: flex;
+    flex-wrap: nowrap;
     gap: 12px;
     margin-top: 24px;
 }
 
-.supplier-detail-page button {
+.supplier-detail-page .detail-form-buttons button {
     flex: 1;
     padding: 10px 16px;
     cursor: pointer;
@@ -94,27 +81,42 @@
     font-weight: 600;
     font-size: 14px;
     transition: all 0.2s ease;
-}
-
-.supplier-detail-page button[type='submit'],
-.supplier-detail-page button:first-child {
-    background-color: #4f46e5;
-    color: #fff;
-}
-
-.supplier-detail-page button[type='submit']:hover,
-.supplier-detail-page button:first-child:hover {
-    background-color: #4038cc;
-    transform: translateY(-1px);
-}
-
-.supplier-detail-page button[type='button'] {
     background-color: #e5e7eb;
     color: #333;
 }
 
-.supplier-detail-page button[type='button']:hover {
+.supplier-detail-page .detail-form-buttons button[type='submit'],
+.supplier-detail-page .detail-form-buttons button.primary-action {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.supplier-detail-page .detail-form-buttons button[type='submit']:hover:not(:disabled),
+.supplier-detail-page .detail-form-buttons button.primary-action:hover:not(:disabled) {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.supplier-detail-page .detail-form-buttons button:hover:not(:disabled) {
     background-color: #d1d5db;
+}
+
+.supplier-detail-page .detail-form-buttons button:disabled {
+    cursor: not-allowed;
+}
+
+.supplier-detail-page .status-badge.active {
+    background: #28a745;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.supplier-detail-page .status-badge.inactive {
+    background: #6c757d;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 12px;
 }
 
 .supplier-detail-page .error-message {

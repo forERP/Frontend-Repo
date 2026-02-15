@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchSupplierDetail, updateSupplier } from '../../api/supplierApi';
 import './SupplierDetail.css';
@@ -38,12 +38,12 @@ export default function SupplierDetailPage() {
       const data = await fetchSupplierDetail(supplierId);
       setSupplier(data);
       setEditForm({
-        name: data.name,
+        name: data.name || '',
         contactName: data.contactName || '',
         contactPhone: data.contactPhone || '',
         contactEmail: data.contactEmail || '',
         address: data.address || '',
-        active: data.active,
+        active: Boolean(data.active),
       });
     } catch (err) {
       setError('거래처 상세 조회에 실패했습니다.');
@@ -55,7 +55,10 @@ export default function SupplierDetailPage() {
 
   const handleEditChange = e => {
     const { name, value } = e.target;
-    setEditForm(prev => ({ ...prev, [name]: value }));
+    setEditForm(prev => ({
+      ...prev,
+      [name]: name === 'active' ? value === 'true' : value,
+    }));
   };
 
   const handleSaveEdit = async () => {
@@ -82,12 +85,12 @@ export default function SupplierDetailPage() {
     setIsEditing(false);
     if (supplier) {
       setEditForm({
-        name: supplier.name,
+        name: supplier.name || '',
         contactName: supplier.contactName || '',
         contactPhone: supplier.contactPhone || '',
         contactEmail: supplier.contactEmail || '',
         address: supplier.address || '',
-        active: supplier.active,
+        active: Boolean(supplier.active),
       });
     }
   };
@@ -116,7 +119,9 @@ export default function SupplierDetailPage() {
     );
   }
 
-  if (!supplier) return null;
+  if (!supplier) {
+    return null;
+  }
 
   return (
     <div className="supplier-detail-page">
@@ -194,11 +199,7 @@ export default function SupplierDetailPage() {
                   <tr>
                     <th>상태</th>
                     <td>
-                      <select
-                        name="active"
-                        value={String(editForm.active)}
-                        onChange={e => setEditForm(prev => ({ ...prev, active: e.target.value === 'true' }))}
-                      >
+                      <select name="active" value={String(editForm.active)} onChange={handleEditChange}>
                         <option value="true">활성</option>
                         <option value="false">비활성</option>
                       </select>
@@ -211,7 +212,7 @@ export default function SupplierDetailPage() {
                 </tbody>
               </table>
 
-              <div className="action-buttons">
+              <div className="form-buttons detail-form-buttons">
                 <button type="submit" disabled={loading}>
                   {loading ? '저장 중...' : '저장'}
                 </button>
@@ -259,9 +260,13 @@ export default function SupplierDetailPage() {
                 </tbody>
               </table>
 
-              <div className="action-buttons">
-                <button onClick={() => setIsEditing(true)}>수정</button>
-                <button onClick={() => navigate('/suppliers')}>목록</button>
+              <div className="form-buttons detail-form-buttons">
+                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
+                  수정
+                </button>
+                <button type="button" onClick={() => navigate('/suppliers')}>
+                  목록
+                </button>
               </div>
             </>
           )}

@@ -105,7 +105,7 @@ export default function ProductDetail() {
   };
 
   const handleDiscontinue = async () => {
-    if (!window.confirm('이 상품을 단종 처리하시겠습니까?')) {
+    if (!window.confirm('이 상품을 판매 중지 처리하시겠습니까?')) {
       return;
     }
 
@@ -113,17 +113,17 @@ export default function ProductDetail() {
       setLoading(true);
       setError(null);
       await discontinueProduct(id);
-      navigate('/products', { state: { message: '상품이 단종 처리되었습니다.' } });
+      navigate('/products', { state: { message: '상품이 판매 중지 처리되었습니다.' } });
     } catch (err) {
-      console.error('상품 단종 처리 실패:', err);
-      setError(err.response?.data?.message || '상품 단종 처리에 실패했습니다.');
+      console.error('상품 판매 중지 처리 실패:', err);
+      setError(err.response?.data?.message || '상품 판매 중지 처리에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReactivate = async () => {
-    if (!window.confirm('이 상품을 재등록(단종 취소)하시겠습니까?')) {
+    if (!window.confirm('이 상품의 판매 중지를 해제하시겠습니까?')) {
       return;
     }
 
@@ -133,8 +133,8 @@ export default function ProductDetail() {
       await reactivateProduct(id);
       await loadData();
     } catch (err) {
-      console.error('상품 재등록 실패:', err);
-      setError(err.response?.data?.message || '상품 재등록에 실패했습니다.');
+      console.error('상품 재판매 처리 실패:', err);
+      setError(err.response?.data?.message || '상품 재판매 처리에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -319,7 +319,7 @@ export default function ProductDetail() {
                         <th>상태</th>
                         <td>
                           <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
-                            {product.status === 'ACTIVE' ? '활성' : '단종'}
+                            {product.status === 'ACTIVE' ? '활성' : '판매 중지'}
                           </span>
                         </td>
                       </tr>
@@ -347,7 +347,7 @@ export default function ProductDetail() {
                     onClick={handleDiscontinue}
                     disabled={loading}
                   >
-                    단종 처리
+                    판매 중지
                   </button>
                 )}
                 {product.status === 'DISCONTINUED' && (
@@ -356,7 +356,7 @@ export default function ProductDetail() {
                     onClick={handleReactivate}
                     disabled={loading}
                   >
-                    재등록
+                    재판매
                   </button>
                 )}
               </div>

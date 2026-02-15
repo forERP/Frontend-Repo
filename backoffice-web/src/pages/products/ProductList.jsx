@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -78,7 +78,7 @@ export default function ProductList() {
   const handleDiscontinue = async (e, productId) => {
     e.stopPropagation();
 
-    if (!window.confirm('이 상품을 단종 처리하시겠습니까?')) {
+    if (!window.confirm('이 상품을 판매 중지 처리하시겠습니까?')) {
       return;
     }
 
@@ -87,8 +87,8 @@ export default function ProductList() {
       await discontinueProduct(productId);
       await loadProducts(currentPage, query, pageSize);
     } catch (err) {
-      console.error('상품 단종 처리 실패:', err);
-      setError('상품 단종 처리에 실패했습니다.');
+      console.error('상품 판매 중지 처리 실패:', err);
+      setError('상품 판매 중지 처리에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function ProductList() {
   const handleReactivate = async (e, productId) => {
     e.stopPropagation();
 
-    if (!window.confirm('이 상품을 재등록(단종 취소)하시겠습니까?')) {
+    if (!window.confirm('이 상품의 판매 중지를 해제하시겠습니까?')) {
       return;
     }
 
@@ -106,8 +106,8 @@ export default function ProductList() {
       await reactivateProduct(productId);
       await loadProducts(currentPage, query, pageSize);
     } catch (err) {
-      console.error('상품 재등록 실패:', err);
-      setError('상품 재등록에 실패했습니다.');
+      console.error('상품 재판매 처리 실패:', err);
+      setError('상품 재판매 처리에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export default function ProductList() {
                 options: [
                   { value: '', label: '전체' },
                   { value: 'ACTIVE', label: '활성' },
-                  { value: 'DISCONTINUED', label: '단종' },
+                  { value: 'DISCONTINUED', label: '판매 중지' },
                 ],
               },
             ]}
@@ -204,7 +204,7 @@ export default function ProductList() {
                         </td>
                         <td>
                           <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
-                            {product.status === 'ACTIVE' ? '활성' : '단종'}
+                            {product.status === 'ACTIVE' ? '활성' : '판매 중지'}
                           </span>
                         </td>
                         <td className="actions-cell">
@@ -223,7 +223,7 @@ export default function ProductList() {
                               className="discontinue-btn"
                               onClick={e => handleDiscontinue(e, product.id)}
                             >
-                              단종
+                              판매 중지
                             </button>
                           )}
                           {product.status === 'DISCONTINUED' && (
@@ -231,7 +231,7 @@ export default function ProductList() {
                               className="reactivate-btn"
                               onClick={e => handleReactivate(e, product.id)}
                             >
-                              재등록
+                              재판매
                             </button>
                           )}
                         </td>

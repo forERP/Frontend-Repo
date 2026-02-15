@@ -1,8 +1,219 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ListPagination from '../../components/list/ListPagination';
+import ListSearchControls from '../../components/list/ListSearchControls';
+import { fetchOrderPage } from '../../api/orderApi';
+import { ORDER_STATUS } from '../../constants/status';
+import '../purchase/request/purchase.css';
+import './OrderList.css';
+
+const INITIAL_FILTERS = {
+  storeName: '',
+  storeCode: '',
+  status: '',
+  from: '',
+  to: '',
+};
+
 export default function OrderList() {
+  const navigate = useNavigate();
+
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [query, setQuery] = useState(INITIAL_FILTERS);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  useEffect(() => {
+    loadOrders(currentPage, query, pageSize);
+  }, [currentPage, query, pageSize]);
+
+  const loadOrders = async (page, search, size) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await fetchOrderPage({
+        page,
+        size,
+        storeName: search.storeName,
+        storeCode: search.storeCode,
+        status: search.status,
+        from: search.from,
+        to: search.to,
+      });
+
+      setOrders(data.content || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
+    } catch (err) {
+      console.error(err);
+      setError('주문 목록 조회에 실패했습니다.');
+      setOrders([]);
+      setTotalPages(0);
+      setTotalElements(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = e => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearch = e => {
+    e.preventDefault();
+    setCurrentPage(0);
+    setQuery({ ...filters });
+  };
+
+  const handleReset = () => {
+    setFilters(INITIAL_FILTERS);
+    setCurrentPage(0);
+    setQuery(INITIAL_FILTERS);
+  };
+
+  const handlePageSizeChange = size => {
+    setCurrentPage(0);
+    setPageSize(size);
+  };
+
   return (
-    <div>
-      <h1>주문 목록</h1>
-      <p>주문 관리 페이지</p>
+    <div className="purchase-page">
+      <div className="page-header">
+        <h2>주문 목록</h2>
+      </div>
+
+      <div className="card list-filter-card">
+        <ListSearchControls
+          formClassName="order-list-search-form"
+          fields={[
+            {
+              name: 'storeName',
+              label: '매장명',
+              type: 'text',
+              value: filters.storeName,
+              onChange: handleFilterChange,
+              placeholder: '매장명 검색',
+            },
+            {
+              name: 'storeCode',
+              label: '매장코드',
+              type: 'text',
+              value: filters.storeCode,
+              onChange: handleFilterChange,
+              placeholder: '매장코드 검색',
+            },
+            {
+              name: 'status',
+              label: '상태',
+              type: 'select',
+              value: filters.status,
+              onChange: handleFilterChange,
+              options: [
+                { value: '', label: '전체' },
+                ...Object.entries(ORDER_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
+              ],
+            },
+            {
+              name: 'from',
+              label: '시작일',
+              type: 'date',
+              value: filters.from,
+              onChange: handleFilterChange,
+              className: 'date-field',
+            },
+            {
+              name: 'to',
+              label: '종료일',
+              type: 'date',
+              value: filters.to,
+              onChange: handleFilterChange,
+              className: 'date-field',
+            },
+          ]}
+          onSearch={handleSearch}
+          onReset={handleReset}
+        />
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="card list-card">
+        <div className="table-toolbar">
+          <span className="total-count">총 {totalElements.toLocaleString('ko-KR')}건</span>
+        </div>
+
+        <table className="erp-table list-table order-list-table">
+          <thead>
+            <tr>
+              <th>주문번호</th>
+              <th>매장</th>
+              <th>상태</th>
+              <th>주문금액</th>
+              <th>주문일시</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="empty-cell">
+                  로딩 중...
+                </td>
+              </tr>
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="empty-cell">
+                  검색 결과가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              orders.map(order => (
+                <tr
+                  key={order.orderId}
+                  className="clickable-row"
+                  onClick={() => navigate(`/orders/${order.orderId}`)}
+                >
+                  <td title={String(order.orderId)}>{order.orderId}</td>
+                  <td title={`${order.storeName || `매장 ${order.storeId}`}${order.storeCode ? ` (${order.storeCode})` : ''}`}>
+                    {order.storeName || `매장 ${order.storeId}`}
+                    {order.storeCode ? ` (${order.storeCode})` : ''}
+                  </td>
+                  <td>
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: ORDER_STATUS[order.status]?.color || '#6C757D', color: '#fff' }}
+                    >
+                      {ORDER_STATUS[order.status]?.label || order.status}
+                    </span>
+                  </td>
+                  <td title={order.totalAmount != null ? Number(order.totalAmount).toLocaleString('ko-KR') : '-'}>
+                    {order.totalAmount != null ? `${Number(order.totalAmount).toLocaleString('ko-KR')}원` : '-'}
+                  </td>
+                  <td title={order.orderedAt ? new Date(order.orderedAt).toLocaleString('ko-KR') : '-'}>
+                    {order.orderedAt ? new Date(order.orderedAt).toLocaleString('ko-KR') : '-'}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        <ListPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
     </div>
   );
 }

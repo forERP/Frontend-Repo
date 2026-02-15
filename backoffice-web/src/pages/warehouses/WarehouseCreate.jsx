@@ -77,7 +77,7 @@ export default function WarehouseCreatePage() {
 
                         <div className="form-group">
                             <label>창고 코드 *</label>
-                            <input name="code" value={form.code} onChange={handleChange} required placeholder="예: MAIN" />
+                            <input name="code" value={form.code} onChange={handleChange} required placeholder="예: SUB_001" />
                         </div>
 
                         <div className="form-group">
