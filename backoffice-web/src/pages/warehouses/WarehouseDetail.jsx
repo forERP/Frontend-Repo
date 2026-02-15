@@ -132,7 +132,7 @@ export default function WarehouseDetailPage() {
                                 </tbody>
                             </table>
 
-                            <div className="action-buttons">
+                            <div className="form-buttons detail-form-buttons">
                                 <button type="submit" disabled={loading}>{loading ? '저장 중...' : '저장'}</button>
                                 <button type="button" onClick={handleCancel} disabled={loading}>취소</button>
                             </div>
@@ -164,9 +164,9 @@ export default function WarehouseDetailPage() {
                                 </tbody>
                             </table>
 
-                            <div className="action-buttons">
-                                <button onClick={() => setIsEditing(true)}>수정</button>
-                                <button onClick={() => navigate('/warehouses')}>목록</button>
+                            <div className="form-buttons detail-form-buttons">
+                                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>수정</button>
+                                <button type="button" onClick={() => navigate('/warehouses')}>목록</button>
                             </div>
                         </>
                     )}

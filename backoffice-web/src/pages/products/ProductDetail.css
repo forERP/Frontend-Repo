@@ -13,7 +13,7 @@
 
 .detail-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 24px;
 }
@@ -25,13 +25,6 @@
     margin: 0;
 }
 
-.detail-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.edit-btn,
-.discontinue-btn,
 .back-btn {
     padding: 10px 20px;
     border: none;
@@ -40,61 +33,6 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-}
-
-.edit-btn {
-    background: #dbeafe;
-    color: #0c4a6e;
-    border: 1px solid #0ea5e9;
-}
-
-.edit-btn:hover:not(:disabled) {
-    background: #0ea5e9;
-    color: #fff;
-}
-
-.edit-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.discontinue-btn,
-.reactivate-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.discontinue-btn {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-}
-
-.discontinue-btn:hover:not(:disabled) {
-    background: #dc2626;
-    color: #fff;
-}
-
-.reactivate-btn {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #6ee7b7;
-}
-
-.reactivate-btn:hover:not(:disabled) {
-    background: #10b981;
-    color: #fff;
-}
-
-.discontinue-btn:disabled,
-.reactivate-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .back-btn {
@@ -265,6 +203,47 @@
 
 .product-detail-page .product-form .form-buttons button:disabled {
     cursor: not-allowed;
+}
+
+.product-detail-page .detail-form-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.product-detail-page .detail-form-buttons button {
+    flex: 1;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.product-detail-page .detail-form-buttons button.primary-action {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.product-detail-page .detail-form-buttons button.primary-action:hover:not(:disabled) {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.product-detail-page .detail-form-buttons button:hover:not(:disabled) {
+    background-color: #d1d5db;
+}
+
+.product-detail-page .detail-form-buttons button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* ?곸꽭 ?뺣낫 ?쒖떆 紐⑤뱶 */

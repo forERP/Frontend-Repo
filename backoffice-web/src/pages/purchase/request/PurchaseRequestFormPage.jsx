@@ -105,8 +105,16 @@ export default function PurchaseRequestFormPage() {
 
     return (
         <div className="purchase-page">
-            <h2>발주 요청 생성</h2>
-            <button className="btn-secondary" onClick={() => navigate(-1)}>목록으로</button>
+            <div className="page-header">
+                <h2>발주 요청 생성</h2>
+                <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => navigate('/purchase-requests')}
+                >
+                    목록으로
+                </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="purchase-form">
                 <div className="form-group">

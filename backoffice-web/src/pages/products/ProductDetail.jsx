@@ -173,37 +173,6 @@ export default function ProductDetail() {
       <div className="product-detail-container">
         <div className="detail-header">
           <h1 className="page-title">상품 상세</h1>
-          <div className="detail-actions">
-            {!isEditing && (
-              <>
-                <button
-                  className="edit-btn"
-                  onClick={() => setIsEditing(true)}
-                  disabled={loading || product.status === 'DISCONTINUED'}
-                >
-                  편집
-                </button>
-                {product.status !== 'DISCONTINUED' && (
-                  <button
-                    className="discontinue-btn"
-                    onClick={handleDiscontinue}
-                    disabled={loading}
-                  >
-                    단종 처리
-                  </button>
-                )}
-                {product.status === 'DISCONTINUED' && (
-                  <button
-                    className="reactivate-btn"
-                    onClick={handleReactivate}
-                    disabled={loading}
-                  >
-                    재등록
-                  </button>
-                )}
-              </>
-            )}
-          </div>
         </div>
 
         {error && (
@@ -313,54 +282,85 @@ export default function ProductDetail() {
               </div>
             </form>
           ) : (
-            <div className="detail-view detail-view-split">
-              <div className="detail-image-panel">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="product-image-preview"
-                  />
-                ) : (
-                  <div className="image-placeholder">이미지가 없습니다.</div>
-                )}
+            <>
+              <div className="detail-view detail-view-split">
+                <div className="detail-image-panel">
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="product-image-preview"
+                    />
+                  ) : (
+                    <div className="image-placeholder">이미지가 없습니다.</div>
+                  )}
+                </div>
+
+                <div className="detail-info-panel">
+                  <table className="product-detail-table">
+                    <tbody>
+                      <tr>
+                        <th>SKU</th>
+                        <td>{product.sku || '-'}</td>
+                      </tr>
+                      <tr>
+                        <th>상품명</th>
+                        <td>{product.name}</td>
+                      </tr>
+                      <tr>
+                        <th>카테고리</th>
+                        <td>{product.category?.name || '-'}</td>
+                      </tr>
+                      <tr>
+                        <th>가격</th>
+                        <td>{Number(product.msrpPrice).toLocaleString('ko-KR')}원</td>
+                      </tr>
+                      <tr>
+                        <th>상태</th>
+                        <td>
+                          <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
+                            {product.status === 'ACTIVE' ? '활성' : '단종'}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>설명</th>
+                        <td>{product.description || '-'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div className="detail-info-panel">
-                <table className="product-detail-table">
-                  <tbody>
-                    <tr>
-                      <th>SKU</th>
-                      <td>{product.sku || '-'}</td>
-                    </tr>
-                    <tr>
-                      <th>상품명</th>
-                      <td>{product.name}</td>
-                    </tr>
-                    <tr>
-                      <th>카테고리</th>
-                      <td>{product.category?.name || '-'}</td>
-                    </tr>
-                    <tr>
-                      <th>가격</th>
-                      <td>{Number(product.msrpPrice).toLocaleString('ko-KR')}원</td>
-                    </tr>
-                    <tr>
-                      <th>상태</th>
-                      <td>
-                        <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
-                          {product.status === 'ACTIVE' ? '활성' : '단종'}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>설명</th>
-                      <td>{product.description || '-'}</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="form-buttons detail-form-buttons">
+                <button
+                  type="button"
+                  className="primary-action"
+                  onClick={() => setIsEditing(true)}
+                  disabled={loading || product.status === 'DISCONTINUED'}
+                >
+                  편집
+                </button>
+                {product.status !== 'DISCONTINUED' && (
+                  <button
+                    type="button"
+                    onClick={handleDiscontinue}
+                    disabled={loading}
+                  >
+                    단종 처리
+                  </button>
+                )}
+                {product.status === 'DISCONTINUED' && (
+                  <button
+                    type="button"
+                    onClick={handleReactivate}
+                    disabled={loading}
+                  >
+                    재등록
+                  </button>
+                )}
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>

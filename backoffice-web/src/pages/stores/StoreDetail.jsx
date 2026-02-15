@@ -220,7 +220,7 @@ export default function StoreDetailPage() {
                                 </tbody>
                             </table>
 
-                            <div className="action-buttons">
+                            <div className="form-buttons detail-form-buttons">
                                 <button type="submit" disabled={loading}>
                                     {loading ? '저장 중...' : '저장'}
                                 </button>
@@ -281,9 +281,9 @@ export default function StoreDetailPage() {
                                 </tbody>
                             </table>
 
-                            <div className="action-buttons">
-                                <button onClick={() => setIsEditing(true)}>수정</button>
-                                <button onClick={() => navigate('/stores')}>목록</button>
+                            <div className="form-buttons detail-form-buttons">
+                                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>수정</button>
+                                <button type="button" onClick={() => navigate('/stores')}>목록</button>
                                 <button type="button" onClick={() => console.log('매출관리')}>매출관리</button>
                                 <button type="button" onClick={() => console.log('직원관리')}>직원관리</button>
                                 <button type="button" onClick={async () => {

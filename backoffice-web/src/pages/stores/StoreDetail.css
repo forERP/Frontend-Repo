@@ -166,13 +166,14 @@
     font-weight: 700;
 }
 
-.action-buttons {
+.store-detail-page .detail-form-buttons {
     display: flex;
+    flex-wrap: nowrap;
     gap: 12px;
     margin-top: 24px;
 }
 
-.store-detail-page button {
+.store-detail-page .detail-form-buttons button {
     flex: 1;
     padding: 10px 16px;
     cursor: pointer;
@@ -181,27 +182,28 @@
     font-weight: 600;
     font-size: 14px;
     transition: all 0.2s ease;
-}
-
-.store-detail-page button[type='submit'],
-.store-detail-page button:first-child {
-    background-color: #4f46e5;
-    color: #fff;
-}
-
-.store-detail-page button[type='submit']:hover,
-.store-detail-page button:first-child:hover {
-    background-color: #4038cc;
-    transform: translateY(-1px);
-}
-
-.store-detail-page button[type='button'] {
     background-color: #e5e7eb;
     color: #333;
 }
 
-.store-detail-page button[type='button']:hover {
+.store-detail-page .detail-form-buttons button[type='submit'],
+.store-detail-page .detail-form-buttons button.primary-action {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.store-detail-page .detail-form-buttons button[type='submit']:hover:not(:disabled),
+.store-detail-page .detail-form-buttons button.primary-action:hover:not(:disabled) {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.store-detail-page .detail-form-buttons button:hover:not(:disabled) {
     background-color: #d1d5db;
+}
+
+.store-detail-page .detail-form-buttons button:disabled {
+    cursor: not-allowed;
 }
 
 .error-message {
