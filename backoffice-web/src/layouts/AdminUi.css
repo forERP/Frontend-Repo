@@ -12,6 +12,9 @@
     .warehouse-page,
     .warehouse-create-page,
     .warehouse-detail-page,
+    .supplier-page,
+    .supplier-create-page,
+    .supplier-detail-page,
     .purchase-page,
     .attendance-page,
     .detail-page,
@@ -32,6 +35,9 @@
     .warehouse-container,
     .warehouse-form-container,
     .warehouse-detail-container,
+    .supplier-container,
+    .supplier-form-container,
+    .supplier-detail-container,
     .attendance-container,
     .users-container,
     .detail-container
@@ -46,7 +52,10 @@
     .attendance-title,
     .store-detail-page h1,
     .warehouse-detail-page h1,
-    .warehouse-page h1
+    .warehouse-page h1,
+    .supplier-page h1,
+    .supplier-create-page h1,
+    .supplier-detail-page h1
 ) {
     margin: 0 0 20px;
     font-size: 28px;
@@ -252,6 +261,9 @@
         .warehouse-page,
         .warehouse-create-page,
         .warehouse-detail-page,
+        .supplier-page,
+        .supplier-create-page,
+        .supplier-detail-page,
         .purchase-page,
         .attendance-page,
         .detail-page,

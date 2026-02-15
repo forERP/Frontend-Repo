@@ -19,8 +19,10 @@ export default function MainLayout({ user }) {
     if (savedSidebarState !== null) {
       setIsSidebarOpen(JSON.parse(savedSidebarState));
     }
-    if (savedActiveTopKey) {
+    if (savedActiveTopKey && menus.some(menu => menu.key === savedActiveTopKey)) {
       setActiveTopKey(savedActiveTopKey);
+    } else {
+      setActiveTopKey('dashboard');
     }
   }, []);
 

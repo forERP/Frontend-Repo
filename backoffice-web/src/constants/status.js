@@ -56,3 +56,9 @@ export const STORE_STATUS = {
     CLOSED: { label: '폐점', color: '#6C757D' },
 };
 
+// 거래처 상태
+export const SUPPLIER_STATUS = {
+    ACTIVE: { label: '활성', color: '#28A745' },
+    INACTIVE: { label: '비활성', color: '#6C757D' },
+};
+

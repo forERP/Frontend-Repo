@@ -72,9 +72,10 @@ import SalesReport from '../pages/reports/SalesReport.jsx';
 import AdminLog from '../pages/historylogs/AdminLog.jsx';
 import InventoryLog from '../pages/historylogs/InventoryLog.jsx';
 
-// Settings Pages
-import Suppliers from '../pages/settings/Suppliers.jsx';
-import Roles from '../pages/settings/Roles.jsx';
+// Supplier Pages
+import SupplierList from '../pages/suppliers/SupplierList.jsx';
+import SupplierCreate from '../pages/suppliers/SupplierCreate.jsx';
+import SupplierDetail from '../pages/suppliers/SupplierDetail.jsx';
 
 export default function AppRouter({ user, setUser }) {
   return (
@@ -151,9 +152,12 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/logs/admin" element={<AdminLog />} />
           <Route path="/logs/inventory" element={<InventoryLog />} />
 
-          {/* Settings Routes */}
-          <Route path="/settings/suppliers" element={<Suppliers />} />
-          <Route path="/settings/roles" element={<Roles />} />
+          {/* Supplier Routes */}
+          <Route path="/suppliers" element={<SupplierList />} />
+          <Route path="/suppliers/new" element={<SupplierCreate />} />
+          <Route path="/suppliers/:id" element={<SupplierDetail />} />
+          <Route path="/settings/suppliers" element={<Navigate to="/suppliers" replace />} />
+          <Route path="/settings/roles" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
 
         </Route>
