@@ -1,69 +1,124 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../lib/api';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { fetchUserDetail } from '../../api/userApi';
+import { USER_ROLE, USER_STATUS } from '../../constants/user';
 import './UserDetail.css';
 
 export default function UserDetail() {
-
-
   const { userId } = useParams();
   const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchUser();
+    loadUser();
   }, [userId]);
 
-  const fetchUser = async () => {
+  const loadUser = async () => {
     try {
-      const response = await api.get(`/api/users/${userId}`);
-      setUser(response.data);
-    } catch (error) {
-      alert('사용자 정보를 불러올 수 없습니다.');
-      navigate('/users');
+      setLoading(true);
+      setError(null);
+      const data = await fetchUserDetail(userId);
+      setUser(data);
+    } catch (err) {
+      console.error(err);
+      setError('직원 정보를 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('정말 이 직원을 퇴사 처리하시겠습니까?')) {
-      try {
-        await api.delete(`/api/users/${userId}`);
-        alert('퇴사 처리 되었습니다.');
-        navigate('/users');
-      } catch (error) {
-        alert('삭제 실패');
-      }
-    }
-  };
+  if (loading && !user) {
+    return (
+      <div className="user-detail-page">
+        <div className="user-detail-container">
+          <h1>직원 상세</h1>
+          <div className="detail-card loading-box">로딩 중...</div>
+        </div>
+      </div>
+    );
+  }
 
-  if (!user) return null;
+  if (error && !user) {
+    return (
+      <div className="user-detail-page">
+        <div className="user-detail-container">
+          <h1>직원 상세</h1>
+          <div className="error-message">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="detail-container">
-      <div className="detail-card">
-        <div className="card-header">
-          <h2>{user.name} 님의 인사 정보</h2>
-          <span className={`status-tag ${user.status}`}>{user.status}</span>
-        </div>
+    <div className="user-detail-page">
+      <div className="user-detail-container">
+        <h1>직원 상세</h1>
+        {error && <div className="error-message">{error}</div>}
 
-        <div className="info-grid">
-          <div className="info-item"><strong>로그인 ID</strong> <span>{user.loginId}</span></div>
-          <div className="info-item"><strong>직원 코드</strong> <span>{user.employeeCode}</span></div>
-          <div className="info-item"><strong>매장 ID</strong> <span>{user.storeId}</span></div>
-          <div className="info-item"><strong>부여 권한</strong> <span>{user.role}</span></div>
-          <div className="info-item"><strong>등록 일시</strong> <span>{new Date(user.createdAt).toLocaleString()}</span></div>
-        </div>
+        <div className="detail-card">
+          <table className="erp-table">
+            <tbody>
+              <tr>
+                <th>직원명</th>
+                <td>{user.name}</td>
+              </tr>
+              <tr>
+                <th>로그인 ID</th>
+                <td>{user.loginId}</td>
+              </tr>
+              <tr>
+                <th>직원코드</th>
+                <td>{user.employeeCode || '-'}</td>
+              </tr>
+              <tr>
+                <th>매장명</th>
+                <td>{user.storeName || '-'}</td>
+              </tr>
+              <tr>
+                <th>매장코드</th>
+                <td>{user.storeCode || '-'}</td>
+              </tr>
+              <tr>
+                <th>역할</th>
+                <td>{USER_ROLE[user.role]?.label || user.role || '-'}</td>
+              </tr>
+              <tr>
+                <th>상태</th>
+                <td>
+                  <span
+                    className="status-badge"
+                    style={{ backgroundColor: USER_STATUS[user.status]?.color || '#6C757D', color: '#fff' }}
+                  >
+                    {USER_STATUS[user.status]?.label || user.status || '-'}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>등록일</th>
+                <td>{user.createdAt ? new Date(user.createdAt).toLocaleString('ko-KR') : '-'}</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <div className="action-row">
-          <button onClick={() => navigate(`/users/update/${userId}`)} className="update-btn">정보 수정</button>
-          <button onClick={handleDelete} className="delete-btn">퇴사 처리</button>
-        </div>
-
-        <hr />
-
-        <div className="nav-row">
-          <button onClick={() => navigate(`/attendance/${userId}`)}>근태 기록 보기</button>
-          <button onClick={() => navigate(`/salary/${userId}`)}>급여 내역 보기</button>
+          <div className="form-buttons detail-form-buttons">
+            <button
+              type="button"
+              className="primary-action"
+              onClick={() => navigate(`/users/${user.id}/edit`)}
+            >
+              수정
+            </button>
+            <button type="button" onClick={() => navigate('/users')}>
+              목록
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -30,6 +30,25 @@ export default function ListSearchControls({
                 </option>
               ))}
             </select>
+          ) : field.type === 'date-range' ? (
+            <div className="list-search-date-range">
+              <input
+                id={field.name}
+                type="date"
+                name={field.fromName}
+                value={field.fromValue || ''}
+                onChange={field.onChange}
+                aria-label={`${field.label} 시작일`}
+              />
+              <span className="date-range-separator" aria-hidden="true">~</span>
+              <input
+                type="date"
+                name={field.toName}
+                value={field.toValue || ''}
+                onChange={field.onChange}
+                aria-label={`${field.label} 종료일`}
+              />
+            </div>
           ) : (
             <input
               id={field.name}

@@ -99,7 +99,9 @@ export const menus = [
         permissionCode: 'STAFF_MENU',
         children: [
             { key: 'users', label: '직원 조회', path: '/users', permissionCode: 'USER_VIEW' },
+            { key: 'user-create', label: '직원 등록', path: '/users/new', permissionCode: 'USER_VIEW' },
             { key: 'user-detail', label: '직원 상세', path: '/users/:id', hidden: true, permissionCode: 'USER_VIEW' },
+            { key: 'user-edit', label: '직원 수정', path: '/users/:id/edit', hidden: true, permissionCode: 'USER_VIEW' },
             { key: 'attendance', label: '근태 관리', path: '/attendance', permissionCode: 'ATTENDANCE_VIEW' },
             { key: 'salary', label: '급여 관리', path: '/salary', permissionCode: 'SALARY_VIEW' },
         ],

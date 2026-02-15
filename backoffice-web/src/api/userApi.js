@@ -1,0 +1,41 @@
+import api from '../lib/api';
+
+export const fetchUserPage = async ({
+  page = 0,
+  size = 10,
+  storeName = '',
+  storeCode = '',
+  name = '',
+  status = '',
+  role = '',
+  createdFrom = '',
+  createdTo = '',
+} = {}) => {
+  const params = { page, size };
+
+  if (storeName?.trim()) params.storeName = storeName.trim();
+  if (storeCode?.trim()) params.storeCode = storeCode.trim();
+  if (name?.trim()) params.name = name.trim();
+  if (status) params.status = status;
+  if (role) params.role = role;
+  if (createdFrom) params.createdFrom = createdFrom;
+  if (createdTo) params.createdTo = createdTo;
+
+  const response = await api.get('/api/users/search', { params });
+  return response.data;
+};
+
+export const fetchUserDetail = async userId => {
+  const response = await api.get(`/api/users/${userId}`);
+  return response.data;
+};
+
+export const createUser = async payload => {
+  const response = await api.post('/api/users', payload);
+  return response.data;
+};
+
+export const updateUser = async (userId, payload) => {
+  const response = await api.put(`/api/users/${userId}`, payload);
+  return response.data;
+};

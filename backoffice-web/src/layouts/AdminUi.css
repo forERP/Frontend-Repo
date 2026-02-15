@@ -39,7 +39,7 @@
     .supplier-form-container,
     .supplier-detail-container,
     .attendance-container,
-    .users-container,
+    .users-page-content,
     .detail-container
 ) {
     width: 100%;
@@ -71,7 +71,6 @@
     .attendance-card,
     .employee-card,
     .history-card,
-    .users-container,
     .purchase-form,
     .info-box,
     .store-info-box,

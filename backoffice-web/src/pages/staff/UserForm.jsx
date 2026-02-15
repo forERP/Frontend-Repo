@@ -1,73 +1,169 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../lib/api';
+import { createUser } from '../../api/userApi';
+import { fetchStores } from '../../api/storeApi';
+import { USER_ROLE_FORM_OPTIONS } from '../../constants/user';
 import './UserForm.css';
 
 export default function UserForm() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        loginId: '',
-        password: '',
-        name: '',
-        storeId: '',
-        role: ''
-    });
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  const [formData, setFormData] = useState({
+    loginId: '',
+    password: '',
+    name: '',
+    storeId: '',
+    role: 'STORE_HALL_STAFF',
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await api.post('/api/users', {
-                ...formData,
-                storeId: parseInt(formData.storeId)
-            });
-            alert('직원이 등록되었습니다.');
-            navigate('/users');
-        } catch (error) {
-            alert('등록 실패: ' + (error.response?.data?.message || '서버 에러'));
-        }
-    };
+  useEffect(() => {
+    loadStores();
+  }, []);
 
-    return (
-        <div className="form-container">
-            <h2>신규 직원 등록</h2>
-            <form onSubmit={handleSubmit} className="erp-form">
-                <div className="form-group">
-                    <label>아이디</label>
-                    <input type="text" name="loginId" value={formData.loginId} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>비밀번호</label>
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>이름</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>매장 ID</label>
-                    <input type="number" name="storeId" value={formData.storeId} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>역할</label>
-                    <select name="role" value={formData.role} onChange={handleChange} required>
-                        <option value="" disabled>역할을 선택하세요</option>
-                        <option value="STORE_HALL_STAFF">홀 스태프</option>
-                        <option value="STORE_KITCHEN_STAFF">주방 스태프</option>
-                        <option value="STORE_ADMIN">매장 관리자</option>
-                        <option value="HQ_ADMIN">본사 관리자</option>
-                    </select>
-                </div>
-                <div className="form-actions">
-                    <button type="button" onClick={() => navigate(-1)} className="cancel-btn">취소</button>
-                    <button type="submit" className="submit-btn">등록</button>
-                </div>
-            </form>
+  const loadStores = async () => {
+    try {
+      const data = await fetchStores();
+      setStores(data || []);
+      if (data?.length) {
+        setFormData(prev => ({ ...prev, storeId: String(data[0].id) }));
+      }
+    } catch (err) {
+      console.error(err);
+      setError('매장 목록을 불러오지 못했습니다.');
+    }
+  };
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+
+    if (!formData.loginId.trim()) {
+      setError('로그인 ID를 입력해주세요.');
+      return;
+    }
+
+    if (!formData.password || formData.password.length < 8) {
+      setError('비밀번호는 8자 이상이어야 합니다.');
+      return;
+    }
+
+    if (!formData.name.trim()) {
+      setError('직원명을 입력해주세요.');
+      return;
+    }
+
+    if (!formData.storeId) {
+      setError('매장을 선택해주세요.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await createUser({
+        loginId: formData.loginId.trim(),
+        password: formData.password,
+        name: formData.name.trim(),
+        storeId: Number(formData.storeId),
+        role: formData.role,
+      });
+
+      navigate(`/users/${result.id}`);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || '직원 등록에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="user-form-page">
+      <div className="user-form-container">
+        <h1>직원 등록</h1>
+
+        <div className="form-card">
+          {error && <div className="error-message">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="user-form">
+            <div className="form-group">
+              <label>로그인 ID *</label>
+              <input
+                name="loginId"
+                value={formData.loginId}
+                onChange={handleChange}
+                placeholder="로그인 ID를 입력하세요"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>비밀번호 *</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="8자 이상 입력하세요"
+                minLength={8}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>직원명 *</label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="직원명을 입력하세요"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>매장 *</label>
+              <select name="storeId" value={formData.storeId} onChange={handleChange} required>
+                <option value="">매장 선택</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.id}>
+                    {store.name} ({store.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>역할 *</label>
+              <select name="role" value={formData.role} onChange={handleChange} required>
+                {USER_ROLE_FORM_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-buttons">
+              <button type="submit" disabled={loading}>
+                {loading ? '등록 중...' : '등록'}
+              </button>
+              <button type="button" onClick={() => navigate('/users')} disabled={loading}>
+                취소
+              </button>
+            </div>
+          </form>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

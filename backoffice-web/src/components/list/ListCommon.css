@@ -32,6 +32,19 @@
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+.list-search-date-range {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+}
+
+.list-search-date-range .date-range-separator {
+    color: #6b7280;
+    font-weight: 600;
+    line-height: 1;
+}
+
 .list-search-actions {
     display: flex;
     gap: 8px;

@@ -5,21 +5,29 @@
     min-height: 100vh;
 }
 
-h1,
-h2 {
-    margin-bottom: 20px;
-    color: #222;
+.purchase-page > h1,
+.purchase-page > h2 {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111827;
 }
 
-.page-header {
+.purchase-page .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
-.page-header h2 {
+.purchase-page .page-header h1,
+.purchase-page .page-header h2 {
     margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111827;
 }
 
 .filter-bar {

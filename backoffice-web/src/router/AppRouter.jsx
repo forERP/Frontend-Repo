@@ -138,7 +138,7 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/users" element={<Users />} />
           <Route path="/users/:userId" element={<UserDetail />} />
           <Route path="/users/new" element={<UserForm />} />
-          <Route path="/users/update" element={<UserUpdate />} />
+          <Route path="/users/:userId/edit" element={<UserUpdate />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/attendance/:userId" element={<AttendanceDetail />} />
           <Route path="/attendance/:userId/leave" element={<LeaveManagement />} />
