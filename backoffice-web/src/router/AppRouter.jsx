@@ -56,8 +56,12 @@ import ShipmentTracking from '../pages/shipments/ShipmentTracking.jsx';
 
 // Staff Pages
 import Users from '../pages/staff/Users.jsx';
+import UserForm from '../pages/staff/UserForm.jsx';
+import UserUpdate from '../pages/staff/UserUpdate.jsx';
 import UserDetail from '../pages/staff/UserDetail.jsx';
 import Attendance from '../pages/staff/Attendance.jsx';
+import AttendanceDetail from '../pages/staff/AttendanceDetail.jsx';
+import LeaveManagement from '../pages/staff/LeaveManagement.jsx';
 import Salary from '../pages/staff/Salary.jsx';
 
 // Report Pages
@@ -107,7 +111,7 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/purchase-orders/:orderId" element={<PurchaseOrderDetailPage />} />
           <Route path="/purchase-approvals" element={<PurchaseApprovalListPage />} />
           <Route path="/purchase-approvals/:id" element={<PurchaseApprovalDetailPage />} />
-          
+
           {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
           <Route path="/inbounds/:id" element={<InboundDetail />} />
@@ -131,8 +135,12 @@ export default function AppRouter({ user, setUser }) {
 
           {/* Staff Routes */}
           <Route path="/users" element={<Users />} />
-          <Route path="/users/:id" element={<UserDetail />} />
+          <Route path="/users/:userId" element={<UserDetail />} />
+          <Route path="/users/new" element={<UserForm />} />
+          <Route path="/users/update" element={<UserUpdate />} />
           <Route path="/attendance" element={<Attendance />} />
+          <Route path="/attendance/:userId" element={<AttendanceDetail />} />
+          <Route path="/attendance/:userId/leave" element={<LeaveManagement />} />
           <Route path="/salary" element={<Salary />} />
 
           {/* Report Routes */}
