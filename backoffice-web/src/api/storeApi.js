@@ -11,6 +11,23 @@ export const fetchStores = async () => {
   }
 };
 
+// 매장 목록 검색 + 페이지네이션
+export const fetchStorePage = async ({ page = 0, size = 10, name = '', code = '', status = '' } = {}) => {
+  try {
+    const params = { page, size };
+
+    if (name?.trim()) params.name = name.trim();
+    if (code?.trim()) params.code = code.trim();
+    if (status) params.status = status;
+
+    const response = await api.get('/api/stores/search', { params });
+    return response.data;
+  } catch (error) {
+    console.error('매장 검색 조회 실패:', error);
+    throw error;
+  }
+};
+
 // 매장 상세 조회
 export const fetchStoreDetail = async (storeId) => {
   try {

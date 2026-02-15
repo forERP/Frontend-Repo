@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { createCategory } from '../../api/categoryApi';
 import './ProductCategoryModal.css';
 
@@ -117,21 +117,19 @@ export default function ProductCategoryModal({ onClose, onCategoryCreated }) {
             />
           </div>
 
-          <div className="form-actions">
+          <div className="form-buttons">
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? '생성 중...' : '카테고리 추가'}
+            </button>
             <button
               type="button"
-              className="cancel-btn"
               onClick={onClose}
               disabled={loading}
             >
               취소
-            </button>
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={loading}
-            >
-              {loading ? '생성 중...' : '카테고리 추가'}
             </button>
           </div>
         </form>
@@ -139,3 +137,4 @@ export default function ProductCategoryModal({ onClose, onCategoryCreated }) {
     </div>
   );
 }
+

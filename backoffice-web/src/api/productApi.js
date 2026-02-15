@@ -1,9 +1,15 @@
 import api from '../lib/api';
 
-// 상품 목록 조회 (페이지네이션)
-export const fetchProducts = async (page = 0, size = 10) => {
+// 상품 목록 조회 (페이지네이션 + 검색)
+export const fetchProducts = async (page = 0, size = 10, filters = {}) => {
   try {
-    const response = await api.get(`/api/products?page=${page}&size=${size}`);
+    const params = { page, size };
+
+    if (filters.name?.trim()) params.name = filters.name.trim();
+    if (filters.sku?.trim()) params.sku = filters.sku.trim();
+    if (filters.status) params.status = filters.status;
+
+    const response = await api.get('/api/products', { params });
     return response.data;
   } catch (error) {
     console.error('상품 목록 조회 실패:', error);

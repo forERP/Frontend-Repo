@@ -1,4 +1,4 @@
-.product-detail-page {
+﻿.product-detail-page {
     display: flex;
     justify-content: center;
     padding: 40px 20px;
@@ -8,7 +8,7 @@
 
 .product-detail-container {
     width: 100%;
-    max-width: 700px;
+    max-width: 980px;
 }
 
 .detail-header {
@@ -220,66 +220,54 @@
     line-height: 1.5;
 }
 
-.form-actions {
+.product-detail-page .product-form .form-buttons {
     display: flex;
+    flex-wrap: nowrap;
     gap: 12px;
-    justify-content: flex-end;
-    align-items: center;
     margin-top: 24px;
     padding-top: 24px;
     border-top: 1px solid #e5e7eb;
-    min-height: 38px;
 }
 
-.cancel-btn,
-.submit-btn {
-    padding: 10px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+.product-detail-page .product-form .form-buttons button {
+    flex: 1;
+    padding: 10px 16px;
     cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
     transition: all 0.2s ease;
-    height: 38px;
-    line-height: 1.2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
 }
 
-.cancel-btn {
-    background: #f3f4f6;
-    color: #333;
-    border: 1px solid #d1d5db;
-}
-
-.cancel-btn:hover:not(:disabled) {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-}
-
-.submit-btn {
-    background: #4f46e5;
+.product-detail-page .product-form .form-buttons button[type='submit'] {
+    background-color: #4f46e5;
     color: #fff;
 }
 
-.submit-btn:hover:not(:disabled) {
-    background: #4038cc;
+.product-detail-page .product-form .form-buttons button[type='submit']:hover:not(:disabled) {
+    background-color: #4038cc;
     transform: translateY(-1px);
 }
 
-.submit-btn:active:not(:disabled) {
-    transform: translateY(0);
+.product-detail-page .product-form .form-buttons button[type='submit']:disabled {
+    background-color: #ccc;
 }
 
-.cancel-btn:disabled,
-.submit-btn:disabled {
-    opacity: 0.5;
+.product-detail-page .product-form .form-buttons button[type='button'] {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.product-detail-page .product-form .form-buttons button[type='button']:hover:not(:disabled) {
+    background-color: #d1d5db;
+}
+
+.product-detail-page .product-form .form-buttons button:disabled {
     cursor: not-allowed;
 }
 
-/* 상세 정보 표시 모드 */
+/* ?곸꽭 ?뺣낫 ?쒖떆 紐⑤뱶 */
 .detail-view {
     display: flex;
     flex-direction: column;
@@ -337,3 +325,91 @@
     background: #fee2e2;
     color: #991b1b;
 }
+
+.detail-view-split {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.detail-image-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9fafb;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image-preview {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+}
+
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #6b7280;
+    font-size: 14px;
+    padding: 16px;
+}
+
+.detail-info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.product-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.product-detail-table th,
+.product-detail-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+.product-detail-table th {
+    width: 120px;
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+}
+
+.product-detail-table td {
+    color: #1f2937;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.product-detail-table tr:last-child th,
+.product-detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 900px) {
+    .detail-view-split {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-image-panel {
+        width: min(100%, 320px);
+        margin: 0 auto;
+    }
+}
+

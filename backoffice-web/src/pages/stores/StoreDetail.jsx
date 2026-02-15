@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchStoreDetail, updateStore, updateStoreStatus } from '../../api/storeApi';
 import { fetchWarehouses } from '../../api/warehouseApi';
 import './StoreDetail.css';
@@ -20,6 +20,7 @@ const TYPE_LABEL = {
 export default function StoreDetailPage() {
     const { id: storeId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -35,6 +36,12 @@ export default function StoreDetailPage() {
     useEffect(() => {
         loadStoreDetail();
     }, [storeId]);
+
+    useEffect(() => {
+        if (searchParams.get('edit') === '1') {
+            setIsEditing(true);
+        }
+    }, [searchParams]);
 
     const loadStoreDetail = async () => {
         try {

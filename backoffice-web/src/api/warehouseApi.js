@@ -11,6 +11,22 @@ export const fetchWarehouses = async (storeId) => {
   }
 };
 
+export const fetchWarehousePage = async ({ page = 0, size = 10, name = '', code = '', status = '' } = {}) => {
+  try {
+    const params = { page, size };
+
+    if (name?.trim()) params.name = name.trim();
+    if (code?.trim()) params.code = code.trim();
+    if (status) params.status = status;
+
+    const response = await api.get('/api/warehouses/search', { params });
+    return response.data;
+  } catch (error) {
+    console.error('창고 검색 조회 실패:', error);
+    throw error;
+  }
+};
+
 export const fetchWarehouse = async (warehouseId) => {
   try {
     const response = await api.get(`/api/warehouses/${warehouseId}`);

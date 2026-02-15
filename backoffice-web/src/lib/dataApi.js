@@ -62,10 +62,24 @@ export const getPurchaseOrder = async (purchaseOrderId) => {
 };
 
 export const getPurchaseOrderList = async (filters = {}) => {
-    const { storeId, supplierId, status, from, to, page = 0, size = 20 } = filters;
+    const {
+        storeId,
+        storeName,
+        storeCode,
+        supplierId,
+        supplierName,
+        status,
+        from,
+        to,
+        page = 0,
+        size = 20
+    } = filters;
     const params = { page, size };
     if (storeId) params.storeId = storeId;
+    if (storeName) params.storeName = storeName;
+    if (storeCode) params.storeCode = storeCode;
     if (supplierId) params.supplierId = supplierId;
+    if (supplierName) params.supplierName = supplierName;
     if (status) params.status = status;
     if (from) params.from = from;
     if (to) params.to = to;
@@ -90,9 +104,11 @@ export const getInbound = async (inboundId) => {
 };
 
 export const getInboundList = async (filters = {}) => {
-    const { storeId, status, from, to, page = 0, size = 20 } = filters;
+    const { storeId, storeName, storeCode, status, from, to, page = 0, size = 20 } = filters;
     const params = { page, size };
     if (storeId) params.storeId = storeId;
+    if (storeName) params.storeName = storeName;
+    if (storeCode) params.storeCode = storeCode;
     if (status) params.status = status;
     if (from) params.from = from;
     if (to) params.to = to;

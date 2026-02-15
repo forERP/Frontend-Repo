@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchWarehouse, updateWarehouse } from '../../api/warehouseApi';
 import './WarehouseDetail.css';
 
 export default function WarehouseDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const [warehouse, setWarehouse] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -16,6 +17,12 @@ export default function WarehouseDetailPage() {
     useEffect(() => {
         load();
     }, [id]);
+
+    useEffect(() => {
+        if (searchParams.get('edit') === '1') {
+            setIsEditing(true);
+        }
+    }, [searchParams]);
 
     const load = async () => {
         try {

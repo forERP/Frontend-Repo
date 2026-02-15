@@ -4,6 +4,7 @@ import Header from '../components/Header/Header';
 import Sidebar from '../components/Sidebar/Sidebar';
 import { menus } from '../constants/menus';
 import './MainLayout.css';
+import './AdminUi.css';
 
 export default function MainLayout({ user }) {
   const location = useLocation();

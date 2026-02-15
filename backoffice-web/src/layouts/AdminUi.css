@@ -1,0 +1,262 @@
+.main-content {
+    background: var(--ui-bg);
+}
+
+.main-content :is(
+    .product-page,
+    .product-form-page,
+    .product-detail-page,
+    .store-page,
+    .store-create-page,
+    .store-detail-page,
+    .warehouse-page,
+    .warehouse-create-page,
+    .warehouse-detail-page,
+    .purchase-page,
+    .attendance-page,
+    .detail-page,
+    .leave-page
+) {
+    background: var(--ui-bg) !important;
+    padding: 32px 20px !important;
+    min-height: calc(100vh - 64px);
+}
+
+.main-content :is(
+    .product-container,
+    .product-form-container,
+    .product-detail-container,
+    .store-container,
+    .store-form-container,
+    .store-detail-container,
+    .warehouse-container,
+    .warehouse-form-container,
+    .warehouse-detail-container,
+    .attendance-container,
+    .users-container,
+    .detail-container
+) {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-content :is(
+    .page-title,
+    .attendance-title,
+    .store-detail-page h1,
+    .warehouse-detail-page h1,
+    .warehouse-page h1
+) {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ui-text);
+}
+
+.main-content :is(
+    .card,
+    .detail-card,
+    .form-card,
+    .attendance-card,
+    .employee-card,
+    .history-card,
+    .users-container,
+    .purchase-form,
+    .info-box,
+    .store-info-box,
+    .leave-card
+) {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    box-shadow: var(--ui-shadow);
+}
+
+.main-content :is(.page-header, .header-section) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.main-content :is(.action-buttons, .detail-actions, .form-actions, .filter-actions, .nav-row, .form-buttons) {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.main-content .form-actions {
+    justify-content: flex-end;
+}
+
+.main-content .detail-actions {
+    justify-content: flex-end;
+}
+
+.main-content .action-buttons button {
+    flex: 0 0 auto !important;
+}
+
+.main-content :is(
+    .create-btn,
+    .edit-btn,
+    .submit-btn,
+    .update-btn,
+    .detail-btn,
+    .btn-primary,
+    .btn-info,
+    .btn-success,
+    .add-category-btn,
+    .erp-table button,
+    .attendance-table button,
+    .history-table button
+) {
+    background: var(--ui-primary) !important;
+    color: #fff !important;
+    border: 1px solid var(--ui-primary) !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    min-height: 34px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.main-content :is(
+    .create-btn,
+    .edit-btn,
+    .submit-btn,
+    .update-btn,
+    .detail-btn,
+    .btn-primary,
+    .btn-info,
+    .btn-success,
+    .add-category-btn,
+    .erp-table button,
+    .attendance-table button,
+    .history-table button
+):hover:not(:disabled) {
+    background: var(--ui-primary-hover) !important;
+    border-color: var(--ui-primary-hover) !important;
+    transform: translateY(-1px);
+}
+
+.main-content :is(.cancel-btn, .back-btn, .btn-secondary, .pagination-btn, .nav-row button) {
+    background: var(--ui-neutral) !important;
+    color: var(--ui-text) !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-height: 34px;
+}
+
+.main-content :is(.cancel-btn, .back-btn, .btn-secondary, .pagination-btn, .nav-row button):hover:not(:disabled) {
+    background: var(--ui-neutral-hover) !important;
+    border-color: #9ca3af !important;
+}
+
+.main-content :is(.delete-btn, .discontinue-btn, .btn-danger) {
+    background: var(--ui-danger) !important;
+    color: #fff !important;
+    border: 1px solid var(--ui-danger) !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-height: 34px;
+}
+
+.main-content :is(.delete-btn, .discontinue-btn, .btn-danger):hover:not(:disabled) {
+    background: var(--ui-danger-hover) !important;
+    border-color: var(--ui-danger-hover) !important;
+}
+
+.main-content :is(.reactivate-btn) {
+    background: #059669 !important;
+    color: #fff !important;
+    border: 1px solid #059669 !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-height: 34px;
+}
+
+.main-content .reactivate-btn:hover:not(:disabled) {
+    background: #047857 !important;
+    border-color: #047857 !important;
+}
+
+.main-content button:disabled {
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.main-content :is(.erp-table, .products-table, .attendance-table, .history-table, .info-table, .product-detail-table) {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.main-content :is(.erp-table, .products-table, .attendance-table, .history-table, .info-table, .product-detail-table) th,
+.main-content :is(.erp-table, .products-table, .attendance-table, .history-table, .info-table, .product-detail-table) td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.main-content :is(.erp-table, .products-table, .attendance-table, .history-table, .info-table, .product-detail-table) th {
+    background: #f8fafc;
+    color: var(--ui-text-subtle);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.main-content :is(.erp-table, .products-table, .attendance-table, .history-table, .info-table, .product-detail-table) tbody tr:hover {
+    background: #f9fafb;
+}
+
+.main-content .status-badge {
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    padding: 4px 10px !important;
+}
+
+.main-content :is(input, select, textarea) {
+    border-radius: 8px;
+}
+
+.main-content .error-message {
+    border-left: 4px solid var(--ui-danger) !important;
+}
+
+@media (max-width: 1024px) {
+    .main-content :is(
+        .product-page,
+        .product-form-page,
+        .product-detail-page,
+        .store-page,
+        .store-create-page,
+        .store-detail-page,
+        .warehouse-page,
+        .warehouse-create-page,
+        .warehouse-detail-page,
+        .purchase-page,
+        .attendance-page,
+        .detail-page,
+        .leave-page
+    ) {
+        padding: 24px 16px !important;
+    }
+}

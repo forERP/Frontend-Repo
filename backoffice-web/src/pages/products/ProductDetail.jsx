@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchProductDetail, updateProduct, discontinueProduct, reactivateProduct } from '../../api/productApi';
 import { fetchCategories } from '../../api/categoryApi';
@@ -296,72 +296,70 @@ export default function ProductDetail() {
                 />
               </div>
 
-              <div className="form-actions">
+              <div className="form-buttons">
+                <button
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? '저장 중...' : '저장'}
+                </button>
                 <button
                   type="button"
-                  className="cancel-btn"
                   onClick={handleCancel}
                   disabled={loading}
                 >
                   취소
                 </button>
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={loading}
-                >
-                  {loading ? '저장 중...' : '저장'}
-                </button>
               </div>
             </form>
           ) : (
-            <div className="detail-view">
-              <div className="detail-group">
-                <label>SKU</label>
-                <p>{product.sku}</p>
+            <div className="detail-view detail-view-split">
+              <div className="detail-image-panel">
+                {product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="product-image-preview"
+                  />
+                ) : (
+                  <div className="image-placeholder">이미지가 없습니다.</div>
+                )}
               </div>
 
-              <div className="detail-group">
-                <label>상품명</label>
-                <p>{product.name}</p>
+              <div className="detail-info-panel">
+                <table className="product-detail-table">
+                  <tbody>
+                    <tr>
+                      <th>SKU</th>
+                      <td>{product.sku || '-'}</td>
+                    </tr>
+                    <tr>
+                      <th>상품명</th>
+                      <td>{product.name}</td>
+                    </tr>
+                    <tr>
+                      <th>카테고리</th>
+                      <td>{product.category?.name || '-'}</td>
+                    </tr>
+                    <tr>
+                      <th>가격</th>
+                      <td>{Number(product.msrpPrice).toLocaleString('ko-KR')}원</td>
+                    </tr>
+                    <tr>
+                      <th>상태</th>
+                      <td>
+                        <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
+                          {product.status === 'ACTIVE' ? '활성' : '단종'}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>설명</th>
+                      <td>{product.description || '-'}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-
-              <div className="detail-group">
-                <label>카테고리</label>
-                <p>{product.category?.name || '-'}</p>
-              </div>
-
-              <div className="detail-group">
-                <label>가격</label>
-                <p>{Number(product.msrpPrice).toLocaleString('ko-KR')}원</p>
-              </div>
-
-              <div className="detail-group">
-                <label>상태</label>
-                <p>
-                  <span className={`status-badge ${product.status?.toLowerCase() || 'active'}`}>
-                    {product.status === 'ACTIVE' ? '활성' : '단종'}
-                  </span>
-                </p>
-              </div>
-
-              {product.description && (
-                <div className="detail-group">
-                  <label>설명</label>
-                  <p>{product.description}</p>
-                </div>
-              )}
-
-              {product.imageUrl && (
-                <div className="detail-group">
-                  <label>이미지 URL</label>
-                  <p>
-                    <a href={product.imageUrl} target="_blank" rel="noopener noreferrer">
-                      {product.imageUrl}
-                    </a>
-                  </p>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -376,3 +374,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

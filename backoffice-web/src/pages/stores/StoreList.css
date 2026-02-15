@@ -12,107 +12,56 @@
     max-width: 1200px;
 }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.page-title {
-    font-size: 26px;
-    font-weight: 700;
-    text-align: left;
-    margin: 0;
-}
-
-.page-subtitle {
-    font-size: 14px;
-    color: #666;
+.filter-card {
     margin-bottom: 16px;
 }
 
-.create-btn {
-    background: #4f46e5;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.create-btn:hover {
-    background: #4038cc;
-    transform: translateY(-1px);
-}
-
-.create-btn:active {
-    transform: translateY(0);
-}
-
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-
-.erp-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.erp-table th,
-.erp-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.erp-table th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-    color: #333;
-}
-
-.erp-table tr:last-child td {
-    border-bottom: none;
-}
-
-.erp-table button {
-    padding: 6px 12px;
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.erp-table button:hover {
-    background-color: #4038cc;
-    transform: translateY(-1px);
-}
-
-.empty-state {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.list-card {
     min-height: 200px;
-    color: #888;
-    font-size: 16px;
+}
+
+.table-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.total-count {
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background: #f8fafc;
+}
+
+.store-list-table .actions-col {
+    width: 110px;
+}
+
+.actions-cell {
+    text-align: center;
+}
+
+.actions-cell .edit-btn {
+    white-space: nowrap;
+}
+
+.empty-cell {
+    text-align: center;
+    color: #6b7280;
+    padding: 24px 12px;
 }
 
 .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-    font-size: 16px;
-    color: #666;
+    text-align: center;
+    color: #6b7280;
+    padding: 24px 12px;
 }
 
 .error-message {
@@ -122,14 +71,4 @@
     border-radius: 8px;
     margin-bottom: 16px;
     border-left: 4px solid #dc2626;
-}
-
-/* 상태 배지 스타일 */
-.status-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
 }

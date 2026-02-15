@@ -8,7 +8,7 @@ export const menus = [
 
     {
         key: 'products',
-        label: '상품 관리',
+        label: '상품',
         permissionCode: 'PRODUCT_MENU',
         children: [
             { key: 'product-list', label: '상품 목록', path: '/products', permissionCode: 'PRODUCT_LIST_VIEW' },
@@ -26,7 +26,7 @@ export const menus = [
             { key: 'store-create', label: '매장 등록', path: '/stores/create', permissionCode: 'STORE_CREATE' },
             { key: 'store-detail', label: '매장 상세', path: '/stores/:id', hidden: true, permissionCode: 'STORE_DETAIL_VIEW' },
             { key: 'warehouse-list', label: '창고 목록', path: '/warehouses', permissionCode: 'WAREHOUSE_LIST_VIEW' },
-            { key: 'warehouse-create', label: '창고 생성', path: '/warehouses/create', permissionCode: 'WAREHOUSE_CREATE' },
+            { key: 'warehouse-create', label: '창고 등록', path: '/warehouses/create', permissionCode: 'WAREHOUSE_CREATE' },
             { key: 'warehouse-detail', label: '창고 상세', path: '/warehouses/:id', hidden: true, permissionCode: 'WAREHOUSE_DETAIL_VIEW' },
         ],
     },

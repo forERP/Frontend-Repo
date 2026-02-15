@@ -118,61 +118,49 @@
     line-height: 1.5;
 }
 
-.form-actions {
+.product-form-page .product-form .form-buttons {
     display: flex;
+    flex-wrap: nowrap;
     gap: 12px;
-    justify-content: flex-end;
-    align-items: center;
     margin-top: 24px;
     padding-top: 24px;
     border-top: 1px solid #e5e7eb;
-    min-height: 38px;
 }
 
-.cancel-btn,
-.submit-btn {
-    padding: 10px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+.product-form-page .product-form .form-buttons button {
+    flex: 1;
+    padding: 10px 16px;
     cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
     transition: all 0.2s ease;
-    height: 38px;
-    line-height: 1.2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
 }
 
-.cancel-btn {
-    background: #f3f4f6;
-    color: #333;
-    border: 1px solid #d1d5db;
-}
-
-.cancel-btn:hover:not(:disabled) {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-}
-
-.submit-btn {
-    background: #4f46e5;
+.product-form-page .product-form .form-buttons button[type='submit'] {
+    background-color: #4f46e5;
     color: #fff;
 }
 
-.submit-btn:hover:not(:disabled) {
-    background: #4038cc;
+.product-form-page .product-form .form-buttons button[type='submit']:hover:not(:disabled) {
+    background-color: #4038cc;
     transform: translateY(-1px);
 }
 
-.submit-btn:active:not(:disabled) {
-    transform: translateY(0);
+.product-form-page .product-form .form-buttons button[type='submit']:disabled {
+    background-color: #ccc;
 }
 
-.cancel-btn:disabled,
-.submit-btn:disabled {
-    opacity: 0.5;
+.product-form-page .product-form .form-buttons button[type='button'] {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.product-form-page .product-form .form-buttons button[type='button']:hover:not(:disabled) {
+    background-color: #d1d5db;
+}
+
+.product-form-page .product-form .form-buttons button:disabled {
     cursor: not-allowed;
 }

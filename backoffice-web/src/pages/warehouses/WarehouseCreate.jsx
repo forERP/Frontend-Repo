@@ -61,7 +61,7 @@ export default function WarehouseCreatePage() {
     return (
         <div className="warehouse-create-page">
             <div className="warehouse-form-container">
-                <h1>창고 생성</h1>
+                <h1>창고 등록</h1>
                 <div className="form-card">
                     {error && <div className="error-message">{error}</div>}
                     <form onSubmit={handleSubmit} className="warehouse-form">

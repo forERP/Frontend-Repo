@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../lib/api';
 import { getAllStores, getAllProducts } from '../../../lib/dataApi';
@@ -191,11 +191,11 @@ export default function PurchaseRequestFormPage() {
                     상품 추가
                 </button>
 
-                <div className="form-actions">
-                    <button type="submit" disabled={submitting} className="btn-primary">
+                <div className="form-buttons">
+                    <button type="submit" disabled={submitting}>
                         {submitting ? '생성 중...' : '발주 요청 생성'}
                     </button>
-                    <button type="button" onClick={() => navigate(-1)} className="btn-secondary">
+                    <button type="button" onClick={() => navigate(-1)}>
                         취소
                     </button>
                 </div>

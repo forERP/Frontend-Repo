@@ -1,224 +1,223 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getInboundList, getStore } from '../../lib/dataApi';
+import ListPagination from '../../components/list/ListPagination';
+import ListSearchControls from '../../components/list/ListSearchControls';
 import { INBOUND_STATUS } from '../../constants/status';
+import { getInboundList } from '../../lib/dataApi';
 import '../purchase/request/purchase.css';
 import './InboundListPage.css';
 
+const INITIAL_FILTERS = {
+  storeName: '',
+  storeCode: '',
+  status: '',
+  from: '',
+  to: '',
+};
+
 export default function InboundListPage() {
-    const navigate = useNavigate();
-    const [inbounds, setInbounds] = useState([]);
-    const [enrichedInbounds, setEnrichedInbounds] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    
-    // 필터
-    const [filters, setFilters] = useState({
-        storeId: '',
-        status: '',
-        from: '',
-        to: ''
-    });
+  const navigate = useNavigate();
+  const [inbounds, setInbounds] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // 목록 조회
-    const fetchInbounds = async (pageNum = 0) => {
-        try {
-            setLoading(true);
-            const filterParams = {
-                page: pageNum,
-                size: 20
-            };
-            if (filters.storeId) filterParams.storeId = parseInt(filters.storeId);
-            if (filters.status) filterParams.status = filters.status;
-            if (filters.from) filterParams.from = filters.from;
-            if (filters.to) filterParams.to = filters.to;
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [query, setQuery] = useState(INITIAL_FILTERS);
 
-            const result = await getInboundList(filterParams);
-            const inboundList = result.content || [];
-            setInbounds(inboundList);
-            setPage(pageNum);
-            setTotalPages(result.totalPages || 0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-            // 데이터 풍부화 - 매장명 조회
-            const enriched = await Promise.all(
-                inboundList.map(async (inbound) => {
-                    try {
-                        const storeData = await getStore(inbound.storeId);
-                        return {
-                            ...inbound,
-                            storeName: storeData.storeName || storeData.name || `매장 ${inbound.storeId}`,
-                            storeCode: storeData.code || ''
-                        };
-                    } catch (err) {
-                        console.warn(`입고 ${inbound.inboundId} 데이터 로드 실패:`, err);
-                        return {
-                            ...inbound,
-                            storeName: `매장 ${inbound.storeId}`,
-                            storeCode: ''
-                        };
-                    }
-                })
-            );
-            setEnrichedInbounds(enriched);
-        } catch (err) {
-            console.error('입고 목록 조회 실패:', err);
-            alert('입고 목록을 불러오는데 실패했습니다.');
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    fetchInbounds(currentPage, query, pageSize);
+  }, [currentPage, query, pageSize]);
 
-    // 초기 로드 및 필터 변경 시
-    useEffect(() => {
-        fetchInbounds(0);
-    }, [filters]);
+  const fetchInbounds = async (page, search, size) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const handleFilterChange = (key, value) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    };
+      const filterParams = {
+        page,
+        size,
+      };
 
-    const handleSearch = () => {
-        fetchInbounds(0);
-    };
+      if (search.storeName?.trim()) filterParams.storeName = search.storeName.trim();
+      if (search.storeCode?.trim()) filterParams.storeCode = search.storeCode.trim();
+      if (search.status) filterParams.status = search.status;
+      if (search.from) filterParams.from = search.from;
+      if (search.to) filterParams.to = search.to;
 
-    const handleReset = () => {
-        setFilters({
-            storeId: '',
-            status: '',
-            from: '',
-            to: ''
-        });
-    };
+      const result = await getInboundList(filterParams);
+      setTotalPages(result.totalPages || 0);
+      setTotalElements(result.totalElements || 0);
+      setInbounds(result.content || []);
+    } catch (err) {
+      console.error('입고 목록 조회 실패:', err);
+      setError('입고 목록을 불러올 수 없습니다.');
+      setInbounds([]);
+      setTotalPages(0);
+      setTotalElements(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const getStatusLabel = (status) => INBOUND_STATUS[status]?.label || status;
-    const getStatusColor = (status) => INBOUND_STATUS[status]?.color || '#666';
+  const handleFilterChange = e => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
 
-    return (
-        <div className="purchase-page">
-            <div className="page-header">
-                <h2>입고 목록</h2>
-                <button className="btn-primary" onClick={() => navigate('/purchase-orders')}>
-                    발주 보기
-                </button>
-            </div>
+  const handleSearch = e => {
+    e.preventDefault();
+    setCurrentPage(0);
+    setQuery({ ...filters });
+  };
 
-            {/* 필터 */}
-            <div className="filter-section">
-                <div className="filter-row">
-                    <div className="filter-group">
-                        <label>매장 ID</label>
-                        <input
-                            type="number"
-                            placeholder="매장 ID"
-                            value={filters.storeId}
-                            onChange={e => handleFilterChange('storeId', e.target.value)}
-                        />
-                    </div>
+  const handleReset = () => {
+    setFilters(INITIAL_FILTERS);
+    setCurrentPage(0);
+    setQuery(INITIAL_FILTERS);
+  };
 
-                    <div className="filter-group">
-                        <label>상태</label>
-                        <select value={filters.status} onChange={e => handleFilterChange('status', e.target.value)}>
-                            <option value="">전체</option>
-                            {Object.entries(INBOUND_STATUS).map(([key, val]) => (
-                                <option key={key} value={key}>{val.label}</option>
-                            ))}
-                        </select>
-                    </div>
+  const handlePageSizeChange = size => {
+    setCurrentPage(0);
+    setPageSize(size);
+  };
 
-                    <div className="filter-group">
-                        <label>시작일</label>
-                        <input
-                            type="date"
-                            value={filters.from}
-                            onChange={e => handleFilterChange('from', e.target.value)}
-                        />
-                    </div>
+  const getStatusLabel = status => INBOUND_STATUS[status]?.label || status;
+  const getStatusColor = status => INBOUND_STATUS[status]?.color || '#666';
 
-                    <div className="filter-group">
-                        <label>종료일</label>
-                        <input
-                            type="date"
-                            value={filters.to}
-                            onChange={e => handleFilterChange('to', e.target.value)}
-                        />
-                    </div>
-                </div>
+  return (
+    <div className="purchase-page">
+      <div className="page-header">
+        <h2>입고 목록</h2>
+        <button className="btn-primary" onClick={() => navigate('/purchase-orders')}>
+          발주 보기
+        </button>
+      </div>
 
-                <div className="filter-actions">
-                    <button className="btn-primary" onClick={handleSearch}>검색</button>
-                    <button className="btn-secondary" onClick={handleReset}>초기화</button>
-                </div>
-            </div>
+      <div className="card list-filter-card">
+        <ListSearchControls
+          formClassName="purchase-list-search-form"
+          fields={[
+            {
+              name: 'storeName',
+              label: '매장명',
+              type: 'text',
+              value: filters.storeName,
+              onChange: handleFilterChange,
+              placeholder: '매장명 검색',
+            },
+            {
+              name: 'storeCode',
+              label: '매장코드',
+              type: 'text',
+              value: filters.storeCode,
+              onChange: handleFilterChange,
+              placeholder: '매장코드 검색',
+            },
+            {
+              name: 'status',
+              label: '상태',
+              type: 'select',
+              value: filters.status,
+              onChange: handleFilterChange,
+              options: [
+                { value: '', label: '전체' },
+                ...Object.entries(INBOUND_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
+              ],
+            },
+            {
+              name: 'from',
+              label: '시작일',
+              type: 'date',
+              value: filters.from,
+              onChange: handleFilterChange,
+              className: 'date-field',
+            },
+            {
+              name: 'to',
+              label: '종료일',
+              type: 'date',
+              value: filters.to,
+              onChange: handleFilterChange,
+              className: 'date-field',
+            },
+          ]}
+          onSearch={handleSearch}
+          onReset={handleReset}
+        />
+      </div>
 
-            {/* 목록 */}
-            {loading ? (
-                <p>로딩 중...</p>
-            ) : enrichedInbounds.length === 0 ? (
-                <p>입고 정보가 없습니다.</p>
-            ) : (
-                <>
-                    <table className="erp-table">
-                        <thead>
-                            <tr>
-                                <th>입고번호</th>
-                                <th>발주번호</th>
-                                <th>매장</th>
-                                <th>상태</th>
-                                <th>배송 상태</th>
-                                <th>생성일</th>
-                                <th>작업</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {enrichedInbounds.map(inbound => (
-                                <tr key={inbound.inboundId}>
-                                    <td>{inbound.inboundId}</td>
-                                    <td>{inbound.purchaseOrderId}</td>
-                                    <td>{inbound.storeName}({inbound.storeCode})</td>
-                                    <td>
-                                        <span
-                                            className="status-badge"
-                                            style={{ backgroundColor: getStatusColor(inbound.status) }}
-                                        >
-                                            {getStatusLabel(inbound.status)}
-                                        </span>
-                                    </td>
-                                    <td>{inbound.shipmentStatus || '-'}</td>
-                                    <td>{new Date(inbound.createdAt).toLocaleDateString('ko-KR')}</td>
-                                    <td>
-                                        <button
-                                            className="btn-sm btn-info"
-                                            onClick={() => navigate(`/inbounds/${inbound.inboundId}`)}
-                                        >
-                                            상세
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+      {error && <div className="error-message">{error}</div>}
 
-                    {/* 페이지 네이션 */}
-                    <div className="pagination">
-                        <button
-                            disabled={page === 0}
-                            onClick={() => fetchInbounds(page - 1)}
-                            className="btn-sm btn-secondary"
-                        >
-                            이전
-                        </button>
-                        <span>{page + 1} / {totalPages}</span>
-                        <button
-                            disabled={page >= totalPages - 1}
-                            onClick={() => fetchInbounds(page + 1)}
-                            className="btn-sm btn-secondary"
-                        >
-                            다음
-                        </button>
-                    </div>
-                </>
-            )}
+      <div className="card list-card">
+        <div className="table-toolbar">
+          <span className="total-count">총 {totalElements.toLocaleString('ko-KR')}건</span>
         </div>
-    );
+
+        <table className="erp-table list-table inbound-list-table">
+          <thead>
+            <tr>
+              <th>입고번호</th>
+              <th>발주번호</th>
+              <th>매장</th>
+              <th>상태</th>
+              <th>배송 상태</th>
+              <th>생성일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="empty-cell">
+                  로딩 중...
+                </td>
+              </tr>
+            ) : inbounds.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="empty-cell">
+                  검색 결과가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              inbounds.map(inbound => (
+                <tr
+                  key={inbound.inboundId}
+                  className="clickable-row"
+                  onClick={() => navigate(`/inbounds/${inbound.inboundId}`)}
+                >
+                  <td title={String(inbound.inboundId)}>{inbound.inboundId}</td>
+                  <td title={inbound.purchaseOrderId ? String(inbound.purchaseOrderId) : '-'}>{inbound.purchaseOrderId || '-'}</td>
+                  <td title={`${inbound.storeName || `매장 ${inbound.storeId}`}${inbound.storeCode ? ` (${inbound.storeCode})` : ''}`}>
+                    {inbound.storeName || `매장 ${inbound.storeId}`}
+                    {inbound.storeCode ? ` (${inbound.storeCode})` : ''}
+                  </td>
+                  <td>
+                    <span className="status-badge" style={{ backgroundColor: getStatusColor(inbound.status), color: '#fff' }}>
+                      {getStatusLabel(inbound.status)}
+                    </span>
+                  </td>
+                  <td title={inbound.shipmentStatus || '-'}>{inbound.shipmentStatus || '-'}</td>
+                  <td title={inbound.createdAt ? new Date(inbound.createdAt).toLocaleDateString('ko-KR') : '-'}>
+                    {inbound.createdAt ? new Date(inbound.createdAt).toLocaleDateString('ko-KR') : '-'}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        <ListPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
+    </div>
+  );
 }

@@ -312,6 +312,51 @@ textarea.memo {
     transition: all 0.2s;
 }
 
+.purchase-page .purchase-form .form-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.purchase-page .purchase-form .form-buttons button {
+    flex: 1;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.purchase-page .purchase-form .form-buttons button[type='submit'] {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.purchase-page .purchase-form .form-buttons button[type='submit']:hover:not(:disabled) {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.purchase-page .purchase-form .form-buttons button[type='submit']:disabled {
+    background-color: #ccc;
+}
+
+.purchase-page .purchase-form .form-buttons button[type='button'] {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.purchase-page .purchase-form .form-buttons button[type='button']:hover:not(:disabled) {
+    background-color: #d1d5db;
+}
+
+.purchase-page .purchase-form .form-buttons button:disabled {
+    cursor: not-allowed;
+}
+
 /* 버튼 스타일 */
 .btn-primary {
     background: #1a73e8;

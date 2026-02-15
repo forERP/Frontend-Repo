@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createProduct } from '../../api/productApi';
 import { fetchCategories } from '../../api/categoryApi';
@@ -195,21 +195,19 @@ export default function ProductForm() {
               />
             </div>
 
-            <div className="form-actions">
+            <div className="form-buttons">
+              <button
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? '등록 중...' : '상품 등록'}
+              </button>
               <button
                 type="button"
-                className="cancel-btn"
                 onClick={handleCancel}
                 disabled={loading}
               >
                 취소
-              </button>
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={loading}
-              >
-                {loading ? '등록 중...' : '상품 등록'}
               </button>
             </div>
           </form>
@@ -225,3 +223,4 @@ export default function ProductForm() {
     </div>
   );
 }
+
