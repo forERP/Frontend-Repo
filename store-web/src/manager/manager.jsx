@@ -19,7 +19,7 @@ export default function ManagerMenu() {
                 onClick={() => navigate('/work')}
             >
                 ⏰
-                <span>출근/퇴근/휴식</span>
+                <span>출근/퇴근</span>
             </button>
 
             <button
@@ -48,7 +48,7 @@ export default function ManagerMenu() {
 
             <button
                 className="manager-menu-btn manager-back"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
             >
                 ↩️
                 <span>돌아가기</span>

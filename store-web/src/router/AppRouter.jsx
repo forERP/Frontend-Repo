@@ -6,6 +6,7 @@ import Closed from '../pages/closed.jsx'
 import Login from '../pages/Login.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import MenuPage from '../pages/Menu/MenuPage.jsx'
+import StartPage from '../pages/StartPage.jsx'
 import Manager from '../manager/manager.jsx'
 import Change from '../manager/change.jsx'
 import Dispose from '../manager/dispose.jsx'
@@ -19,6 +20,7 @@ import Number from '../other/number.jsx'
 export default function AppRouter() {
   return (
     <Routes>
+      <Route path='/' element={<StartPage />} />
 
       {/* ✅ 번외 (pos-main 영향 ❌ 완전 독립) */}
 

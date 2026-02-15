@@ -1,7 +1,14 @@
-import axios from 'axios'
+import api from './axiosConfig';
 
-// 로그인
-export const login = (payload) =>
-  axios.post('/api/login', payload)
+export const loginPos = async (storeCode, employeeCode) => {
+  const response = await api.post('/users/login/pos',{
+    storeCode,
+    employeeCode,
+  })
+  return response.data;
+}
 
-// 로그아웃
+export const getUserInfo = async (userId) => {
+  const response = await api.get(`/users/${userId}`);
+  return response.data;
+}
