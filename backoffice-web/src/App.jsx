@@ -6,11 +6,11 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 앱 초기화 시 localStorage에서 사용자 정보 로드
+  // 앱 초기화 시 세션 스토리지에서 사용자 정보 로드
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    const userId = localStorage.getItem('userId');
-    const userRole = localStorage.getItem('userRole');
+    const accessToken = sessionStorage.getItem('accessToken');
+    const userId = sessionStorage.getItem('userId');
+    const userRole = sessionStorage.getItem('userRole');
 
     if (accessToken && userId && userRole) {
       setUser({

@@ -1,12 +1,18 @@
-import { Navigate, Outlet } from 'react-router-dom';
-
-const DEV_BYPASS = import.meta.env.DEV;
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 export default function ProtectedRoute() {
-    if (DEV_BYPASS) return <Outlet />;
+    const location = useLocation();
+    const token = sessionStorage.getItem('accessToken');
 
-    const token = localStorage.getItem('accessToken');
-    if (!token) return <Navigate to="/login" replace />;
+    if (!token) {
+        return (
+            <Navigate
+                to="/login"
+                replace
+                state={{ authRequired: true, from: location.pathname }}
+            />
+        );
+    }
 
     return <Outlet />;
 }

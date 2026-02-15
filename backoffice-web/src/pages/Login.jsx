@@ -1,15 +1,23 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { login } from "../api/authApi";
 import "./Login.css";
 
 export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [credentials, setCredentials] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.authRequired) {
+      window.alert("로그인이 필요한 서비스입니다.");
+      navigate("/login", { replace: true, state: null });
+    }
+  }, [location.state, navigate]);
 
   const onChange = (e) => {
     const { name, value } = e.target;

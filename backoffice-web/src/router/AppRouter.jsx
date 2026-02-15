@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -154,12 +154,13 @@ export default function AppRouter({ user, setUser }) {
           {/* Settings Routes */}
           <Route path="/settings/suppliers" element={<Suppliers />} />
           <Route path="/settings/roles" element={<Roles />} />
+          <Route path="*" element={<NotFound />} />
 
         </Route>
       </Route>
 
       <Route path="/login" element={<Login setUser={setUser} />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

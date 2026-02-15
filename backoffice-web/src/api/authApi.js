@@ -24,10 +24,10 @@ export const login = async (credentials) => {
 
     const { token, role, userId } = response.data
 
-    // 토큰 및 사용자 정보 localStorage에 저장
-    localStorage.setItem('accessToken', token)
-    localStorage.setItem('userRole', role)
-    localStorage.setItem('userId', userId)
+    // 토큰 및 사용자 정보는 탭/창 세션 동안만 유지
+    sessionStorage.setItem('accessToken', token)
+    sessionStorage.setItem('userRole', role)
+    sessionStorage.setItem('userId', userId)
 
     return {
       token,
@@ -45,9 +45,9 @@ export const login = async (credentials) => {
  * 로그아웃
  */
 export const logout = () => {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('userRole')
-  localStorage.removeItem('userId')
+  sessionStorage.removeItem('accessToken')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('userId')
 }
 
 /**
