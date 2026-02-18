@@ -1,32 +1,48 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
-const StartPage = () => {
-    const navigate = useNavigate();
-
-    return (
-    // 화면 아무 곳이나 누르면 로그인 페이지로 이동
-    <div style={styles.container} onClick={() => navigate('/login')}>
-        <div style={styles.content}>
-        <h1 style ={{fontSize: '4rem', marginBottom: '20px'}}>🏪 안녕하세요!</h1>
-        <p style={{fontSize:'1.5rem', opacity: 0.8}}>화면을 터치하여 시작하세요</p>
-        </div>
-    </div>
- );
-};
+﻿import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const styles = {
-    container:{
-        height:'100%',
-        width:'100%',
-        backgroundColor:'#2c3e50',
-        display: 'flex',
-        justifyContent:'center',
-        alignItems:'center',
-        color:'white',
-        cursor:'pointer'
-    },
-    content:{textAlign:'center'}
-};
+  container: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: 'radial-gradient(circle at 20% 20%, #1d4ed8, #0f172a 68%)',
+    color: '#ffffff',
+    cursor: 'pointer',
+    userSelect: 'none',
+  },
+  content: {
+    textAlign: 'center',
+    padding: '32px',
+  },
+  title: {
+    fontSize: '3.4rem',
+    marginBottom: '16px',
+    fontWeight: 800,
+  },
+  subTitle: {
+    fontSize: '1.2rem',
+    opacity: 0.9,
+  },
+}
 
-export default StartPage;
+export default function StartPage() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (localStorage.getItem('accessToken')) {
+      navigate('/home', { replace: true })
+    }
+  }, [navigate])
+
+  return (
+    <div style={styles.container} onClick={() => navigate('/login')}>
+      <div style={styles.content}>
+        <h1 style={styles.title}>POS 시작 화면</h1>
+        <p style={styles.subTitle}>화면을 터치해서 로그인하세요</p>
+      </div>
+    </div>
+  )
+}

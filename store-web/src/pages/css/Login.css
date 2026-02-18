@@ -1,82 +1,233 @@
-.login-container {
+﻿.login-container {
   width: 100%;
   height: 100%;
   display: flex;
-  background-color: #fff;
+  background: #f6f8fb;
 }
 
-/* 좌측 영역 */
 .login-left {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 24px;
-  gap: 32px;
+  gap: 18px;
+  padding: 32px;
 }
 
 .input-row {
+  width: 100%;
+  border: 2px solid #d7dee8;
+  border-radius: 14px;
+  padding: 18px;
+  background: #ffffff;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 18px;
-  padding: 16px;
-  border-bottom: 2px solid #ccc;
   cursor: pointer;
+  text-align: left;
+}
+
+.input-row.active {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
 .label {
-  font-weight: 600;
+  color: #1f2937;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .value {
-  letter-spacing: 2px;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  min-width: 140px;
+  text-align: right;
 }
 
-/* 우측 키패드 */
+.value.value-compact {
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+.error-message {
+  color: #b91c1c;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
 .login-right {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, 80px);
-  grid-auto-rows: 80px;
+  grid-template-columns: repeat(3, 120px);
+  grid-auto-rows: 84px;
   gap: 12px;
 }
 
 .key {
-  font-size: 20px;
-  font-weight: 600;
   border: none;
-  background-color: #e0e0e0;
-  border-radius: 8px;
+  border-radius: 14px;
+  font-size: 30px;
+  font-weight: 700;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .key:active {
-  background-color: #bdbdbd;
+  background: #e2e8f0;
 }
 
-.zero {
-  grid-column: span 2;
+.key:disabled {
+  opacity: 0.6;
 }
 
-.enter {
-  background-color: #333;
-  color: #fff;
+.key.delete {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 22px;
 }
 
-.delete {
-  background-color: #c62828;
-  color: #fff;
+.key.enter {
+  background: #111827;
+  color: #ffffff;
+  font-size: 22px;
 }
 
 .key.back {
   grid-column: span 3;
-  /* 한 줄 전체 사용 */
-  background: #444;
-  color: white;
-  font-weight: bold;
+  background: #475569;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.pos-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.64);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.pos-modal {
+  width: min(600px, calc(100vw - 36px));
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 24px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+.pos-modal-title {
+  margin: 0;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.pos-modal-message {
+  margin: 12px 0 18px;
+  color: #334155;
+  font-size: 17px;
+}
+
+.pos-modal-info-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pos-modal-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.pos-modal-info-row span {
+  color: #475569;
+  font-size: 15px;
+}
+
+.pos-modal-info-row strong {
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.pos-modal-countdown {
+  margin: 0;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pos-modal-actions {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pos-modal-actions-left {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+}
+
+.pos-modal-primary,
+.pos-modal-secondary {
+  border: none;
+  border-radius: 10px;
+  height: 44px;
+  padding: 0 18px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pos-modal-primary {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.pos-modal-primary:disabled {
+  opacity: 0.55;
+}
+
+.pos-modal-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .login-left,
+  .login-right {
+    padding: 20px;
+  }
+
+  .keypad {
+    grid-template-columns: repeat(3, minmax(72px, 1fr));
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .value {
+    font-size: 24px;
+  }
 }
