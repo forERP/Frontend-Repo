@@ -18,13 +18,6 @@ function numberFormat(value) {
     return new Intl.NumberFormat('ko-KR').format(value ?? 0);
 }
 
-function toDateTimeLabel(value) {
-    if (!value) return '-';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '-';
-    return date.toLocaleString('ko-KR', { hour12: false });
-}
-
 export default function InventoryReport() {
     const [filters, setFilters] = useState({
         movementType: 'ALL',
@@ -50,37 +43,21 @@ export default function InventoryReport() {
         setError('');
 
         try {
-            const { movementType, storeId, fromDate, toDate } = filters;
-
             const params = {
-                movementType,
-                ...(storeId ? { storeId: Number(storeId) } : {}),
-                ...(fromDate ? { from: `${fromDate}T00:00:00` } : {}),
-                ...(toDate ? { to: `${toDate}T23:59:59` } : {}),
+                movementType: filters.movementType,
+                storeId: filters.storeId || undefined,
+                fromDate: filters.fromDate || undefined,
+                toDate: filters.toDate || undefined,
             };
 
             const { data } = await api.get('/api/inventory-reports', { params });
 
-            const nextStores = data?.availableStores ?? [];
-
             setReport({
                 rows: data?.content ?? [],
                 summary: data?.summary ?? EMPTY_SUMMARY,
-                stores: nextStores,
+                stores: data?.availableStores ?? [],
                 canSelectStore: Boolean(data?.canSelectStore),
             });
-
-            if (data?.selectedStoreId) {
-                setFilters((prev) => ({
-                    ...prev,
-                    storeId: String(data.selectedStoreId),
-                }));
-            } else if (!data?.canSelectStore && nextStores.length > 0) {
-                setFilters((prev) => ({
-                    ...prev,
-                    storeId: String(nextStores[0].id),
-                }));
-            }
         } catch (e) {
             setReport((prev) => ({
                 ...prev,
@@ -227,8 +204,8 @@ export default function InventoryReport() {
                         </tr>
                         </thead>
                         <tbody>
-                        {report.rows.map((row, index) => (
-                            <tr key={`${row.storeId}-${row.productId}-${index}`}>
+                        {report.rows.map((row) => (
+                            <tr key={`${row.storeId}-${row.productId}`}>
                                 <td>{row.productName}</td>
                                 <td className="align-right">
                                     {numberFormat(row.inboundQty)}
