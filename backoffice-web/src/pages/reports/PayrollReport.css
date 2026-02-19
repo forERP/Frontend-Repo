@@ -1,0 +1,113 @@
+.payroll-report-page {
+    padding: 24px;
+    background: #f6f8fb;
+    min-height: 100%;
+}
+
+.payroll-report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.payroll-report-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #1f2937;
+    text-align: left;
+}
+
+.payroll-report-header p {
+    margin: 8px 0 0;
+    color: #6b7280;
+}
+
+.payroll-report-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.payroll-report-filters select,
+.payroll-report-filters button {
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 0 12px;
+    background: #fff;
+}
+
+.payroll-report-filters button {
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.payroll-report-filters button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.payroll-report-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.payroll-report-section h2 {
+    margin: 0 0 12px;
+    color: #111827;
+    font-size: 18px;
+}
+
+.payroll-report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payroll-report-table th,
+.payroll-report-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eef2f7;
+    text-align: left;
+    font-size: 14px;
+}
+
+.payroll-report-table th {
+    color: #4b5563;
+    background: #f9fafb;
+    font-weight: 700;
+}
+
+.payroll-report-table td {
+    color: #1f2937;
+}
+
+.payroll-report-table td.is-strong {
+    font-weight: 700;
+    color: #111827;
+}
+
+.payroll-report-error {
+    margin-bottom: 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.payroll-report-empty {
+    background: #fff;
+    border: 1px dashed #d1d5db;
+    color: #6b7280;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}

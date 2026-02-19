@@ -1,3 +1,6 @@
+import api from '../../lib/api';
+
+
 export default function InventoryReport() {
   return (
     <div>
