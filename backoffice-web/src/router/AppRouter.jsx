@@ -67,6 +67,7 @@ import Salary from '../pages/staff/Salary.jsx';
 // Report Pages
 import InventoryReport from '../pages/reports/InventoryReport.jsx';
 import SalesReport from '../pages/reports/SalesReport.jsx';
+import PayrollReport from '../pages/reports/PayrollReport.jsx';
 
 // Log Pages
 import AdminLog from '../pages/historylogs/AdminLog.jsx';
@@ -147,6 +148,7 @@ export default function AppRouter({ user, setUser }) {
           {/* Report Routes */}
           <Route path="/reports/inventory" element={<InventoryReport />} />
           <Route path="/reports/sales" element={<SalesReport />} />
+          <Route path="/reports/payroll" element={<PayrollReport />} />
 
           {/* Log Routes */}
           <Route path="/logs/admin" element={<AdminLog />} />

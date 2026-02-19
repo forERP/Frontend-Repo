@@ -33,7 +33,7 @@ export const menus = [
             { key: 'warehouse-detail', label: '창고 상세', path: '/warehouses/:id', hidden: true, permissionCode: 'WAREHOUSE_DETAIL_VIEW' },
         ],
     },
-    
+
     {
         key: 'suppliers',
         label: '거래처',
@@ -114,6 +114,7 @@ export const menus = [
         children: [
             { key: 'report-inventory', label: '재고 리포트', path: '/reports/inventory', permissionCode: 'REPORT_INVENTORY' },
             { key: 'report-sales', label: '매출 리포트', path: '/reports/sales', permissionCode: 'REPORT_SALES' },
+            { key: 'report-payroll', label: '급여 리포트', path: '/reports/payroll', permissionCode: 'REPORT_PAYROLL' },
         ],
     },
 

@@ -1,23 +1,3 @@
-import { useCallback, useEffect, useState } from 'react';
-import api from '../../lib/api';
-import './InventoryReport.css';
-
-const MOVEMENT_FILTER_OPTIONS = [
-    { value: 'ALL', label: '전체' },
-    { value: 'INBOUND', label: '입고' },
-    { value: 'OUTBOUND', label: '출고' },
-];
-
-const EMPTY_SUMMARY = {
-    totalInboundQty: 0,
-    totalOutboundQty: 0,
-    netQty: 0,
-};
-
-function numberFormat(value) {
-    return new Intl.NumberFormat('ko-KR').format(value ?? 0);
-}
-
 export default function InventoryReport() {
     const [filters, setFilters] = useState({
         movementType: 'ALL',
