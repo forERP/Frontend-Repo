@@ -1,3 +1,25 @@
+import { useEffect, useState, useCallback } from 'react';
+import api from '../../lib/api';
+import './InventoryReport.css'
+
+const EMPTY_SUMMARY = {
+    totalInboundQty: 0,
+    totalOutboundQty: 0,
+    netQty: 0,
+};
+
+const MOVEMENT_FILTER_OPTIONS = [
+    { value: 'ALL', label: '전체' },
+    { value: 'INBOUND', label: '입고' },
+    { value: 'OUTBOUND', label: '출고' },
+];
+
+const numberFormat = (value) => {
+    if (value === null || value === undefined) return '0';
+    return new Intl.NumberFormat('ko-KR').format(value);
+};
+
+
 export default function InventoryReport() {
     const [filters, setFilters] = useState({
         movementType: 'ALL',
@@ -176,32 +198,31 @@ export default function InventoryReport() {
                 <div className="inventory-report-table-wrap">
                     <table>
                         <thead>
-                        <tr>
-                            <th>상품명</th>
-                            <th className="align-right">입고량</th>
-                            <th className="align-right">출고량</th>
-                            <th className="align-right">순증감</th>
-                        </tr>
+                            <tr>
+                                <th>상품명</th>
+                                <th className="align-right">입고량</th>
+                                <th className="align-right">출고량</th>
+                                <th className="align-right">순증감</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {report.rows.map((row) => (
-                            <tr key={`${row.storeId}-${row.productId}`}>
-                                <td>{row.productName}</td>
-                                <td className="align-right">
-                                    {numberFormat(row.inboundQty)}
-                                </td>
-                                <td className="align-right">
-                                    {numberFormat(row.outboundQty)}
-                                </td>
-                                <td
-                                    className={`align-right ${
-                                        row.netQty < 0 ? 'decrease' : 'increase'
-                                    }`}
-                                >
-                                    {numberFormat(row.netQty)}
-                                </td>
-                            </tr>
-                        ))}
+                            {report.rows.map((row) => (
+                                <tr key={`${row.storeId}-${row.productId}`}>
+                                    <td>{row.productName}</td>
+                                    <td className="align-right">
+                                        {numberFormat(row.inboundQty)}
+                                    </td>
+                                    <td className="align-right">
+                                        {numberFormat(row.outboundQty)}
+                                    </td>
+                                    <td
+                                        className={`align-right ${row.netQty < 0 ? 'decrease' : 'increase'
+                                            }`}
+                                    >
+                                        {numberFormat(row.netQty)}
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
