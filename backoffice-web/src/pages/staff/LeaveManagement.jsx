@@ -9,10 +9,6 @@ export default function LeaveManagement() {
     const [leaveDate, setLeaveDate] = useState('');
     const [employee, setEmployee] = useState(null);
 
-    useEffect(() => {
-        fetchEmployee();
-    }, []);
-
     const fetchEmployee = async () => {
         try {
             const res = await api.get(`/api/users/${userId}`);
@@ -22,20 +18,35 @@ export default function LeaveManagement() {
         }
     };
 
+    useEffect(() => {
+        fetchEmployee();
+    }, [userId]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!leaveDate) {
+            alert('날짜를 선택하세요.');
+            return;
+        }
+
         try {
             await api.post('/api/attendance/leave', {
                 userId: Number(userId),
                 leaveDate
             });
+
             alert('휴가 등록 완료');
-            navigate(`/attendance/${userId}`);
+
+            navigate(`/attendance/${userId}?month=${leaveDate.slice(0, 7)}`);
+
         } catch (err) {
-            console.error(err);
-            alert('등록 실패');
+            const message =
+                err.response?.data?.message || '등록 실패';
+            alert(message);
         }
     };
+
 
     if (!employee) return <div style={{ textAlign: 'center', padding: '50px' }}>로딩중...</div>;
 
