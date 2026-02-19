@@ -9,42 +9,78 @@ export default function AttendanceDetail() {
 
     const [employee, setEmployee] = useState(null);
     const [history, setHistory] = useState([]);
-    const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+    const [month, setMonth] = useState(
+        new Date().toISOString().slice(0, 7)
+    );
 
-    useEffect(() => { fetchEmployee(); }, []);
-    useEffect(() => { fetchHistory(); }, [month]);
+    useEffect(() => {
+        const fetchEmployee = async () => {
+            try {
+                const res = await api.get(`/api/users/${userId}`);
+                setEmployee(res.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchEmployee();
+    }, [userId]);
 
-    const fetchEmployee = async () => {
-        try {
-            const res = await api.get(`/api/users/${userId}`);
-            setEmployee(res.data);
-        } catch (err) { console.error(err); }
-    };
+    useEffect(() => {
+        if (!employee?.storeId) return;
+        fetchHistory();
+    }, [month, employee]);
 
     const fetchHistory = async () => {
-        const startDate = `${month}-01`;
-        const endDate = `${month}-31`;
         try {
-            const res = await api.get(
-                `/api/attendance/history?storeId=1&startDate=${startDate}&endDate=${endDate}`
+            const [year, monthValue] = month.split('-');
+
+            const lastDay = new Date(year, monthValue, 0).getDate();
+
+            const startDate = `${year}-${monthValue}-01`;
+            const endDate = `${year}-${monthValue}-${String(lastDay).padStart(2, '0')}`;
+
+            console.log("startDate:", startDate);
+            console.log("endDate:", endDate);
+
+            const res = await api.get('/api/attendance/history', {
+                params: {
+                    storeId: employee.storeId,
+                    startDate,
+                    endDate
+                }
+            });
+
+            const filtered = res.data.filter(
+                item => String(item.userId) === String(userId)
             );
-            const filtered = res.data.filter(item => item.userId === Number(userId));
+
             setHistory(filtered);
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const formatTime = (time) => time ? new Date(time).toLocaleTimeString() : '-';
+
+    const formatTime = (time) =>
+        time ? new Date(time).toLocaleTimeString() : '-';
 
     const getStatusLabel = (status) => {
         switch (status) {
             case 'WORK': return '근무중';
+            case 'OUT': return '퇴근';
             case 'LEAVE': return '휴가';
             case 'ABSENT': return '결근';
             default: return '-';
         }
     };
 
-    if (!employee) return <div style={{ textAlign: 'center', padding: '50px' }}>로딩중...</div>;
+    if (!employee) {
+        return (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+                로딩중...
+            </div>
+        );
+    }
 
     return (
         <div className="detail-page">
@@ -55,17 +91,15 @@ export default function AttendanceDetail() {
                     <p><strong>직원 ID:</strong> {employee.id}</p>
                     <p><strong>이름:</strong> {employee.name}</p>
                     <p><strong>소속 매장:</strong> {employee.storeName}</p>
-                    <p>
-                        <strong>현재 상태:</strong>
-                        <span className={`status-badge status-${employee.attendanceStatus?.toLowerCase()}`} style={{ marginLeft: '8px' }}>
-                            {getStatusLabel(employee.attendanceStatus)}
-                        </span>
-                    </p>
                 </div>
 
                 <div className="month-selector">
                     <label>조회 월: </label>
-                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+                    <input
+                        type="month"
+                        value={month}
+                        onChange={(e) => setMonth(e.target.value)}
+                    />
                 </div>
 
                 <div className="history-card">
@@ -81,7 +115,11 @@ export default function AttendanceDetail() {
                         <tbody>
                             {history.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
+                                    <td colSpan="4" style={{
+                                        textAlign: 'center',
+                                        padding: '20px',
+                                        color: '#888'
+                                    }}>
                                         근태 기록이 없습니다.
                                     </td>
                                 </tr>
@@ -103,7 +141,10 @@ export default function AttendanceDetail() {
                     </table>
                 </div>
 
-                <button className="leave-btn" onClick={() => navigate(`/attendance/${userId}/leave`)}>
+                <button
+                    className="leave-btn"
+                    onClick={() => navigate(`/attendance/${userId}/leave`)}
+                >
                     휴가 등록
                 </button>
             </div>
