@@ -1,27 +1,89 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { buildMenuCategoryPath, fetchPosCatalog } from '../api/productApi'
+import { getApiErrorMessage } from '../utils/posUtils'
 import './css/MenuButtons.css'
 
 export default function Home() {
   const navigate = useNavigate()
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  useEffect(() => {
+    let mounted = true
+
+    const loadCatalog = async () => {
+      const storeId = Number(localStorage.getItem('storeId'))
+
+      if (!Number.isInteger(storeId) || storeId <= 0) {
+        if (mounted) {
+          setCategories([])
+          setErrorMsg('매장 정보를 찾지 못했습니다. 다시 로그인해 주세요.')
+          setLoading(false)
+        }
+        return
+      }
+
+      try {
+        setLoading(true)
+        setErrorMsg('')
+
+        const { categories: loadedCategories } = await fetchPosCatalog(storeId)
+
+        if (!mounted) {
+          return
+        }
+
+        setCategories(loadedCategories)
+      } catch (error) {
+        if (!mounted) {
+          return
+        }
+
+        setCategories([])
+        setErrorMsg(getApiErrorMessage(error, '카테고리 목록을 불러오지 못했습니다.'))
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadCatalog()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <div className='menu-container'>
       <div className='menu-top'>
-        <button className='menu-btn' onClick={() => navigate('/menu/set')}>
-          세트 메뉴 <span>햄버거 + 사이드 + 음료</span>
-        </button>
+        {loading && <div className='menu-top-message'>카테고리를 불러오는 중입니다...</div>}
 
-        <button className='menu-btn' onClick={() => navigate('/menu/burger')}>
-          버거 <span>단품 버거</span>
-        </button>
+        {!loading && errorMsg && <div className='menu-top-message error'>{errorMsg}</div>}
 
-        <button className='menu-btn' onClick={() => navigate('/menu/side')}>
-          사이드 <span>튀김/스낵</span>
-        </button>
+        {!loading && !errorMsg && categories.length === 0 && (
+          <div className='menu-top-message'>판매 가능한 카테고리가 없습니다.</div>
+        )}
 
-        <button className='menu-btn' onClick={() => navigate('/menu/drink')}>
-          음료 <span>탄산/커피/주스</span>
-        </button>
+        {!loading &&
+          !errorMsg &&
+          categories.map((category) => (
+            <button
+              key={`${category.key}-${category.id ?? 'fallback'}`}
+              className='menu-btn'
+              onClick={() => navigate(buildMenuCategoryPath(category))}
+            >
+              {category.name}
+              <span>
+                {category.description
+                  ? `${category.description} (${category.productCount}개)`
+                  : `${category.productCount}개 상품`}
+              </span>
+            </button>
+          ))}
       </div>
 
       <div className='menu-bottom'>

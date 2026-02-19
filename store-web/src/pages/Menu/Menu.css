@@ -1,58 +1,43 @@
-/* =========================
-   전체 레이아웃
-   ========================= */
 .menu-layout {
     height: 100%;
     display: grid;
     grid-template-rows: 8fr 2fr;
 }
 
-/* =========================
-   상단 메인 영역
-   ========================= */
 .menu-main {
     display: grid;
     grid-template-columns: 6fr 4fr;
     height: 100%;
 }
 
-/* =========================
-   좌측 선택 메뉴 표시 영역
-   ========================= */
 .menu-display {
+    position: relative;
     padding: 20px;
     overflow-y: auto;
     background-color: #ffffff;
     font-size: 22px;
 }
 
-/* 선택된 메뉴 한 줄 */
 .selected-menu {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    height: 80px;
-    /* 🔥 터치 핵심 */
+    min-height: 80px;
     padding: 0 24px;
-
     border-bottom: 2px solid #dddddd;
 }
 
-/* 메뉴 이름 */
 .menu-name {
     font-size: 24px;
     font-weight: 600;
 }
 
-/* 수량 영역 */
 .menu-count {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* + - 버튼 */
 .menu-count button {
     width: 60px;
     height: 60px;
@@ -62,14 +47,12 @@
     cursor: pointer;
 }
 
-/* 수량 숫자 */
 .menu-count span {
     width: 40px;
     text-align: center;
     font-size: 24px;
 }
 
-/* 페이지 이동 */
 .page-controls {
     display: flex;
     justify-content: space-between;
@@ -81,9 +64,6 @@
     padding: 10px 20px;
 }
 
-/* =========================
-   우측 카테고리 + 메뉴 영역
-   ========================= */
 .menu-category {
     display: flex;
     flex-direction: column;
@@ -92,12 +72,9 @@
     background-color: #f9f9f9;
 }
 
-/* =========================
-   상단 카테고리 버튼
-   ========================= */
 .category-buttons {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
     padding: 14px;
 }
@@ -110,16 +87,38 @@
     cursor: pointer;
 }
 
-/* =========================
-   하단 메뉴 4 x 4 그리드
-   ========================= */
+.category-buttons button.active {
+    background-color: #263238;
+    color: #ffffff;
+}
+
 .menu-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
     gap: 12px;
     padding: 14px;
+}
+
+.menu-grid-message {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    background-color: #eceff1;
+    color: #263238;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    padding: 16px;
+}
+
+.menu-grid-message.error {
+    background-color: #ffebee;
+    color: #b71c1c;
 }
 
 .menu-button {
@@ -127,6 +126,18 @@
     border: none;
     background-color: #ffffff;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.menu-button-price {
+    font-size: 15px;
+    color: #616161;
 }
 
 .menu-button:disabled {
@@ -134,9 +145,6 @@
     cursor: default;
 }
 
-/* =========================
-   하단 영역 (이전 / 결제)
-   ========================= */
 .menu-footer {
     display: grid;
     grid-template-columns: 5fr 5fr;
@@ -151,28 +159,39 @@
 
 .pay-btn {
     background-color: #ff3b3b;
-    color: white;
+    color: #ffffff;
     font-size: 22px;
     border: none;
 }
 
-.menu-display {
-    position: relative;
-    /* 기준점 */
+.pay-btn:disabled {
+    background-color: #ef9a9a;
 }
 
-/* 총 금액 고정 영역 */
 .total-price {
     position: absolute;
     left: 16px;
     bottom: 16px;
-
     font-size: 22px;
     font-weight: 700;
-
     background-color: #ffffff;
     padding: 10px 14px;
     border-radius: 8px;
-
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 900px) {
+    .menu-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.2fr 1fr;
+    }
+
+    .menu-category {
+        border-left: 0;
+        border-top: 1px solid #dddddd;
+    }
+
+    .category-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }

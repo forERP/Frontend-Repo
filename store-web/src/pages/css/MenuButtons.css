@@ -5,17 +5,35 @@
     flex-direction: column;
 }
 
-/* 상단 4개 (8 비율) */
 .menu-top {
     flex: 8;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
     gap: 12px;
     padding: 12px;
+    overflow-y: auto;
 }
 
-/* 하단 2개 (2 비율) */
+.menu-top-message {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: #eceff1;
+    color: #263238;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.menu-top-message.error {
+    background-color: #ffebee;
+    color: #b71c1c;
+}
+
 .menu-bottom {
     flex: 2;
     display: flex;
@@ -23,7 +41,6 @@
     gap: 12px;
 }
 
-/* 하단 좌우 8 : 2 */
 .menu-bottom .admin {
     flex: 8;
 }
@@ -32,7 +49,6 @@
     flex: 2;
 }
 
-/* 공통 버튼 스타일 */
 .menu-btn {
     border: none;
     border-radius: 12px;
@@ -44,20 +60,31 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: background-color 0.15s ease;
 }
 
-/* 버튼 클릭 느낌 */
+.menu-btn span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555555;
+}
+
 .menu-btn:active {
-    background-color: #ddd;
+    background-color: #dddddd;
 }
 
-/* 하단 버튼 색 구분 */
 .admin {
     background-color: #424242;
-    color: #fff;
+    color: #ffffff;
 }
 
 .close {
     background-color: #b71c1c;
-    color: #fff;
+    color: #ffffff;
+}
+
+.menu-bottom .menu-btn span {
+    color: inherit;
 }

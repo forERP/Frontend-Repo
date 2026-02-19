@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import PosLayout from '../layouts/PosLayout'
 import ProtectedRoute from './ProtectedRoute'
 
@@ -30,7 +30,7 @@ export default function AppRouter() {
 
         <Route element={<ProtectedRoute />}>
           <Route path='/home' element={<Home />} />
-          <Route path='/menu' element={<Navigate to='/menu/set' replace />} />
+          <Route path='/menu' element={<MenuPage />} />
           <Route path='/menu/:category' element={<MenuPage />} />
           <Route path='/closed' element={<Closed />} />
 

@@ -8,7 +8,13 @@ import './ProductList.css';
 const INITIAL_FILTERS = {
   name: '',
   sku: '',
-  status: '',
+  status: 'ACTIVE',
+};
+
+const formatProductDisplay = product => {
+  const productName = product?.name || '-';
+  const productCode = product?.sku || '-';
+  return `'${productName}(${productCode})'`;
 };
 
 export default function ProductList() {
@@ -75,16 +81,16 @@ export default function ProductList() {
     navigate(`/products/${productId}`);
   };
 
-  const handleDiscontinue = async (e, productId) => {
+  const handleDiscontinue = async (e, product) => {
     e.stopPropagation();
 
-    if (!window.confirm('이 상품을 판매 중지 처리하시겠습니까?')) {
+    if (!window.confirm(`${formatProductDisplay(product)}을(를) 판매 중지 처리하시겠습니까?`)) {
       return;
     }
 
     try {
       setLoading(true);
-      await discontinueProduct(productId);
+      await discontinueProduct(product.id);
       await loadProducts(currentPage, query, pageSize);
     } catch (err) {
       console.error('상품 판매 중지 처리 실패:', err);
@@ -216,12 +222,12 @@ export default function ProductList() {
                             }}
                             disabled={product.status === 'DISCONTINUED'}
                           >
-                            편집
+                            수정
                           </button>
                           {product.status !== 'DISCONTINUED' && (
                             <button
                               className="discontinue-btn"
-                              onClick={e => handleDiscontinue(e, product.id)}
+                              onClick={e => handleDiscontinue(e, product)}
                             >
                               판매 중지
                             </button>

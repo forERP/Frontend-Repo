@@ -1,60 +1,135 @@
-﻿import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import {
+  buildMenuCategoryPath,
+  fetchPosCatalog,
+  filterProductsByCategory,
+  resolveMenuCategory,
+} from '../../api/productApi'
+import { getApiErrorMessage } from '../../utils/posUtils'
 import './Menu.css'
-
-const menuData = {
-  set: [
-    { id: 1, name: '불고기 세트', price: 8500 },
-    { id: 2, name: '치즈버거 세트', price: 9000 },
-    { id: 3, name: '치킨버거 세트', price: 8800 },
-    { id: 4, name: '더블버거 세트', price: 9500 },
-  ],
-  burger: [
-    { id: 1, name: '불고기 버거', price: 4500 },
-    { id: 2, name: '치즈 버거', price: 4800 },
-    { id: 3, name: '치킨 버거', price: 5000 },
-    { id: 4, name: '더블 버거', price: 5500 },
-  ],
-  side: [
-    { id: 1, name: '감자튀김', price: 2500 },
-    { id: 2, name: '치즈스틱', price: 3000 },
-    { id: 3, name: '너겟', price: 3200 },
-    { id: 4, name: '어니언링', price: 3000 },
-  ],
-  drink: [
-    { id: 1, name: '콜라', price: 2000 },
-    { id: 2, name: '사이다', price: 2000 },
-    { id: 3, name: '아메리카노', price: 2500 },
-    { id: 4, name: '오렌지주스', price: 2800 },
-  ],
-}
-
-const categoryLabels = {
-  set: '세트',
-  burger: '버거',
-  side: '사이드',
-  drink: '음료',
-}
 
 const MAX_MENU_COUNT = 16
 const ITEMS_PER_PAGE = 4
 
 export default function MenuPage() {
-  const { category = 'set' } = useParams()
+  const { category = '' } = useParams()
   const navigate = useNavigate()
 
   const [selectedMenus, setSelectedMenus] = useState([])
   const [page, setPage] = useState(0)
+  const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [errorMsg, setErrorMsg] = useState('')
 
-  const menus = menuData[category] ?? []
-  const filledMenus = [...menus, ...Array(Math.max(0, MAX_MENU_COUNT - menus.length)).fill(null)]
+  useEffect(() => {
+    let mounted = true
+
+    const loadCatalog = async () => {
+      const storeId = Number(localStorage.getItem('storeId'))
+
+      if (!Number.isInteger(storeId) || storeId <= 0) {
+        if (mounted) {
+          setCategories([])
+          setProducts([])
+          setErrorMsg('매장 정보를 찾지 못했습니다. 다시 로그인해 주세요.')
+          setLoading(false)
+        }
+        return
+      }
+
+      try {
+        setLoading(true)
+        setErrorMsg('')
+
+        const catalogData = await fetchPosCatalog(storeId)
+
+        if (!mounted) {
+          return
+        }
+
+        setCategories(catalogData.categories)
+        setProducts(catalogData.products)
+      } catch (error) {
+        if (!mounted) {
+          return
+        }
+
+        setCategories([])
+        setProducts([])
+        setErrorMsg(getApiErrorMessage(error, '상품 목록을 불러오지 못했습니다.'))
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadCatalog()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const currentCategory = useMemo(
+    () => resolveMenuCategory(categories, category),
+    [categories, category],
+  )
+
+  const menus = useMemo(
+    () => filterProductsByCategory(products, currentCategory),
+    [products, currentCategory],
+  )
+
+  const filledMenus = useMemo(
+    () => [...menus, ...Array(Math.max(0, MAX_MENU_COUNT - menus.length)).fill(null)],
+    [menus],
+  )
+
+  useEffect(() => {
+    if (loading || errorMsg || categories.length === 0 || currentCategory) {
+      return
+    }
+
+    navigate(buildMenuCategoryPath(categories[0]), { replace: true })
+  }, [loading, errorMsg, categories, currentCategory, navigate])
+
+  useEffect(() => {
+    setPage(0)
+  }, [currentCategory?.key])
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(selectedMenus.length / ITEMS_PER_PAGE) - 1)
+
+    if (page > maxPage) {
+      setPage(maxPage)
+    }
+  }, [page, selectedMenus.length])
 
   const selectMenu = (menu) => {
+    if (!menu || !currentCategory) {
+      return
+    }
+
     setSelectedMenus((prev) => {
-      const index = prev.findIndex((item) => item.id === menu.id && item.category === category)
+      const index = prev.findIndex(
+        (item) => item.productId === menu.productId && item.categoryKey === currentCategory.key,
+      )
 
       if (index < 0) {
-        return [...prev, { ...menu, category, count: 1 }]
+        return [
+          ...prev,
+          {
+            productId: menu.productId,
+            name: menu.name,
+            categoryKey: currentCategory.key,
+            categoryName: currentCategory.name,
+            price: menu.price,
+            count: 1,
+          },
+        ]
       }
 
       const next = [...prev]
@@ -63,21 +138,21 @@ export default function MenuPage() {
     })
   }
 
-  const increaseCount = (id, currentCategory) => {
+  const increaseCount = (productId, categoryKey) => {
     setSelectedMenus((prev) =>
       prev.map((item) =>
-        item.id === id && item.category === currentCategory
+        item.productId === productId && item.categoryKey === categoryKey
           ? { ...item, count: item.count + 1 }
           : item,
       ),
     )
   }
 
-  const decreaseCount = (id, currentCategory) => {
+  const decreaseCount = (productId, categoryKey) => {
     setSelectedMenus((prev) =>
       prev
         .map((item) =>
-          item.id === id && item.category === currentCategory
+          item.productId === productId && item.categoryKey === categoryKey
             ? { ...item, count: item.count - 1 }
             : item,
         )
@@ -89,7 +164,6 @@ export default function MenuPage() {
   const visibleMenus = selectedMenus.slice(start, start + ITEMS_PER_PAGE)
   const hasPrev = page > 0
   const hasNext = (page + 1) * ITEMS_PER_PAGE < selectedMenus.length
-
   const totalPrice = selectedMenus.reduce((sum, item) => sum + item.price * item.count, 0)
 
   return (
@@ -97,20 +171,20 @@ export default function MenuPage() {
       <div className='menu-main'>
         <div className='menu-display'>
           {visibleMenus.map((menu) => (
-            <div key={`${menu.category}-${menu.id}`} className='selected-menu'>
+            <div key={`${menu.categoryKey}-${menu.productId}`} className='selected-menu'>
               <div>
                 <span className='menu-name'>{menu.name}</span>
                 <div style={{ fontSize: '16px', marginTop: '4px' }}>
-                  금액: {(menu.price * menu.count).toLocaleString()}원
+                  {menu.categoryName} | {(menu.price * menu.count).toLocaleString()}원
                 </div>
               </div>
 
               <div className='menu-count'>
-                <button type='button' onClick={() => decreaseCount(menu.id, menu.category)}>
+                <button type='button' onClick={() => decreaseCount(menu.productId, menu.categoryKey)}>
                   -
                 </button>
                 <span>{menu.count}</span>
-                <button type='button' onClick={() => increaseCount(menu.id, menu.category)}>
+                <button type='button' onClick={() => increaseCount(menu.productId, menu.categoryKey)}>
                   +
                 </button>
               </div>
@@ -133,25 +207,57 @@ export default function MenuPage() {
 
         <div className='menu-category'>
           <div className='category-buttons'>
-            {Object.entries(categoryLabels).map(([key, label]) => (
-              <button key={key} type='button' onClick={() => navigate(`/menu/${key}`)}>
-                {label}
+            {categories.map((item) => (
+              <button
+                key={`${item.key}-${item.id ?? 'fallback'}`}
+                type='button'
+                className={item.key === currentCategory?.key ? 'active' : ''}
+                onClick={() => navigate(buildMenuCategoryPath(item))}
+              >
+                {item.name}
               </button>
             ))}
           </div>
 
           <div className='menu-grid'>
-            {filledMenus.map((menu, index) => (
-              <button
-                key={`${menu?.id ?? 'empty'}-${index}`}
-                type='button'
-                className='menu-button'
-                disabled={!menu}
-                onClick={() => menu && selectMenu(menu)}
-              >
-                {menu ? menu.name : ''}
-              </button>
-            ))}
+            {loading && <div className='menu-grid-message'>상품을 불러오는 중입니다...</div>}
+
+            {!loading && errorMsg && <div className='menu-grid-message error'>{errorMsg}</div>}
+
+            {!loading && !errorMsg && categories.length === 0 && (
+              <div className='menu-grid-message'>판매 가능한 카테고리가 없습니다.</div>
+            )}
+
+            {!loading && !errorMsg && categories.length > 0 && !currentCategory && (
+              <div className='menu-grid-message'>카테고리를 찾는 중입니다...</div>
+            )}
+
+            {!loading && !errorMsg && currentCategory && menus.length === 0 && (
+              <div className='menu-grid-message'>선택한 카테고리에 상품이 없습니다.</div>
+            )}
+
+            {!loading &&
+              !errorMsg &&
+              currentCategory &&
+              menus.length > 0 &&
+              filledMenus.map((menu, index) => (
+                <button
+                  key={`${menu?.productId ?? 'empty'}-${index}`}
+                  type='button'
+                  className='menu-button'
+                  disabled={!menu}
+                  onClick={() => selectMenu(menu)}
+                >
+                  {menu ? (
+                    <>
+                      <span>{menu.name}</span>
+                      <span className='menu-button-price'>{menu.price.toLocaleString()}원</span>
+                    </>
+                  ) : (
+                    ''
+                  )}
+                </button>
+              ))}
           </div>
         </div>
       </div>
@@ -161,7 +267,7 @@ export default function MenuPage() {
           이전 화면
         </button>
 
-        <button type='button' className='pay-btn'>
+        <button type='button' className='pay-btn' disabled={selectedMenus.length === 0}>
           결제
         </button>
       </div>

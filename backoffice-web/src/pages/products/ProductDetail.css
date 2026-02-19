@@ -237,6 +237,15 @@
     transform: translateY(-1px);
 }
 
+.product-detail-page .detail-form-buttons button.danger-action {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+.product-detail-page .detail-form-buttons button.danger-action:hover:not(:disabled) {
+    background-color: #b91c1c;
+}
+
 .product-detail-page .detail-form-buttons button:hover:not(:disabled) {
     background-color: #d1d5db;
 }

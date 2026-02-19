@@ -99,8 +99,10 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/warehouses/:id" element={<WarehouseDetail />} />
 
           {/* Inventory Routes */}
+          <Route path="/inventory" element={<InventoryList />} />
           <Route path="/stores/:storeId/inventory" element={<InventoryList />} />
-          <Route path="/stores/:storeId/inventory/:productId" element={<InventoryItem />} />
+          <Route path="/stores/:storeId/inventory/:storeProductId" element={<InventoryItem />} />
+          <Route path="/inventory/store-products/:storeProductId" element={<InventoryItem />} />
           <Route path="/inventory/adjust" element={<InventoryAdjust />} />
           <Route path="/inventory/logs" element={<InventoryLogs />} />
 

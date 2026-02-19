@@ -5,6 +5,12 @@ import { fetchCategories } from '../../api/categoryApi';
 import ProductCategoryModal from './ProductCategoryModal';
 import './ProductDetail.css';
 
+const formatProductDisplay = product => {
+  const productName = product?.name || '-';
+  const productCode = product?.sku || '-';
+  return `'${productName}(${productCode})'`;
+};
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -105,7 +111,7 @@ export default function ProductDetail() {
   };
 
   const handleDiscontinue = async () => {
-    if (!window.confirm('이 상품을 판매 중지 처리하시겠습니까?')) {
+    if (!window.confirm(`${formatProductDisplay(product)}을(를) 판매 중지 처리하시겠습니까?`)) {
       return;
     }
 
@@ -344,6 +350,7 @@ export default function ProductDetail() {
                 {product.status !== 'DISCONTINUED' && (
                   <button
                     type="button"
+                    className="danger-action"
                     onClick={handleDiscontinue}
                     disabled={loading}
                   >
@@ -353,6 +360,7 @@ export default function ProductDetail() {
                 {product.status === 'DISCONTINUED' && (
                   <button
                     type="button"
+                    className="danger-action"
                     onClick={handleReactivate}
                     disabled={loading}
                   >
