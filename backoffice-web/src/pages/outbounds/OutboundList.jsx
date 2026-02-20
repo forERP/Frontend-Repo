@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -8,8 +8,7 @@ import '../purchase/request/purchase.css';
 import './OutboundList.css';
 
 const INITIAL_FILTERS = {
-  storeName: '',
-  storeCode: '',
+  storeKeyword: '',
   status: '',
   shipmentStatus: '',
   from: '',
@@ -43,8 +42,7 @@ export default function OutboundList() {
       const data = await fetchOutboundPage({
         page,
         size,
-        storeName: search.storeName,
-        storeCode: search.storeCode,
+        storeKeyword: search.storeKeyword,
         status: search.status,
         shipmentStatus: search.shipmentStatus,
         from: search.from,
@@ -98,20 +96,12 @@ export default function OutboundList() {
           formClassName="outbound-list-search-form"
           fields={[
             {
-              name: 'storeName',
-              label: '매장명',
+              name: 'storeKeyword',
+              label: '매장',
               type: 'text',
-              value: filters.storeName,
+              value: filters.storeKeyword,
               onChange: handleFilterChange,
-              placeholder: '매장명 검색',
-            },
-            {
-              name: 'storeCode',
-              label: '매장코드',
-              type: 'text',
-              value: filters.storeCode,
-              onChange: handleFilterChange,
-              placeholder: '매장코드 검색',
+              placeholder: '매장명 또는 매장코드',
             },
             {
               name: 'status',
@@ -134,23 +124,17 @@ export default function OutboundList() {
                 { value: '', label: '전체' },
                 ...Object.entries(SHIPMENT_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
               ],
-              className: 'row-2',
             },
             {
-              name: 'from',
-              label: '시작일',
-              type: 'date',
-              value: filters.from,
+              name: 'createdRange',
+              label: '생성일',
+              type: 'date-range',
+              fromName: 'from',
+              toName: 'to',
+              fromValue: filters.from,
+              toValue: filters.to,
               onChange: handleFilterChange,
-              className: 'date-field',
-            },
-            {
-              name: 'to',
-              label: '종료일',
-              type: 'date',
-              value: filters.to,
-              onChange: handleFilterChange,
-              className: 'date-field',
+              className: 'date-range-field',
             },
           ]}
           onSearch={handleSearch}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../../components/list/ListPagination';
 import ListSearchControls from '../../../components/list/ListSearchControls';
@@ -9,12 +9,13 @@ import '../request/purchase.css';
 import './PurchaseOrderListPage.css';
 
 const INITIAL_FILTERS = {
-  storeName: '',
-  storeCode: '',
+  storeKeyword: '',
   supplierName: '',
   status: '',
-  from: '',
-  to: '',
+  createdFrom: '',
+  createdTo: '',
+  orderedFrom: '',
+  orderedTo: '',
 };
 
 export default function PurchaseOrderListPage() {
@@ -45,12 +46,13 @@ export default function PurchaseOrderListPage() {
         size,
       };
 
-      if (search.storeName?.trim()) filterParams.storeName = search.storeName.trim();
-      if (search.storeCode?.trim()) filterParams.storeCode = search.storeCode.trim();
+      if (search.storeKeyword?.trim()) filterParams.storeKeyword = search.storeKeyword.trim();
       if (search.supplierName?.trim()) filterParams.supplierName = search.supplierName.trim();
       if (search.status) filterParams.status = search.status;
-      if (search.from) filterParams.from = search.from;
-      if (search.to) filterParams.to = search.to;
+      if (search.createdFrom) filterParams.createdFrom = search.createdFrom;
+      if (search.createdTo) filterParams.createdTo = search.createdTo;
+      if (search.orderedFrom) filterParams.orderedFrom = search.orderedFrom;
+      if (search.orderedTo) filterParams.orderedTo = search.orderedTo;
 
       const result = await getPurchaseOrderList(filterParams);
       setTotalPages(result.totalPages || 0);
@@ -103,23 +105,15 @@ export default function PurchaseOrderListPage() {
 
       <div className="card list-filter-card">
         <ListSearchControls
-          formClassName="purchase-list-search-form"
+          formClassName="purchase-order-list-search-form"
           fields={[
             {
-              name: 'storeName',
-              label: '매장명',
+              name: 'storeKeyword',
+              label: '매장',
               type: 'text',
-              value: filters.storeName,
+              value: filters.storeKeyword,
               onChange: handleFilterChange,
-              placeholder: '매장명 검색',
-            },
-            {
-              name: 'storeCode',
-              label: '매장코드',
-              type: 'text',
-              value: filters.storeCode,
-              onChange: handleFilterChange,
-              placeholder: '매장코드 검색',
+              placeholder: '매장명 또는 매장코드',
             },
             {
               name: 'supplierName',
@@ -141,20 +135,26 @@ export default function PurchaseOrderListPage() {
               ],
             },
             {
-              name: 'from',
-              label: '시작일',
-              type: 'date',
-              value: filters.from,
+              name: 'createdRange',
+              label: '생성일 범위',
+              type: 'date-range',
+              fromName: 'createdFrom',
+              toName: 'createdTo',
+              fromValue: filters.createdFrom,
+              toValue: filters.createdTo,
               onChange: handleFilterChange,
-              className: 'date-field',
+              className: 'date-range-field',
             },
             {
-              name: 'to',
-              label: '종료일',
-              type: 'date',
-              value: filters.to,
+              name: 'orderedRange',
+              label: '확정일 범위',
+              type: 'date-range',
+              fromName: 'orderedFrom',
+              toName: 'orderedTo',
+              fromValue: filters.orderedFrom,
+              toValue: filters.orderedTo,
               onChange: handleFilterChange,
-              className: 'date-field',
+              className: 'date-range-field',
             },
           ]}
           onSearch={handleSearch}

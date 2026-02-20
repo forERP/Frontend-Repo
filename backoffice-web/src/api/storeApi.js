@@ -1,4 +1,4 @@
-import api from '../lib/api';
+﻿import api from '../lib/api';
 
 // 매장 목록 조회
 export const fetchStores = async () => {
@@ -12,10 +12,11 @@ export const fetchStores = async () => {
 };
 
 // 매장 목록 검색 + 페이지네이션
-export const fetchStorePage = async ({ page = 0, size = 10, name = '', code = '', status = '' } = {}) => {
+export const fetchStorePage = async ({ page = 0, size = 10, keyword = '', name = '', code = '', status = '' } = {}) => {
   try {
     const params = { page, size };
 
+    if (keyword?.trim()) params.keyword = keyword.trim();
     if (name?.trim()) params.name = name.trim();
     if (code?.trim()) params.code = code.trim();
     if (status) params.status = status;
@@ -29,7 +30,7 @@ export const fetchStorePage = async ({ page = 0, size = 10, name = '', code = ''
 };
 
 // 매장 상세 조회
-export const fetchStoreDetail = async (storeId) => {
+export const fetchStoreDetail = async storeId => {
   try {
     const response = await api.get(`/api/stores/${storeId}`);
     return response.data;
@@ -40,7 +41,7 @@ export const fetchStoreDetail = async (storeId) => {
 };
 
 // 매장 생성
-export const createStore = async (storeData) => {
+export const createStore = async storeData => {
   try {
     const response = await api.post('/api/stores', storeData);
     return response.data;

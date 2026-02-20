@@ -1,4 +1,4 @@
-import './ListCommon.css';
+﻿import './ListCommon.css';
 
 export default function ListSearchControls({
   fields = [],

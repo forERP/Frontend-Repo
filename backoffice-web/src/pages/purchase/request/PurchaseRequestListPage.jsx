@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../../components/list/ListPagination';
 import ListSearchControls from '../../../components/list/ListSearchControls';
@@ -9,8 +9,7 @@ import './PurchaseRequestListPage.css';
 import './purchase.css';
 
 const INITIAL_FILTERS = {
-  storeName: '',
-  storeCode: '',
+  storeKeyword: '',
   status: '',
 };
 
@@ -71,8 +70,7 @@ export default function PurchaseRequestListPage() {
 
       const params = { page, size };
 
-      if (search.storeName?.trim()) params.storeName = search.storeName.trim();
-      if (search.storeCode?.trim()) params.storeCode = search.storeCode.trim();
+      if (search.storeKeyword?.trim()) params.storeKeyword = search.storeKeyword.trim();
       if (search.status) params.status = search.status;
 
       const { data } = await api.get('/api/purchase-requests', { params });
@@ -133,20 +131,12 @@ export default function PurchaseRequestListPage() {
         <ListSearchControls
           fields={[
             {
-              name: 'storeName',
-              label: '매장명',
+              name: 'storeKeyword',
+              label: '매장',
               type: 'text',
-              value: filters.storeName,
+              value: filters.storeKeyword,
               onChange: handleFilterChange,
-              placeholder: '매장명 검색',
-            },
-            {
-              name: 'storeCode',
-              label: '매장코드',
-              type: 'text',
-              value: filters.storeCode,
-              onChange: handleFilterChange,
-              placeholder: '매장코드 검색',
+              placeholder: '매장명 또는 매장코드',
             },
             {
               name: 'status',

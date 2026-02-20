@@ -10,12 +10,14 @@ export const fetchCategories = async () => {
   }
 };
 
-export const fetchCategoryPage = async ({ page = 0, size = 10, name = '', code = '' } = {}) => {
+export const fetchCategoryPage = async ({ page = 0, size = 10, keyword = '', name = '', code = '', status = '' } = {}) => {
   try {
     const params = { page, size };
 
+    if (keyword?.trim()) params.keyword = keyword.trim();
     if (name?.trim()) params.name = name.trim();
     if (code?.trim()) params.code = code.trim();
+    if (status) params.status = status;
 
     const response = await api.get('/api/product-categories/search', { params });
     return response.data;

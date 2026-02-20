@@ -11,11 +11,13 @@ export default function App() {
     const accessToken = sessionStorage.getItem('accessToken');
     const userId = sessionStorage.getItem('userId');
     const userRole = sessionStorage.getItem('userRole');
+    const userName = sessionStorage.getItem('userName');
 
     if (accessToken && userId && userRole) {
       setUser({
         userId: parseInt(userId),
         role: userRole,
+        name: userName || '',
       });
     }
 

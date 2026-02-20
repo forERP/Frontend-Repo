@@ -4,7 +4,7 @@ import api from '../lib/api'
 /**
  * 관리자페이지 로그인
  * @param {Object} credentials - { identifier, password }
- * @returns {Promise<Object>} - { token, role, userId }
+ * @returns {Promise<Object>} - { token, role, userId, name }
  */
 export const login = async (credentials) => {
   try {
@@ -22,17 +22,19 @@ export const login = async (credentials) => {
       }
     )
 
-    const { token, role, userId } = response.data
+    const { token, role, userId, name } = response.data
 
     // 토큰 및 사용자 정보는 탭/창 세션 동안만 유지
     sessionStorage.setItem('accessToken', token)
     sessionStorage.setItem('userRole', role)
     sessionStorage.setItem('userId', userId)
+    sessionStorage.setItem('userName', name || '')
 
     return {
       token,
       role,
       userId,
+      name,
     }
   } catch (error) {
     console.error('로그인 에러:', error.response?.status, error.response?.data)
@@ -48,6 +50,7 @@ export const logout = () => {
   sessionStorage.removeItem('accessToken')
   sessionStorage.removeItem('userRole')
   sessionStorage.removeItem('userId')
+  sessionStorage.removeItem('userName')
 }
 
 /**

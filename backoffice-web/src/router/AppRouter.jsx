@@ -52,6 +52,7 @@ import OutboundDetail from '../pages/outbounds/OutboundDetail.jsx';
 import DiscardList from '../pages/discards/DiscardList.jsx';
 import DiscardForm from '../pages/discards/DiscardForm.jsx';
 import DiscardDetail from '../pages/discards/DiscardDetail.jsx';
+import ReturnList from '../pages/returns/ReturnList.jsx';
 
 // Shipment Pages
 import Shipments from '../pages/shipments/Shipments.jsx';
@@ -135,6 +136,7 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/outbounds/:id" element={<OutboundDetail />} />
 
           {/* Discard Routes */}
+          <Route path="/returns" element={<ReturnList />} />
           <Route path="/discards" element={<DiscardList />} />
           <Route path="/discards/new" element={<DiscardForm />} />
           <Route path="/discards/:id" element={<DiscardDetail />} />

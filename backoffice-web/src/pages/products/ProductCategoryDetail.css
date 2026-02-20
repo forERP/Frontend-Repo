@@ -72,6 +72,7 @@
 }
 
 .category-detail-page .form-group input,
+.category-detail-page .form-group select,
 .category-detail-page .form-group textarea {
     padding: 10px 12px;
     border: 1px solid #d1d5db;
@@ -81,6 +82,7 @@
 }
 
 .category-detail-page .form-group input:focus,
+.category-detail-page .form-group select:focus,
 .category-detail-page .form-group textarea:focus {
     outline: none;
     border-color: #4f46e5;

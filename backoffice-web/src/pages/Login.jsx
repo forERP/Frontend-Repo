@@ -43,11 +43,14 @@ export default function LoginPage({ setUser }) {
         setUser({
           userId: response.userId,
           role: response.role,
+          name: response.name || "",
         });
       }
 
       // 대시보드로 이동
-      navigate("/");
+      localStorage.setItem("activeTopKey", "dashboard");
+      localStorage.setItem("sidebarOpen", JSON.stringify(false));
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "로그인에 실패했습니다.");
     } finally {

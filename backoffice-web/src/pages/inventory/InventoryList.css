@@ -1,4 +1,4 @@
-.inventory-page {
+﻿.inventory-page {
     display: flex;
     justify-content: center;
     padding: 40px 20px;
@@ -17,33 +17,11 @@
 }
 
 .inventory-page .inventory-filter-form {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-auto-rows: auto;
 }
 
-.inventory-page .inventory-filter-store {
-    grid-column: 1;
-    grid-row: 1;
-}
-
-.inventory-page .inventory-filter-warehouse {
-    grid-column: 2;
-    grid-row: 1;
-}
-
-.inventory-page .inventory-filter-product {
-    grid-column: 3;
-    grid-row: 1;
-}
-
-.inventory-page .inventory-filter-status {
-    grid-column: 4;
-    grid-row: 1;
-}
-
 .inventory-page .inventory-filter-actions {
-    grid-column: 4;
-    grid-row: 2;
     justify-self: end;
 }
 
@@ -95,30 +73,13 @@
 }
 
 @media (max-width: 1024px) {
-    .inventory-page .inventory-filter-form {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .inventory-page .inventory-filter-store,
-    .inventory-page .inventory-filter-warehouse,
-    .inventory-page .inventory-filter-product,
-    .inventory-page .inventory-filter-status,
-    .inventory-page .inventory-filter-actions {
-        grid-column: auto;
-        grid-row: auto;
-    }
-
     .inventory-page .inventory-filter-actions {
         justify-self: end;
     }
 }
 
 @media (max-width: 768px) {
-    .inventory-page .inventory-filter-form {
-        grid-template-columns: 1fr;
-    }
-
     .inventory-page .inventory-filter-actions {
-        justify-self: stretch;
+        justify-self: end;
     }
 }

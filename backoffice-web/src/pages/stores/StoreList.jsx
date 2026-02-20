@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -7,8 +7,7 @@ import { STORE_STATUS } from '../../constants/status';
 import './StoreList.css';
 
 const INITIAL_FILTERS = {
-  name: '',
-  code: '',
+  keyword: '',
   status: '',
 };
 
@@ -39,8 +38,7 @@ export default function StoreListPage() {
       const data = await fetchStorePage({
         page,
         size,
-        name: search.name,
-        code: search.code,
+        keyword: search.keyword,
         status: search.status,
       });
 
@@ -94,20 +92,12 @@ export default function StoreListPage() {
           <ListSearchControls
             fields={[
               {
-                name: 'name',
-                label: '매장명',
+                name: 'keyword',
+                label: '매장',
                 type: 'text',
-                value: filters.name,
+                value: filters.keyword,
                 onChange: handleFilterChange,
-                placeholder: '매장명 검색',
-              },
-              {
-                name: 'code',
-                label: '매장코드',
-                type: 'text',
-                value: filters.code,
-                onChange: handleFilterChange,
-                placeholder: '매장코드 검색',
+                placeholder: '매장명 또는 매장코드',
               },
               {
                 name: 'status',

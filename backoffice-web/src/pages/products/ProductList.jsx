@@ -6,8 +6,7 @@ import { fetchProducts, discontinueProduct, reactivateProduct } from '../../api/
 import './ProductList.css';
 
 const INITIAL_FILTERS = {
-  name: '',
-  sku: '',
+  productKeyword: '',
   status: 'ACTIVE',
 };
 
@@ -132,21 +131,13 @@ export default function ProductList() {
         <div className="card filter-card">
           <ListSearchControls
             fields={[
-              {
-                name: 'name',
-                label: '상품명',
+            {
+                name: 'productKeyword',
+                label: '상품',
                 type: 'text',
-                value: filters.name,
+                value: filters.productKeyword,
                 onChange: handleFilterChange,
-                placeholder: '상품명 검색',
-              },
-              {
-                name: 'sku',
-                label: 'SKU',
-                type: 'text',
-                value: filters.sku,
-                onChange: handleFilterChange,
-                placeholder: 'SKU 검색',
+                placeholder: '상품명 또는 SKU',
               },
               {
                 name: 'status',

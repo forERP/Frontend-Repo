@@ -1,0 +1,35 @@
+.purchase-page .discard-detail-card {
+    margin-bottom: 16px;
+}
+
+.purchase-page .discard-info-table {
+    margin-top: 0;
+}
+
+.purchase-page .discard-info-table th {
+    width: 140px;
+}
+
+.purchase-page .discard-items-title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #111827;
+}
+
+.purchase-page .discard-detail-items-table th:nth-child(1) {
+    width: 160px;
+}
+
+.purchase-page .discard-detail-items-table th:nth-child(3) {
+    width: 110px;
+}
+
+.purchase-page .discard-detail-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.purchase-page .discard-detail-actions button {
+    min-width: 110px;
+}

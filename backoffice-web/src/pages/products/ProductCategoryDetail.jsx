@@ -17,6 +17,7 @@ export default function ProductCategoryDetail() {
     name: '',
     description: '',
     imageUrl: '',
+    active: 'ACTIVE',
   });
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function ProductCategoryDetail() {
         name: data.name || '',
         description: data.description || '',
         imageUrl: data.imageUrl || '',
+        active: data.active ? 'ACTIVE' : 'INACTIVE',
       });
     } catch (err) {
       console.error('카테고리 상세 조회 실패:', err);
@@ -79,6 +81,7 @@ export default function ProductCategoryDetail() {
         name: formData.name.trim(),
         description: formData.description.trim(),
         imageUrl: formData.imageUrl.trim(),
+        active: formData.active === 'ACTIVE',
       });
 
       setCategory(updated);
@@ -101,6 +104,7 @@ export default function ProductCategoryDetail() {
       name: category.name || '',
       description: category.description || '',
       imageUrl: category.imageUrl || '',
+      active: category.active ? 'ACTIVE' : 'INACTIVE',
     });
   };
 
@@ -186,6 +190,20 @@ export default function ProductCategoryDetail() {
                 />
               </div>
 
+              <div className="form-group">
+                <label htmlFor="active">상태</label>
+                <select
+                  id="active"
+                  name="active"
+                  value={formData.active}
+                  onChange={handleInputChange}
+                  disabled={loading}
+                >
+                  <option value="ACTIVE">활성</option>
+                  <option value="INACTIVE">비활성</option>
+                </select>
+              </div>
+
               <div className="form-buttons">
                 <button type="submit" disabled={loading}>
                   {loading ? '저장 중...' : '저장'}
@@ -224,6 +242,10 @@ export default function ProductCategoryDetail() {
                       <tr>
                         <th>설명</th>
                         <td>{category.description || '-'}</td>
+                      </tr>
+                      <tr>
+                        <th>상태</th>
+                        <td>{category.active ? '활성' : '비활성'}</td>
                       </tr>
                       <tr>
                         <th>생성일</th>

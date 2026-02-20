@@ -81,11 +81,16 @@ export const getPurchaseOrder = async purchaseOrderId => {
 export const getPurchaseOrderList = async (filters = {}) => {
   const {
     storeId,
+    storeKeyword,
     storeName,
     storeCode,
     supplierId,
     supplierName,
     status,
+    createdFrom,
+    createdTo,
+    orderedFrom,
+    orderedTo,
     from,
     to,
     page = 0,
@@ -94,11 +99,16 @@ export const getPurchaseOrderList = async (filters = {}) => {
 
   const params = { page, size };
   if (storeId) params.storeId = storeId;
+  if (storeKeyword) params.storeKeyword = storeKeyword;
   if (storeName) params.storeName = storeName;
   if (storeCode) params.storeCode = storeCode;
   if (supplierId) params.supplierId = supplierId;
   if (supplierName) params.supplierName = supplierName;
   if (status) params.status = status;
+  if (createdFrom) params.createdFrom = createdFrom;
+  if (createdTo) params.createdTo = createdTo;
+  if (orderedFrom) params.orderedFrom = orderedFrom;
+  if (orderedTo) params.orderedTo = orderedTo;
   if (from) params.from = from;
   if (to) params.to = to;
 
@@ -139,9 +149,10 @@ export const getInbound = async inboundId => {
 };
 
 export const getInboundList = async (filters = {}) => {
-  const { storeId, storeName, storeCode, status, from, to, page = 0, size = 20 } = filters;
+  const { storeId, storeKeyword, storeName, storeCode, status, from, to, page = 0, size = 20 } = filters;
   const params = { page, size };
   if (storeId) params.storeId = storeId;
+  if (storeKeyword) params.storeKeyword = storeKeyword;
   if (storeName) params.storeName = storeName;
   if (storeCode) params.storeCode = storeCode;
   if (status) params.status = status;

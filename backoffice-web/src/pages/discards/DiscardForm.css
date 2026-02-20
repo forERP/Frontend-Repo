@@ -1,0 +1,63 @@
+.purchase-page .discard-form {
+    max-width: 1100px;
+}
+
+.purchase-page .discard-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.purchase-page .discard-form-grid .discard-reason {
+    grid-column: span 1;
+}
+
+.purchase-page .discard-items-section {
+    margin-top: 8px;
+}
+
+.purchase-page .discard-items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.purchase-page .discard-items-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #111827;
+}
+
+.purchase-page .discard-items-table {
+    margin-top: 0;
+}
+
+.purchase-page .discard-items-table select,
+.purchase-page .discard-items-table input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+.purchase-page .discard-items-table .actions-col,
+.purchase-page .discard-items-table .actions-cell {
+    width: 90px;
+    text-align: center;
+}
+
+.purchase-page .discard-item-preview {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .purchase-page .discard-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

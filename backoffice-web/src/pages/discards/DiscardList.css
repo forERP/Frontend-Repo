@@ -1,0 +1,36 @@
+.purchase-page .discard-list-search-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.purchase-page .discard-list-search-form .list-search-actions {
+    justify-self: end;
+}
+
+.purchase-page .discard-list-table th:nth-child(1) {
+    width: 100px;
+}
+
+.purchase-page .discard-list-table th:nth-child(4) {
+    width: 110px;
+}
+
+.purchase-page .discard-list-table th:nth-child(5) {
+    width: 120px;
+}
+
+.purchase-page .discard-list-table th:nth-child(6),
+.purchase-page .discard-list-table th:nth-child(7) {
+    width: 170px;
+}
+
+@media (max-width: 1024px) {
+    .purchase-page .discard-list-search-form .list-search-actions {
+        justify-self: end;
+    }
+}
+
+@media (max-width: 768px) {
+    .purchase-page .discard-list-search-form .list-search-actions {
+        justify-self: end;
+    }
+}

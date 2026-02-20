@@ -5,6 +5,7 @@ export const fetchProducts = async (page = 0, size = 10, filters = {}) => {
   try {
     const params = { page, size };
 
+    if (filters.productKeyword?.trim()) params.productKeyword = filters.productKeyword.trim();
     if (filters.name?.trim()) params.name = filters.name.trim();
     if (filters.sku?.trim()) params.sku = filters.sku.trim();
     if (filters.status) params.status = filters.status;

@@ -36,11 +36,19 @@ export default function MainLayout({ user }) {
     localStorage.setItem('activeTopKey', activeTopKey);
   }, [activeTopKey]);
 
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setActiveTopKey('dashboard');
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
   const activeTopMenu = useMemo(
     () => menus.find(menu => menu.key === activeTopKey),
     [activeTopKey]
   );
 
+  const isDashboardTop = activeTopKey === 'dashboard' || location.pathname === '/';
   const sidebarMenus = activeTopMenu?.children ?? [];
 
   const handleTopMenuClick = (key) => {
@@ -67,11 +75,13 @@ export default function MainLayout({ user }) {
       />
 
       <div className="layout-body">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          menus={sidebarMenus}
-          onToggle={toggleSidebar}
-        />
+        {!isDashboardTop && (
+          <Sidebar
+            isOpen={isSidebarOpen}
+            menus={sidebarMenus}
+            onToggle={toggleSidebar}
+          />
+        )}
 
         <main className="main-content">
           <Outlet />

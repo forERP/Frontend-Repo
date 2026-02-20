@@ -18,6 +18,7 @@ export default function ProductCategoryForm() {
     name: '',
     description: '',
     imageUrl: '',
+    active: 'ACTIVE',
   });
 
   const handleInputChange = event => {
@@ -50,6 +51,7 @@ export default function ProductCategoryForm() {
         name: formData.name.trim(),
         description: formData.description.trim(),
         imageUrl: formData.imageUrl.trim(),
+        active: formData.active === 'ACTIVE',
       };
 
       const created = await createCategory(payload);
@@ -145,6 +147,20 @@ export default function ProductCategoryForm() {
                 placeholder="https://example.com/category.jpg"
                 disabled={loading}
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="active">상태</label>
+              <select
+                id="active"
+                name="active"
+                value={formData.active}
+                onChange={handleInputChange}
+                disabled={loading}
+              >
+                <option value="ACTIVE">활성</option>
+                <option value="INACTIVE">비활성</option>
+              </select>
             </div>
 
             <div className="form-buttons">

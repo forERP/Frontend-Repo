@@ -15,13 +15,20 @@ export default function Header({ user, menus, activeTopKey, onTopMenuClick }) {
     }
   };
 
-  const handleMenuClick = (menu) => {
+  const handleUserClick = () => {
+    if (!user?.userId) {
+      return;
+    }
+    navigate(`/users/${user.userId}`);
+  };
+
+  const handleMenuClick = menu => {
     onTopMenuClick(menu.key);
-    // 메뉴에 자식이 있으면 첫 번째 자식으로 이동
     if (menu.children && menu.children.length > 0) {
-      const firstChild = menu.children[0];
-      navigate(firstChild.path);
-    } else if (menu.path) {
+      navigate(menu.children[0].path);
+      return;
+    }
+    if (menu.path) {
       navigate(menu.path);
     }
   };
@@ -49,16 +56,13 @@ export default function Header({ user, menus, activeTopKey, onTopMenuClick }) {
             {menu.label}
           </button>
         ))}
-        
-        {/* 사용자 정보 및 로그아웃 */}
+
         <div className="header-user">
           {user && (
             <>
-              <span className="user-info">
-                {user.role === 'HQ_ADMIN' && '본사 관리자'}
-                {user.role === 'STORE_ADMIN' && '지점 관리자'}
-                (ID: {user.userId})
-              </span>
+              <button type="button" className="user-info-btn" onClick={handleUserClick}>
+                {user.name || '-'}
+              </button>
               <button className="logout-btn" onClick={handleLogout}>
                 로그아웃
               </button>

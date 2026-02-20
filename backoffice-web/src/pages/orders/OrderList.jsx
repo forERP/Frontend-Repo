@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -8,8 +8,7 @@ import '../purchase/request/purchase.css';
 import './OrderList.css';
 
 const INITIAL_FILTERS = {
-  storeName: '',
-  storeCode: '',
+  storeKeyword: '',
   status: '',
   from: '',
   to: '',
@@ -42,8 +41,7 @@ export default function OrderList() {
       const data = await fetchOrderPage({
         page,
         size,
-        storeName: search.storeName,
-        storeCode: search.storeCode,
+        storeKeyword: search.storeKeyword,
         status: search.status,
         from: search.from,
         to: search.to,
@@ -96,20 +94,12 @@ export default function OrderList() {
           formClassName="order-list-search-form"
           fields={[
             {
-              name: 'storeName',
-              label: '매장명',
+              name: 'storeKeyword',
+              label: '매장',
               type: 'text',
-              value: filters.storeName,
+              value: filters.storeKeyword,
               onChange: handleFilterChange,
-              placeholder: '매장명 검색',
-            },
-            {
-              name: 'storeCode',
-              label: '매장코드',
-              type: 'text',
-              value: filters.storeCode,
-              onChange: handleFilterChange,
-              placeholder: '매장코드 검색',
+              placeholder: '매장명 또는 매장코드',
             },
             {
               name: 'status',
@@ -123,20 +113,15 @@ export default function OrderList() {
               ],
             },
             {
-              name: 'from',
-              label: '시작일',
-              type: 'date',
-              value: filters.from,
+              name: 'orderedRange',
+              label: '주문일',
+              type: 'date-range',
+              fromName: 'from',
+              toName: 'to',
+              fromValue: filters.from,
+              toValue: filters.to,
               onChange: handleFilterChange,
-              className: 'date-field',
-            },
-            {
-              name: 'to',
-              label: '종료일',
-              type: 'date',
-              value: filters.to,
-              onChange: handleFilterChange,
-              className: 'date-field',
+              className: 'date-range-field',
             },
           ]}
           onSearch={handleSearch}

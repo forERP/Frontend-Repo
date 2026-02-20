@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -7,8 +7,7 @@ import { USER_ROLE, USER_ROLE_OPTIONS, USER_STATUS, USER_STATUS_OPTIONS } from '
 import './Users.css';
 
 const INITIAL_FILTERS = {
-  storeName: '',
-  storeCode: '',
+  storeKeyword: '',
   name: '',
   status: '',
   role: '',
@@ -43,8 +42,7 @@ export default function Users() {
       const data = await fetchUserPage({
         page,
         size,
-        storeName: search.storeName,
-        storeCode: search.storeCode,
+        storeKeyword: search.storeKeyword,
         name: search.name,
         status: search.status,
         role: search.role,
@@ -103,20 +101,12 @@ export default function Users() {
             formClassName="user-list-search-form"
             fields={[
               {
-                name: 'storeName',
-                label: '매장명',
+                name: 'storeKeyword',
+                label: '매장',
                 type: 'text',
-                value: filters.storeName,
+                value: filters.storeKeyword,
                 onChange: handleFilterChange,
-                placeholder: '매장명 검색',
-              },
-              {
-                name: 'storeCode',
-                label: '매장코드',
-                type: 'text',
-                value: filters.storeCode,
-                onChange: handleFilterChange,
-                placeholder: '매장코드 검색',
+                placeholder: '매장명 또는 매장코드',
               },
               {
                 name: 'name',
@@ -141,7 +131,6 @@ export default function Users() {
                 value: filters.role,
                 onChange: handleFilterChange,
                 options: USER_ROLE_OPTIONS,
-                className: 'row-2',
               },
               {
                 name: 'createdRange',
@@ -152,7 +141,7 @@ export default function Users() {
                 fromValue: filters.createdFrom,
                 toValue: filters.createdTo,
                 onChange: handleFilterChange,
-                className: 'row-2 date-range-field',
+                className: 'date-range-field',
               },
             ]}
             onSearch={handleSearch}

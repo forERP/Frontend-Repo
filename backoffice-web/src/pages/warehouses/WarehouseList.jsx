@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
@@ -6,8 +6,7 @@ import { fetchWarehousePage } from '../../api/warehouseApi';
 import './WarehouseList.css';
 
 const INITIAL_FILTERS = {
-  name: '',
-  code: '',
+  keyword: '',
   status: '',
 };
 
@@ -38,8 +37,7 @@ export default function WarehouseListPage() {
       const data = await fetchWarehousePage({
         page,
         size,
-        name: search.name,
-        code: search.code,
+        keyword: search.keyword,
         status: search.status,
       });
 
@@ -93,20 +91,12 @@ export default function WarehouseListPage() {
           <ListSearchControls
             fields={[
               {
-                name: 'name',
-                label: '창고명',
+                name: 'keyword',
+                label: '창고',
                 type: 'text',
-                value: filters.name,
+                value: filters.keyword,
                 onChange: handleFilterChange,
-                placeholder: '창고명 검색',
-              },
-              {
-                name: 'code',
-                label: '창고코드',
-                type: 'text',
-                value: filters.code,
-                onChange: handleFilterChange,
-                placeholder: '창고코드 검색',
+                placeholder: '창고명 또는 창고코드',
               },
               {
                 name: 'status',

@@ -1,6 +1,6 @@
-import api from '../lib/api';
+﻿import api from '../lib/api';
 
-export const fetchWarehouses = async (storeId) => {
+export const fetchWarehouses = async storeId => {
   try {
     const url = storeId ? `/api/warehouses?storeId=${storeId}` : '/api/warehouses';
     const response = await api.get(url);
@@ -11,10 +11,11 @@ export const fetchWarehouses = async (storeId) => {
   }
 };
 
-export const fetchWarehousePage = async ({ page = 0, size = 10, name = '', code = '', status = '' } = {}) => {
+export const fetchWarehousePage = async ({ page = 0, size = 10, keyword = '', name = '', code = '', status = '' } = {}) => {
   try {
     const params = { page, size };
 
+    if (keyword?.trim()) params.keyword = keyword.trim();
     if (name?.trim()) params.name = name.trim();
     if (code?.trim()) params.code = code.trim();
     if (status) params.status = status;
@@ -27,7 +28,7 @@ export const fetchWarehousePage = async ({ page = 0, size = 10, name = '', code 
   }
 };
 
-export const fetchWarehouse = async (warehouseId) => {
+export const fetchWarehouse = async warehouseId => {
   try {
     const response = await api.get(`/api/warehouses/${warehouseId}`);
     return response.data;
@@ -37,7 +38,7 @@ export const fetchWarehouse = async (warehouseId) => {
   }
 };
 
-export const createWarehouse = async (payload) => {
+export const createWarehouse = async payload => {
   try {
     const response = await api.post('/api/warehouses', payload);
     return response.data;

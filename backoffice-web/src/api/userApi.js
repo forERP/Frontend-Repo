@@ -3,6 +3,7 @@ import api from '../lib/api';
 export const fetchUserPage = async ({
   page = 0,
   size = 10,
+  storeKeyword = '',
   storeName = '',
   storeCode = '',
   name = '',
@@ -13,6 +14,7 @@ export const fetchUserPage = async ({
 } = {}) => {
   const params = { page, size };
 
+  if (storeKeyword?.trim()) params.storeKeyword = storeKeyword.trim();
   if (storeName?.trim()) params.storeName = storeName.trim();
   if (storeCode?.trim()) params.storeCode = storeCode.trim();
   if (name?.trim()) params.name = name.trim();

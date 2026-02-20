@@ -6,8 +6,8 @@ import { fetchCategoryPage } from '../../api/categoryApi';
 import './ProductCategoryList.css';
 
 const INITIAL_FILTERS = {
-  name: '',
-  code: '',
+  keyword: '',
+  status: 'ACTIVE',
 };
 
 export default function ProductCategoryList() {
@@ -37,8 +37,8 @@ export default function ProductCategoryList() {
       const data = await fetchCategoryPage({
         page,
         size,
-        name: search.name,
-        code: search.code,
+        keyword: search.keyword,
+        status: search.status,
       });
 
       setCategories(data.content || []);
@@ -97,20 +97,24 @@ export default function ProductCategoryList() {
             formClassName="category-list-search-form"
             fields={[
               {
-                name: 'name',
-                label: '카테고리명',
+                name: 'keyword',
+                label: '카테고리',
                 type: 'text',
-                value: filters.name,
+                value: filters.keyword,
                 onChange: handleFilterChange,
-                placeholder: '카테고리명 검색',
+                placeholder: '카테고리명 또는 카테고리 코드',
               },
               {
-                name: 'code',
-                label: '카테고리 코드',
-                type: 'text',
-                value: filters.code,
+                name: 'status',
+                label: '상태',
+                type: 'select',
+                value: filters.status,
                 onChange: handleFilterChange,
-                placeholder: '카테고리 코드 검색',
+                options: [
+                  { value: '', label: '전체' },
+                  { value: 'ACTIVE', label: '활성' },
+                  { value: 'INACTIVE', label: '비활성' },
+                ],
               },
             ]}
             onSearch={handleSearch}
@@ -131,19 +135,20 @@ export default function ProductCategoryList() {
                 <th>카테고리 코드</th>
                 <th>카테고리명</th>
                 <th>설명</th>
+                <th>상태</th>
                 <th className="actions-col">작업</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="empty-cell">
+                  <td colSpan={5} className="empty-cell">
                     로딩 중...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="empty-cell">
+                  <td colSpan={5} className="empty-cell">
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -157,6 +162,11 @@ export default function ProductCategoryList() {
                     <td title={category.code || '-'}>{category.code || '-'}</td>
                     <td title={category.name || '-'}>{category.name || '-'}</td>
                     <td title={category.description || '-'}>{category.description || '-'}</td>
+                    <td>
+                      <span className={`status-badge ${category.active ? 'active' : 'inactive'}`}>
+                        {category.active ? '활성' : '비활성'}
+                      </span>
+                    </td>
                     <td className="actions-cell">
                       <button
                         type="button"

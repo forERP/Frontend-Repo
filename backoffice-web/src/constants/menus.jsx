@@ -74,6 +74,7 @@
     label: '반품/폐기',
     permissionCode: 'DISCARD_MENU',
     children: [
+      { key: 'returns-list', label: '반품 조회', path: '/returns', permissionCode: 'DISCARD_VIEW' },
       { key: 'discard-list', label: '폐기 조회', path: '/discards', permissionCode: 'DISCARD_VIEW' },
       { key: 'discard-detail', label: '폐기 상세', path: '/discards/:id', hidden: true, permissionCode: 'DISCARD_VIEW' },
       { key: 'discard-new', label: '폐기 등록', path: '/discards/new', permissionCode: 'DISCARD_CREATE' },

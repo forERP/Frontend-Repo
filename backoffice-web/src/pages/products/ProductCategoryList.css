@@ -11,14 +11,18 @@
 }
 
 .product-page .category-list-table th:nth-child(1) {
-    width: 220px;
+    width: 180px;
 }
 
 .product-page .category-list-table th:nth-child(2) {
-    width: 260px;
+    width: 220px;
 }
 
 .product-page .category-list-table th:nth-child(4) {
+    width: 110px;
+}
+
+.product-page .category-list-table th:nth-child(5) {
     width: 120px;
 }
 
@@ -26,4 +30,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.product-page .category-list-table .status-badge.active {
+    background: #28a745;
+    color: #fff;
+}
+
+.product-page .category-list-table .status-badge.inactive {
+    background: #6c757d;
+    color: #fff;
 }
