@@ -27,7 +27,7 @@ export default function MenuPage() {
     let mounted = true
 
     const loadCatalog = async () => {
-      const storeId = Number(localStorage.getItem('storeId'))
+      const storeId = Number(sessionStorage.getItem('storeId'))
 
       if (!Number.isInteger(storeId) || storeId <= 0) {
         if (mounted) {

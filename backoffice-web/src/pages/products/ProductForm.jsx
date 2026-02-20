@@ -1,16 +1,16 @@
 ﻿import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { createProduct } from '../../api/productApi';
 import { fetchCategories } from '../../api/categoryApi';
-import ProductCategoryModal from './ProductCategoryModal';
 import './ProductForm.css';
 
 export default function ProductForm() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
@@ -23,15 +23,42 @@ export default function ProductForm() {
     loadCategories();
   }, []);
 
-  const loadCategories = async () => {
+  useEffect(() => {
+    const draftForm = location.state?.draftProductForm;
+    const selectedCategoryId = location.state?.selectedCategoryId;
+
+    if (!draftForm && !selectedCategoryId) {
+      return;
+    }
+
+    if (draftForm) {
+      setFormData(draftForm);
+    }
+
+    if (selectedCategoryId) {
+      loadCategories(String(selectedCategoryId));
+    }
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
+
+  const loadCategories = async preferredCategoryId => {
     try {
       const data = await fetchCategories();
       setCategories(data || []);
-      // 첫 번째 카테고리를 기본값으로 설정
+
+      if (preferredCategoryId) {
+        setFormData(prev => ({
+          ...prev,
+          categoryId: String(preferredCategoryId),
+        }));
+        return;
+      }
+
       if (data && data.length > 0) {
         setFormData(prev => ({
           ...prev,
-          categoryId: data[0].id,
+          categoryId: prev.categoryId || String(data[0].id),
         }));
       }
     } catch (err) {
@@ -39,25 +66,28 @@ export default function ProductForm() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = event => {
+    const { name, value } = event.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleCategoryCreated = async (newCategory) => {
-    // 새 카테고리를 리스트에 추가
-    const updatedCategories = [...categories];
-    // 새로운 카테고리 정보를 얻기 위해 다시 로드
-    await loadCategories();
+  const handleMoveCategoryCreate = () => {
+    navigate('/product-categories/new', {
+      state: {
+        returnTo: '/products/new',
+        returnState: {
+          draftProductForm: formData,
+        },
+      },
+    });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // 유효성 검사
+  const handleSubmit = async event => {
+    event.preventDefault();
+
     if (!formData.name.trim()) {
       setError('상품명은 필수입니다.');
       return;
@@ -74,10 +104,10 @@ export default function ProductForm() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const payload = {
         name: formData.name.trim(),
-        categoryId: parseInt(formData.categoryId),
+        categoryId: parseInt(formData.categoryId, 10),
         description: formData.description.trim(),
         imageUrl: formData.imageUrl.trim(),
         price: parseFloat(formData.price),
@@ -103,11 +133,7 @@ export default function ProductForm() {
         <h1 className="page-title">상품 등록</h1>
 
         <div className="card form-card">
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleSubmit} className="product-form">
             <div className="form-group">
@@ -130,10 +156,10 @@ export default function ProductForm() {
                 <button
                   type="button"
                   className="add-category-btn"
-                  onClick={() => setShowCategoryModal(true)}
+                  onClick={handleMoveCategoryCreate}
                   disabled={loading}
                 >
-                  + 새 카테고리
+                  + 카테고리 등록
                 </button>
               </div>
               <select
@@ -145,9 +171,9 @@ export default function ProductForm() {
                 required
               >
                 <option value="">카테고리를 선택하세요</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
                   </option>
                 ))}
               </select>
@@ -196,31 +222,16 @@ export default function ProductForm() {
             </div>
 
             <div className="form-buttons">
-              <button
-                type="submit"
-                disabled={loading}
-              >
+              <button type="submit" disabled={loading}>
                 {loading ? '등록 중...' : '상품 등록'}
               </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={loading}
-              >
+              <button type="button" onClick={handleCancel} disabled={loading}>
                 취소
               </button>
             </div>
           </form>
         </div>
       </div>
-
-      {showCategoryModal && (
-        <ProductCategoryModal
-          onClose={() => setShowCategoryModal(false)}
-          onCategoryCreated={handleCategoryCreated}
-        />
-      )}
     </div>
   );
 }
-

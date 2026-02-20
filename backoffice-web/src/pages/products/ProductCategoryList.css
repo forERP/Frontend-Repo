@@ -1,0 +1,19 @@
+﻿.product-page .category-list-search-form {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+.product-page .category-list-table .clickable-row {
+    cursor: pointer;
+}
+
+.product-page .category-list-table .clickable-row:hover {
+    background: #f8fafc;
+}
+
+.product-page .category-list-table th:nth-child(1) {
+    width: 220px;
+}
+
+.product-page .category-list-table th:nth-child(2) {
+    width: 260px;
+}

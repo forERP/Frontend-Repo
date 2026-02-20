@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { clearPosSession, loginPos, setPosSessionFromLogin } from '../api/authApi'
 import { getApiErrorMessage, maskCode } from '../utils/posUtils'
@@ -18,7 +18,7 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
+    const token = sessionStorage.getItem('accessToken')
     if (token) {
       navigate('/home', { replace: true })
     }

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAttendanceStatus } from '../api/attendanceApi'
 import { loginPos, logoutPos, setPosSessionFromLogin } from '../api/authApi'
@@ -56,9 +56,9 @@ function statusLabel(status) {
 export default function ChangePage() {
   const navigate = useNavigate()
 
-  const sessionStoreCode = useMemo(() => localStorage.getItem('storeCode') || '', [])
-  const sessionEmployeeCode = useMemo(() => localStorage.getItem('employeeCode') || '', [])
-  const sessionUserName = useMemo(() => localStorage.getItem('userName') || '', [])
+  const sessionStoreCode = useMemo(() => sessionStorage.getItem('storeCode') || '', [])
+  const sessionEmployeeCode = useMemo(() => sessionStorage.getItem('employeeCode') || '', [])
+  const sessionUserName = useMemo(() => sessionStorage.getItem('userName') || '', [])
 
   const [storeCode, setStoreCode] = useState(sessionStoreCode)
   const [newEmployeeCode, setNewEmployeeCode] = useState('')
@@ -70,7 +70,7 @@ export default function ChangePage() {
   const [modal, setModal] = useState(DEFAULT_MODAL)
 
   useEffect(() => {
-    if (!localStorage.getItem('accessToken')) {
+    if (!sessionStorage.getItem('accessToken')) {
       navigate('/login', { replace: true })
     }
   }, [navigate])

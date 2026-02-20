@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearPosSession, logoutPos } from '../api/authApi'
 import { getApiErrorMessage, maskCode } from '../utils/posUtils'
@@ -9,16 +9,16 @@ const EMPLOYEE_CODE_LENGTH = 4
 
 export default function Closed() {
   const navigate = useNavigate()
-  const [storeCode, setStoreCode] = useState(localStorage.getItem('storeCode') || '')
+  const [storeCode, setStoreCode] = useState(sessionStorage.getItem('storeCode') || '')
   const [employeeCode, setEmployeeCode] = useState('')
   const [activeField, setActiveField] = useState(
-    (localStorage.getItem('storeCode') || '').length >= STORE_CODE_LENGTH ? 'employee' : 'store',
+    (sessionStorage.getItem('storeCode') || '').length >= STORE_CODE_LENGTH ? 'employee' : 'store',
   )
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    if (!localStorage.getItem('accessToken')) {
+    if (!sessionStorage.getItem('accessToken')) {
       navigate('/login', { replace: true })
     }
   }, [navigate])

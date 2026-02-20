@@ -1,4 +1,4 @@
-﻿import api from './axiosConfig'
+import api from './axiosConfig'
 
 export const POS_SESSION_UPDATED_EVENT = 'pos-session-updated'
 
@@ -43,17 +43,17 @@ export const setPosSessionFromLogin = async ({
   }
 
   clearPosSession()
-  localStorage.setItem('accessToken', String(token))
-  localStorage.setItem('role', String(role ?? ''))
-  localStorage.setItem('userRole', String(role ?? ''))
-  localStorage.setItem('userId', String(userId))
+  sessionStorage.setItem('accessToken', String(token))
+  sessionStorage.setItem('role', String(role ?? ''))
+  sessionStorage.setItem('userRole', String(role ?? ''))
+  sessionStorage.setItem('userId', String(userId))
 
   const userData = await getUserInfo(userId)
-  localStorage.setItem('storeId', String(userData?.storeId ?? ''))
-  localStorage.setItem('storeName', String(userData?.storeName ?? ''))
-  localStorage.setItem('storeCode', String(userData?.storeCode ?? fallbackStoreCode))
-  localStorage.setItem('userName', String(userData?.name ?? ''))
-  localStorage.setItem('employeeCode', String(userData?.employeeCode ?? fallbackEmployeeCode))
+  sessionStorage.setItem('storeId', String(userData?.storeId ?? ''))
+  sessionStorage.setItem('storeName', String(userData?.storeName ?? ''))
+  sessionStorage.setItem('storeCode', String(userData?.storeCode ?? fallbackStoreCode))
+  sessionStorage.setItem('userName', String(userData?.name ?? ''))
+  sessionStorage.setItem('employeeCode', String(userData?.employeeCode ?? fallbackEmployeeCode))
   notifyPosSessionUpdated()
 
   return userData
@@ -68,6 +68,6 @@ export const logoutPos = async (storeCode, employeeCode) => {
 }
 
 export const clearPosSession = () => {
-  POS_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key))
+  POS_STORAGE_KEYS.forEach((key) => sessionStorage.removeItem(key))
   notifyPosSessionUpdated()
 }

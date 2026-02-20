@@ -1,12 +1,12 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { POS_SESSION_UPDATED_EVENT } from '../api/authApi'
 import './Header.css'
 
 function readHeaderLabels() {
-  const storeName = localStorage.getItem('storeName')
-  const storeCode = localStorage.getItem('storeCode')
-  const userName = localStorage.getItem('userName')
-  const employeeCode = localStorage.getItem('employeeCode')
+  const storeName = sessionStorage.getItem('storeName')
+  const storeCode = sessionStorage.getItem('storeCode')
+  const userName = sessionStorage.getItem('userName')
+  const employeeCode = sessionStorage.getItem('employeeCode')
 
   const storeLabel =
     storeName && storeCode

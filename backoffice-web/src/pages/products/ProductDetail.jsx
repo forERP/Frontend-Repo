@@ -1,8 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { fetchProductDetail, updateProduct, discontinueProduct, reactivateProduct } from '../../api/productApi';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { discontinueProduct, fetchProductDetail, reactivateProduct, updateProduct } from '../../api/productApi';
 import { fetchCategories } from '../../api/categoryApi';
-import ProductCategoryModal from './ProductCategoryModal';
 import './ProductDetail.css';
 
 const formatProductDisplay = product => {
@@ -14,11 +13,12 @@ const formatProductDisplay = product => {
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [product, setProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -32,25 +32,44 @@ export default function ProductDetail() {
     loadData();
   }, [id]);
 
-  const loadData = async () => {
+  useEffect(() => {
+    const selectedCategoryId = location.state?.selectedCategoryId;
+    const openEdit = location.state?.openEdit;
+    const draftProductDetailForm = location.state?.draftProductDetailForm;
+
+    if (!selectedCategoryId && !openEdit && !draftProductDetailForm) {
+      return;
+    }
+
+    loadData({
+      preferredCategoryId: selectedCategoryId ? String(selectedCategoryId) : null,
+      draftForm: draftProductDetailForm || null,
+      openEdit: Boolean(openEdit || selectedCategoryId || draftProductDetailForm),
+    });
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
+
+  const loadData = async ({ preferredCategoryId = null, draftForm = null, openEdit = false } = {}) => {
     try {
       setLoading(true);
       setError(null);
-      
-      const [productData, categoriesData] = await Promise.all([
-        fetchProductDetail(id),
-        fetchCategories(),
-      ]);
-      
+
+      const [productData, categoriesData] = await Promise.all([fetchProductDetail(id), fetchCategories()]);
+
       setProduct(productData);
       setCategories(categoriesData || []);
       setFormData({
-        name: productData.name,
-        categoryId: productData.category?.id || '',
-        description: productData.description || '',
-        imageUrl: productData.imageUrl || '',
-        price: productData.msrpPrice || '',
+        name: draftForm?.name ?? productData.name,
+        categoryId: preferredCategoryId ?? draftForm?.categoryId ?? String(productData.category?.id || ''),
+        description: draftForm?.description ?? (productData.description || ''),
+        imageUrl: draftForm?.imageUrl ?? (productData.imageUrl || ''),
+        price: draftForm?.price ?? (productData.msrpPrice || ''),
       });
+
+      if (openEdit) {
+        setIsEditing(true);
+      }
     } catch (err) {
       console.error('데이터 로드 실패:', err);
       setError('상품 정보를 불러올 수 없습니다.');
@@ -59,21 +78,29 @@ export default function ProductDetail() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = event => {
+    const { name, value } = event.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleCategoryCreated = async () => {
-    await loadData();
+  const handleMoveCategoryCreate = () => {
+    navigate('/product-categories/new', {
+      state: {
+        returnTo: `/products/${id}`,
+        openEdit: true,
+        returnState: {
+          draftProductDetailForm: formData,
+        },
+      },
+    });
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    
+  const handleSave = async event => {
+    event.preventDefault();
+
     if (!formData.name.trim()) {
       setError('상품명은 필수입니다.');
       return;
@@ -90,10 +117,10 @@ export default function ProductDetail() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const payload = {
         name: formData.name.trim(),
-        categoryId: parseInt(formData.categoryId),
+        categoryId: parseInt(formData.categoryId, 10),
         description: formData.description.trim(),
         imageUrl: formData.imageUrl.trim(),
         msrpPrice: parseFloat(formData.price),
@@ -181,11 +208,7 @@ export default function ProductDetail() {
           <h1 className="page-title">상품 상세</h1>
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <div className="card detail-card">
           {isEditing ? (
@@ -209,10 +232,10 @@ export default function ProductDetail() {
                   <button
                     type="button"
                     className="add-category-btn"
-                    onClick={() => setShowCategoryModal(true)}
+                    onClick={handleMoveCategoryCreate}
                     disabled={loading}
                   >
-                    + 새 카테고리
+                    + 카테고리 등록
                   </button>
                 </div>
                 <select
@@ -224,9 +247,9 @@ export default function ProductDetail() {
                   required
                 >
                   <option value="">카테고리를 선택하세요</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
@@ -272,17 +295,10 @@ export default function ProductDetail() {
               </div>
 
               <div className="form-buttons">
-                <button
-                  type="submit"
-                  disabled={loading}
-                >
+                <button type="submit" disabled={loading}>
                   {loading ? '저장 중...' : '저장'}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  disabled={loading}
-                >
+                <button type="button" onClick={handleCancel} disabled={loading}>
                   취소
                 </button>
               </div>
@@ -292,11 +308,7 @@ export default function ProductDetail() {
               <div className="detail-view detail-view-split">
                 <div className="detail-image-panel">
                   {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="product-image-preview"
-                    />
+                    <img src={product.imageUrl} alt={product.name} className="product-image-preview" />
                   ) : (
                     <div className="image-placeholder">이미지가 없습니다.</div>
                   )}
@@ -348,22 +360,12 @@ export default function ProductDetail() {
                   편집
                 </button>
                 {product.status !== 'DISCONTINUED' && (
-                  <button
-                    type="button"
-                    className="danger-action"
-                    onClick={handleDiscontinue}
-                    disabled={loading}
-                  >
+                  <button type="button" className="danger-action" onClick={handleDiscontinue} disabled={loading}>
                     판매 중지
                   </button>
                 )}
                 {product.status === 'DISCONTINUED' && (
-                  <button
-                    type="button"
-                    className="danger-action"
-                    onClick={handleReactivate}
-                    disabled={loading}
-                  >
+                  <button type="button" className="danger-action" onClick={handleReactivate} disabled={loading}>
                     재판매
                   </button>
                 )}
@@ -372,14 +374,6 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
-
-      {showCategoryModal && (
-        <ProductCategoryModal
-          onClose={() => setShowCategoryModal(false)}
-          onCategoryCreated={handleCategoryCreated}
-        />
-      )}
     </div>
   );
 }
-

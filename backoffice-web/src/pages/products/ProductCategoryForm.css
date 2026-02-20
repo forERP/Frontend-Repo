@@ -1,0 +1,105 @@
+.category-form-page {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.category-form-container {
+    width: 100%;
+    max-width: 760px;
+}
+
+.category-form-page .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.category-form-page .form-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.category-form-page .category-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.category-form-page .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.category-form-page .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.category-form-page .form-group input,
+.category-form-page .form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.category-form-page .form-group input:focus,
+.category-form-page .form-group textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.category-form-page .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.category-form-page .category-form .form-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.category-form-page .category-form .form-buttons button {
+    flex: 1;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.category-form-page .category-form .form-buttons button[type='submit'] {
+    background-color: #4f46e5;
+    color: #fff;
+}
+
+.category-form-page .category-form .form-buttons button[type='submit']:hover:not(:disabled) {
+    background-color: #4038cc;
+    transform: translateY(-1px);
+}
+
+.category-form-page .category-form .form-buttons button[type='button'] {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.category-form-page .category-form .form-buttons button[type='button']:hover:not(:disabled) {
+    background-color: #d1d5db;
+}

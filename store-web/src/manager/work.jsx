@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clockIn, clockOut, getAttendanceStatus } from '../api/attendanceApi'
 import { getApiErrorMessage, maskCode } from '../utils/posUtils'
@@ -50,7 +50,7 @@ function statusLabel(status) {
 
 export default function WorkPage() {
   const navigate = useNavigate()
-  const storeCode = useMemo(() => localStorage.getItem('storeCode') || '', [])
+  const storeCode = useMemo(() => sessionStorage.getItem('storeCode') || '', [])
 
   const [employeeCode, setEmployeeCode] = useState('')
   const [currentTime, setCurrentTime] = useState(() => new Date().toLocaleTimeString('ko-KR'))
