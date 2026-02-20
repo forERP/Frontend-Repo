@@ -78,6 +78,10 @@ export default function UserDetail() {
                 <td>{user.employeeCode || '-'}</td>
               </tr>
               <tr>
+                <th>전화번호</th>
+                <td>{user.phoneNumber || '-'}</td>
+              </tr>
+              <tr>
                 <th>매장명</th>
                 <td>{user.storeName || '-'}</td>
               </tr>

@@ -57,9 +57,9 @@
     font-weight: 600;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     padding: 16px;
     text-align: center;
     transition: background-color 0.15s ease;
@@ -75,6 +75,46 @@
     background-color: #dddddd;
 }
 
+.category-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn-image-wrap {
+    width: 76px;
+    height: 76px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    background-color: #e9eef2;
+}
+
+.menu-btn-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 999px;
+}
+
+.menu-btn-image-fallback {
+    font-size: 11px;
+    font-weight: 700;
+    color: #607d8b;
+    letter-spacing: 0.4px;
+}
+
+.menu-btn-title {
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.menu-btn-description {
+    font-size: 14px;
+    color: #546e7a;
+}
+
 .admin {
     background-color: #424242;
     color: #ffffff;
@@ -87,4 +127,8 @@
 
 .menu-bottom .menu-btn span {
     color: inherit;
+}
+
+.menu-bottom .menu-btn {
+    justify-content: center;
 }

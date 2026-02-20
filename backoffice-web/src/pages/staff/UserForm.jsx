@@ -16,6 +16,7 @@ export default function UserForm() {
     loginId: '',
     password: '',
     name: '',
+    phoneNumber: '',
     storeId: '',
     role: 'STORE_HALL_STAFF',
   });
@@ -60,6 +61,11 @@ export default function UserForm() {
       return;
     }
 
+    if (!formData.phoneNumber.trim()) {
+      setError('전화번호를 입력해주세요.');
+      return;
+    }
+
     if (!formData.storeId) {
       setError('매장을 선택해주세요.');
       return;
@@ -73,6 +79,7 @@ export default function UserForm() {
         loginId: formData.loginId.trim(),
         password: formData.password,
         name: formData.name.trim(),
+        phoneNumber: formData.phoneNumber.trim(),
         storeId: Number(formData.storeId),
         role: formData.role,
       });
@@ -126,6 +133,17 @@ export default function UserForm() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="직원명을 입력하세요"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>전화번호 *</label>
+              <input
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="010-1111-2222"
                 required
               />
             </div>

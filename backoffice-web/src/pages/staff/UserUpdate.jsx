@@ -16,6 +16,7 @@ export default function UserUpdate() {
 
   const [formData, setFormData] = useState({
     name: '',
+    phoneNumber: '',
     password: '',
     storeId: '',
     role: 'STORE_HALL_STAFF',
@@ -48,6 +49,7 @@ export default function UserUpdate() {
       });
       setFormData({
         name: user.name || '',
+        phoneNumber: user.phoneNumber || '',
         password: '',
         storeId: user.storeId ? String(user.storeId) : '',
         role: user.role || 'STORE_HALL_STAFF',
@@ -75,6 +77,11 @@ export default function UserUpdate() {
       return;
     }
 
+    if (!formData.phoneNumber.trim()) {
+      setError('전화번호를 입력해주세요.');
+      return;
+    }
+
     if (!formData.storeId) {
       setError('매장을 선택해주세요.');
       return;
@@ -91,6 +98,7 @@ export default function UserUpdate() {
 
       const payload = {
         name: formData.name.trim(),
+        phoneNumber: formData.phoneNumber.trim(),
         storeId: Number(formData.storeId),
         role: formData.role,
         status: formData.status,
@@ -147,6 +155,17 @@ export default function UserUpdate() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="직원명을 입력하세요"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>전화번호 *</label>
+              <input
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="010-1111-2222"
                 required
               />
             </div>

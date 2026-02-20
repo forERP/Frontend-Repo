@@ -4,6 +4,7 @@ const STORE_PRODUCT_PAGE_SIZE = 200
 const DEFAULT_PRODUCT_CATEGORY = 'Uncategorized'
 
 const toText = (value) => String(value ?? '').trim()
+const firstNonEmptyText = (...values) => values.map(toText).find(Boolean) || ''
 
 const toOptionalNumber = (value) => {
   const parsed = Number(value)
@@ -42,6 +43,12 @@ const makeCategoryKey = (categoryName) => normalizeToken(categoryName)
 
 export const normalizeStoreProduct = (item = {}) => {
   const categoryName = toText(item.categoryName) || DEFAULT_PRODUCT_CATEGORY
+  const categoryImageUrl = firstNonEmptyText(
+    item.categoryImageUrl,
+    item.categoryImage,
+    item.category_image_url,
+  )
+  const imageUrl = firstNonEmptyText(item.imageUrl, item.productImageUrl, item.product_image_url)
   const msrpPrice = toNumber(item.msrpPrice)
   const salePrice = toNumber(item.salePrice)
 
@@ -51,6 +58,8 @@ export const normalizeStoreProduct = (item = {}) => {
     name: toText(item.name),
     categoryName,
     categoryKey: makeCategoryKey(categoryName),
+    categoryImageUrl,
+    imageUrl,
     quantity: toNumber(item.quantity),
     saleStatus: toText(item.saleStatus || 'OFF').toUpperCase(),
     registered: readRegistered(item),
@@ -70,9 +79,87 @@ export const normalizeProductCategory = (item = {}) => {
     code,
     name,
     description: toText(item.description),
+    imageUrl: toText(item.imageUrl),
     key: makeCategoryKey(name || code || id),
     slug: normalizeToken(name || code || id),
   }
+}
+
+const makeProductGroupKey = (product = {}) => {
+  const productId = toOptionalNumber(product.productId)
+  if (productId !== null) {
+    return `id:${productId}`
+  }
+
+  const sku = toText(product.sku)
+  if (sku) {
+    return `sku:${sku}`
+  }
+
+  return `name:${toText(product.name)}|category:${toText(product.categoryKey)}`
+}
+
+export const mergeStoreProducts = (products = []) => {
+  const grouped = new Map()
+
+  products.forEach((product, index) => {
+    const key = makeProductGroupKey(product)
+
+    if (!grouped.has(key)) {
+      grouped.set(key, { ...product, _order: index })
+      return
+    }
+
+    const current = grouped.get(key)
+    const currentSaleStatus = toText(current.saleStatus).toUpperCase()
+    const nextSaleStatus = toText(product.saleStatus).toUpperCase()
+
+    current.quantity = toNumber(current.quantity) + toNumber(product.quantity)
+    current.registered = Boolean(current.registered || product.registered)
+    current.saleStatus = currentSaleStatus === 'ON' || nextSaleStatus === 'ON' ? 'ON' : 'OFF'
+
+    if (!current.productId && product.productId) {
+      current.productId = product.productId
+    }
+    if (!current.sku && product.sku) {
+      current.sku = product.sku
+    }
+    if (!current.name && product.name) {
+      current.name = product.name
+    }
+    if (!current.categoryName && product.categoryName) {
+      current.categoryName = product.categoryName
+    }
+    if (!current.categoryKey && product.categoryKey) {
+      current.categoryKey = product.categoryKey
+    }
+    if (!current.categoryImageUrl && product.categoryImageUrl) {
+      current.categoryImageUrl = product.categoryImageUrl
+    }
+    if (!current.imageUrl && product.imageUrl) {
+      current.imageUrl = product.imageUrl
+    }
+
+    if (toNumber(current.salePrice) <= 0 && toNumber(product.salePrice) > 0) {
+      current.salePrice = toNumber(product.salePrice)
+    }
+    if (toNumber(current.msrpPrice) <= 0 && toNumber(product.msrpPrice) > 0) {
+      current.msrpPrice = toNumber(product.msrpPrice)
+    }
+    current.price = toNumber(current.salePrice) > 0 ? toNumber(current.salePrice) : toNumber(current.msrpPrice)
+  })
+
+  return Array.from(grouped.values())
+    .sort((a, b) => a._order - b._order)
+    .map((entry) => {
+      const product = { ...entry }
+      delete product._order
+
+      return {
+        ...product,
+        price: toNumber(product.salePrice) > 0 ? toNumber(product.salePrice) : toNumber(product.msrpPrice),
+      }
+    })
 }
 
 export const buildMenuCategoryPath = (category) => {
@@ -138,6 +225,7 @@ export const fetchProductCategories = async () => {
 export const mergePosCategories = (categories, products) => {
   const productCounts = new Map()
   const productCategoryNames = new Map()
+  const productCategoryImages = new Map()
 
   products.forEach((product) => {
     if (!product.categoryKey) {
@@ -147,6 +235,9 @@ export const mergePosCategories = (categories, products) => {
     productCounts.set(product.categoryKey, (productCounts.get(product.categoryKey) ?? 0) + 1)
     if (!productCategoryNames.has(product.categoryKey)) {
       productCategoryNames.set(product.categoryKey, product.categoryName)
+    }
+    if (!productCategoryImages.has(product.categoryKey) && product.categoryImageUrl) {
+      productCategoryImages.set(product.categoryKey, product.categoryImageUrl)
     }
   })
 
@@ -181,6 +272,7 @@ export const mergePosCategories = (categories, products) => {
       code: '',
       name: fallbackName,
       description: '',
+      imageUrl: productCategoryImages.get(categoryKey) || '',
       key: categoryKey,
       slug: normalizeToken(fallbackName),
       productCount,
@@ -245,7 +337,8 @@ export const fetchPosCatalog = async (storeId) => {
     throw productsResult.reason
   }
 
-  const sellableProducts = productsResult.value.filter(isPosSellableStoreProduct)
+  const mergedProducts = mergeStoreProducts(productsResult.value)
+  const sellableProducts = mergedProducts.filter(isPosSellableStoreProduct)
   const categories = categoriesResult.status === 'fulfilled' ? categoriesResult.value : []
 
   return {

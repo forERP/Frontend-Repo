@@ -9,8 +9,21 @@ import {
 import { getApiErrorMessage } from '../../utils/posUtils'
 import './Menu.css'
 
-const MAX_MENU_COUNT = 16
+const MAX_MENU_COUNT = 12
 const ITEMS_PER_PAGE = 4
+const CATALOG_REFRESH_INTERVAL_MS = 5000
+
+const ProductCardImage = ({ imageUrl = '', name = '' }) => (
+  <div className='menu-button-media'>
+    {imageUrl ? (
+      <img src={imageUrl} alt={`${name} 상품 이미지`} className='menu-button-image' loading='lazy' />
+    ) : (
+      <div className='menu-button-image-fallback'>NO IMAGE</div>
+    )}
+  </div>
+)
+
+const makeStockKey = (productId, categoryKey) => `${categoryKey}:${productId}`
 
 export default function MenuPage() {
   const { category = '' } = useParams()
@@ -26,7 +39,7 @@ export default function MenuPage() {
   useEffect(() => {
     let mounted = true
 
-    const loadCatalog = async () => {
+    const loadCatalog = async ({ background = false } = {}) => {
       const storeId = Number(sessionStorage.getItem('storeId'))
 
       if (!Number.isInteger(storeId) || storeId <= 0) {
@@ -40,7 +53,10 @@ export default function MenuPage() {
       }
 
       try {
-        setLoading(true)
+        if (!background) {
+          setLoading(true)
+        }
+
         setErrorMsg('')
 
         const catalogData = await fetchPosCatalog(storeId)
@@ -60,7 +76,7 @@ export default function MenuPage() {
         setProducts([])
         setErrorMsg(getApiErrorMessage(error, '상품 목록을 불러오지 못했습니다.'))
       } finally {
-        if (mounted) {
+        if (mounted && !background) {
           setLoading(false)
         }
       }
@@ -68,8 +84,28 @@ export default function MenuPage() {
 
     loadCatalog()
 
+    const intervalId = window.setInterval(() => {
+      loadCatalog({ background: true })
+    }, CATALOG_REFRESH_INTERVAL_MS)
+
+    const handleFocus = () => {
+      loadCatalog({ background: true })
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadCatalog({ background: true })
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       mounted = false
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 
@@ -82,6 +118,19 @@ export default function MenuPage() {
     () => filterProductsByCategory(products, currentCategory),
     [products, currentCategory],
   )
+
+  const stockByProduct = useMemo(() => {
+    const map = new Map()
+
+    products.forEach((product) => {
+      map.set(makeStockKey(product.productId, product.categoryKey), Number(product.quantity) || 0)
+    })
+
+    return map
+  }, [products])
+
+  const getAvailableStock = (productId, categoryKey) =>
+    stockByProduct.get(makeStockKey(productId, categoryKey)) ?? 0
 
   const filledMenus = useMemo(
     () => [...menus, ...Array(Math.max(0, MAX_MENU_COUNT - menus.length)).fill(null)],
@@ -108,8 +157,30 @@ export default function MenuPage() {
     }
   }, [page, selectedMenus.length])
 
+  useEffect(() => {
+    setSelectedMenus((prev) =>
+      prev
+        .map((item) => {
+          const available = stockByProduct.get(makeStockKey(item.productId, item.categoryKey)) ?? 0
+          if (available <= 0) {
+            return null
+          }
+          return {
+            ...item,
+            count: Math.min(item.count, available),
+          }
+        })
+        .filter(Boolean),
+    )
+  }, [stockByProduct])
+
   const selectMenu = (menu) => {
     if (!menu || !currentCategory) {
+      return
+    }
+
+    const available = getAvailableStock(menu.productId, currentCategory.key)
+    if (available <= 0) {
       return
     }
 
@@ -132,6 +203,10 @@ export default function MenuPage() {
         ]
       }
 
+      if (prev[index].count >= available) {
+        return prev
+      }
+
       const next = [...prev]
       next[index] = { ...next[index], count: next[index].count + 1 }
       return next
@@ -140,11 +215,18 @@ export default function MenuPage() {
 
   const increaseCount = (productId, categoryKey) => {
     setSelectedMenus((prev) =>
-      prev.map((item) =>
-        item.productId === productId && item.categoryKey === categoryKey
-          ? { ...item, count: item.count + 1 }
-          : item,
-      ),
+      prev.map((item) => {
+        if (item.productId !== productId || item.categoryKey !== categoryKey) {
+          return item
+        }
+
+        const available = getAvailableStock(productId, categoryKey)
+        if (item.count >= available) {
+          return item
+        }
+
+        return { ...item, count: item.count + 1 }
+      }),
     )
   }
 
@@ -240,24 +322,32 @@ export default function MenuPage() {
               !errorMsg &&
               currentCategory &&
               menus.length > 0 &&
-              filledMenus.map((menu, index) => (
-                <button
-                  key={`${menu?.productId ?? 'empty'}-${index}`}
-                  type='button'
-                  className='menu-button'
-                  disabled={!menu}
-                  onClick={() => selectMenu(menu)}
-                >
-                  {menu ? (
-                    <>
-                      <span>{menu.name}</span>
-                      <span className='menu-button-price'>{menu.price.toLocaleString()}원</span>
-                    </>
-                  ) : (
-                    ''
-                  )}
-                </button>
-              ))}
+              filledMenus.map((menu, index) => {
+                const isEmpty = !menu
+                const isSoldOut = Boolean(menu) && Number(menu.quantity) <= 0
+
+                return (
+                  <button
+                    key={`${menu?.productId ?? 'empty'}-${index}`}
+                    type='button'
+                    className={`menu-button${isSoldOut ? ' soldout' : ''}`}
+                    disabled={isEmpty || isSoldOut}
+                    onClick={() => selectMenu(menu)}
+                  >
+                    {menu ? (
+                      <>
+                        <ProductCardImage imageUrl={menu.imageUrl} name={menu.name} />
+                        <span className='menu-button-name'>{menu.name}</span>
+                        <span className='menu-button-price'>{menu.price.toLocaleString()}원</span>
+                        <span className='menu-button-stock'>재고 {menu.quantity}개</span>
+                        {isSoldOut && <span className='menu-button-soldout'>품절</span>}
+                      </>
+                    ) : (
+                      ''
+                    )}
+                  </button>
+                )
+              })}
           </div>
         </div>
       </div>

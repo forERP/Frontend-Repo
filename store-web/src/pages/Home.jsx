@@ -4,6 +4,18 @@ import { buildMenuCategoryPath, fetchPosCatalog } from '../api/productApi'
 import { getApiErrorMessage } from '../utils/posUtils'
 import './css/MenuButtons.css'
 
+const CATALOG_REFRESH_INTERVAL_MS = 5000
+
+const CategoryCardImage = ({ imageUrl = '', name = '' }) => (
+  <div className='menu-btn-image-wrap'>
+    {imageUrl ? (
+      <img src={imageUrl} alt={`${name} 카테고리 이미지`} className='menu-btn-image' loading='lazy' />
+    ) : (
+      <div className='menu-btn-image-fallback'>NO IMAGE</div>
+    )}
+  </div>
+)
+
 export default function Home() {
   const navigate = useNavigate()
   const [categories, setCategories] = useState([])
@@ -13,7 +25,7 @@ export default function Home() {
   useEffect(() => {
     let mounted = true
 
-    const loadCatalog = async () => {
+    const loadCatalog = async ({ background = false } = {}) => {
       const storeId = Number(sessionStorage.getItem('storeId'))
 
       if (!Number.isInteger(storeId) || storeId <= 0) {
@@ -26,7 +38,10 @@ export default function Home() {
       }
 
       try {
-        setLoading(true)
+        if (!background) {
+          setLoading(true)
+        }
+
         setErrorMsg('')
 
         const { categories: loadedCategories } = await fetchPosCatalog(storeId)
@@ -44,7 +59,7 @@ export default function Home() {
         setCategories([])
         setErrorMsg(getApiErrorMessage(error, '카테고리 목록을 불러오지 못했습니다.'))
       } finally {
-        if (mounted) {
+        if (mounted && !background) {
           setLoading(false)
         }
       }
@@ -52,8 +67,28 @@ export default function Home() {
 
     loadCatalog()
 
+    const intervalId = window.setInterval(() => {
+      loadCatalog({ background: true })
+    }, CATALOG_REFRESH_INTERVAL_MS)
+
+    const handleFocus = () => {
+      loadCatalog({ background: true })
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadCatalog({ background: true })
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       mounted = false
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 
@@ -73,11 +108,12 @@ export default function Home() {
           categories.map((category) => (
             <button
               key={`${category.key}-${category.id ?? 'fallback'}`}
-              className='menu-btn'
+              className='menu-btn category-btn'
               onClick={() => navigate(buildMenuCategoryPath(category))}
             >
-              {category.name}
-              <span>
+              <CategoryCardImage imageUrl={category.imageUrl} name={category.name} />
+              <strong className='menu-btn-title'>{category.name}</strong>
+              <span className='menu-btn-description'>
                 {category.description
                   ? `${category.description} (${category.productCount}개)`
                   : `${category.productCount}개 상품`}
