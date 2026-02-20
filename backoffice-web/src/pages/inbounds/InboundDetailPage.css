@@ -37,6 +37,15 @@
     word-break: break-word;
 }
 
+.info-item .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    text-align: center;
+    min-width: 88px;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;

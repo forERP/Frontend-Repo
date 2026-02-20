@@ -23,8 +23,10 @@ function isAuthRequest(url = '') {
     return url.includes('/users/login');
 }
 
+const baseURL = import.meta.env.DEV ? 'http://localhost:8089/api' : '/api'
+
 const api = axios.create({
-    baseURL:'http://localhost:8081/api',
+    baseURL,
     headers:{
         'Content-Type':'application/json',
     },

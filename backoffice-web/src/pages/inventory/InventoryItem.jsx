@@ -6,6 +6,7 @@ import {
   updateInventorySaleStatus,
 } from '../../api/inventoryApi';
 import { fetchProductDetail } from '../../api/productApi';
+import { subscribeAdminRealtime } from '../../lib/realtime';
 import './InventoryItem.css';
 
 const SALE_STATUS_META = {
@@ -129,6 +130,19 @@ export default function InventoryItem() {
   useEffect(() => {
     loadDetail();
   }, [loadDetail]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAdminRealtime({
+      storeId: item?.storeId,
+      onEvent: ({ type }) => {
+        if (type === 'inventory.changed' || type === 'connected') {
+          loadDetail();
+        }
+      },
+    });
+
+    return unsubscribe;
+  }, [item?.storeId, loadDetail]);
 
   const effectiveSalePrice = useMemo(
     () => resolveSalePrice(item?.salePrice, productInfo?.msrpPrice),

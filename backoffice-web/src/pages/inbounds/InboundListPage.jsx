@@ -4,6 +4,7 @@ import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { INBOUND_STATUS } from '../../constants/status';
 import { getInboundList } from '../../lib/dataApi';
+import { formatDocNumber } from '../../utils/purchaseDisplay';
 import '../purchase/request/purchase.css';
 import './InboundListPage.css';
 
@@ -55,7 +56,7 @@ export default function InboundListPage() {
       setInbounds(result.content || []);
     } catch (err) {
       console.error('입고 목록 조회 실패:', err);
-      setError('입고 목록을 불러올 수 없습니다.');
+      setError('입고 목록을 불러오지 못했습니다.');
       setInbounds([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -189,8 +190,12 @@ export default function InboundListPage() {
                   className="clickable-row"
                   onClick={() => navigate(`/inbounds/${inbound.inboundId}`)}
                 >
-                  <td title={String(inbound.inboundId)}>{inbound.inboundId}</td>
-                  <td title={inbound.purchaseOrderId ? String(inbound.purchaseOrderId) : '-'}>{inbound.purchaseOrderId || '-'}</td>
+                  <td title={formatDocNumber(inbound.createdAt, inbound.inboundId)}>
+                    {formatDocNumber(inbound.createdAt, inbound.inboundId)}
+                  </td>
+                  <td title={formatDocNumber(inbound.purchaseOrderCreatedAt, inbound.purchaseOrderId)}>
+                    {formatDocNumber(inbound.purchaseOrderCreatedAt, inbound.purchaseOrderId)}
+                  </td>
                   <td title={`${inbound.storeName || `매장 ${inbound.storeId}`}${inbound.storeCode ? ` (${inbound.storeCode})` : ''}`}>
                     {inbound.storeName || `매장 ${inbound.storeId}`}
                     {inbound.storeCode ? ` (${inbound.storeCode})` : ''}

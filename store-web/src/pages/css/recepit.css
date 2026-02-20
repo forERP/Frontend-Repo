@@ -1,116 +1,277 @@
-/* ⭐ 필수 (전체 안정화) */
-* {
-    box-sizing: border-box;
-}
-
-/* ======================= */
-/* 전체 레이아웃 */
-/* ======================= */
 .receipt-layout {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 5fr 5fr;
-    gap: 10px;
-    padding: 10px;
-
-    overflow: hidden;
-    /* ⭐ 페이지 스크롤 완전 차단 */
+  height: 100%;
+  display: grid;
+  grid-template-columns: 5fr 5fr;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
 }
 
-/* ======================= */
-/* 왼쪽 */
-/* ======================= */
+.receipt-left,
+.receipt-right {
+  min-height: 0;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
 .receipt-left {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    /* ⭐ grid 내부 overflow 방지 핵심 */
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.filter-bar label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.filter-bar select,
+.filter-bar button {
+  height: 34px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 0 10px;
+  font-weight: 600;
 }
 
 .receipt-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 100px;
-    gap: 10px;
-
-    flex: 1;
-    overflow-y: auto;
-    /* 왼쪽만 스크롤 허용 */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 130px;
+  gap: 8px;
+  padding-bottom: 4px;
 }
 
 .receipt-cell {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: white;
-    font-size: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  text-align: left;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .receipt-cell.active {
-    background: #222;
-    color: white;
+  background: #0f172a;
+  color: #ffffff;
 }
 
-.pagination {
-    text-align: center;
-    padding: 10px 0;
+.receipt-cell-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
 }
 
-/* ======================= */
-/* 오른쪽 */
-/* ======================= */
+.receipt-cell-status {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
 .receipt-right {
-    border-left: 2px solid #ddd;
-    padding: 20px;
-
-    display: flex;
-    flex-direction: column;
-
-    min-height: 0;
-    /* ⭐ grid overflow 해결 핵심 */
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 내용 영역 */
+.receipt-right h2 {
+  margin: 0 0 10px;
+}
+
 .detail {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-    padding-bottom: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 0;
 }
 
-/* 하단 고정 바 */
+.detail-head p {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.detail-items {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-row {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-main span {
+  font-size: 13px;
+  color: #475569;
+}
+
+.item-cancel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.item-cancel label {
+  font-size: 12px;
+  color: #475569;
+}
+
+.item-cancel input {
+  width: 84px;
+  height: 30px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 8px;
+  text-align: right;
+}
+
+.total {
+  margin: 14px 0 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.cancel-panel {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px dashed #94a3b8;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #f8fafc;
+}
+
+.cancel-panel label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.cancel-panel input[type='text'] {
+  height: 34px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.discard-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.discard-checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.cancel-guide {
+  margin: 0;
+  font-size: 12px;
+  color: #9a3412;
+}
+
+.receipt-error {
+  margin-bottom: 8px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.receipt-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-weight: 700;
+}
+
 .receipt-bottom {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 70px;
-    gap: 8px;
-
-    flex-shrink: 0;
-    /* ⭐ 줄어들지 않게 고정 */
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
 }
 
-/* 버튼 공통 */
 .receipt-bottom button {
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-/* 인쇄 */
 .print-btn {
-    background: #666;
-    color: white;
+  background: #475569;
 }
 
-/* 돌아가기 */
-.back-btn {
-    background: #222;
-    color: white;
+.prepare-btn {
+  background: #2563eb;
+}
+
+.confirm-btn {
+  background: #0f766e;
+}
+
+.cancel-btn {
+  background: #dc2626;
+}
+
+.receipt-back-btn {
+  background: #1e293b;
+}
+
+.receipt-bottom button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .receipt-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .receipt-bottom {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

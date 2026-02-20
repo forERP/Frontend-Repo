@@ -22,9 +22,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 6px;
 
-    font-size: 3rem;
-    font-weight: bold;
+    font-size: 1rem;
     border: none;
     border-radius: 6px;
 
@@ -33,9 +33,21 @@
     transition: all 0.15s ease;
 }
 
+.manager-menu-icon {
+    font-size: 2.75rem;
+    color: #1f2937;
+}
+
+.manager-menu-label {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1;
+}
+
 .manager-menu-btn span {
-    margin-top: 7px;
-    font-size: 1.2rem;
+    margin-top: 0;
+    font-size: 1.05rem;
+    color: #475467;
 }
 
 .manager-menu-btn:hover {
@@ -51,7 +63,15 @@
     background-color: #ffe5e5;
 }
 
+.manager-menu-btn.manager-danger .manager-menu-icon {
+    color: #c9190b;
+}
+
 /* 돌아가기 버튼 */
 .manager-menu-btn.manager-back {
     background-color: #e6f0ff;
+}
+
+.manager-menu-btn.manager-back .manager-menu-icon {
+    color: #175cd3;
 }

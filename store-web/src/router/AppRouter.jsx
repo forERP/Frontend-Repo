@@ -8,6 +8,8 @@ import Login from '../pages/Login.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import MenuPage from '../pages/Menu/MenuPage.jsx'
 import StartPage from '../pages/StartPage.jsx'
+import PaymentFail from '../pages/PaymentFail.jsx'
+import PaymentSuccess from '../pages/PaymentSuccess.jsx'
 import Manager from '../manager/manager.jsx'
 import Change from '../manager/change.jsx'
 import Dispose from '../manager/dispose.jsx'
@@ -32,6 +34,8 @@ export default function AppRouter() {
           <Route path='/home' element={<Home />} />
           <Route path='/menu' element={<MenuPage />} />
           <Route path='/menu/:category' element={<MenuPage />} />
+          <Route path='/payment/success' element={<PaymentSuccess />} />
+          <Route path='/payment/fail' element={<PaymentFail />} />
           <Route path='/closed' element={<Closed />} />
 
           <Route path='/manager' element={<Manager />} />

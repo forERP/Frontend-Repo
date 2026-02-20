@@ -10,7 +10,7 @@ export const login = async (credentials) => {
   try {
     // api instance는 요청 인터셉터가 있어서 authorization 헤더를 자동으로 추가함
     // 로그인은 token이 없는 상태에서 호출되므로 직접 axios를 사용
-    const response = await axios.post('http://localhost:8081/api/users/login', 
+    const response = await axios.post('http://localhost:8089/api/users/login', 
       {
         identifier: credentials.identifier,
         password: credentials.password,

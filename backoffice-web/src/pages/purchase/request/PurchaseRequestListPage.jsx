@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../../components/list/ListPagination';
 import ListSearchControls from '../../../components/list/ListSearchControls';
 import api from '../../../lib/api';
 import { PURCHASE_REQUEST_STATUS } from '../../../constants/status';
+import { formatDocNumber, formatNameAndCode } from '../../../utils/purchaseDisplay';
 import './PurchaseRequestListPage.css';
 import './purchase.css';
 
@@ -19,6 +20,7 @@ export default function PurchaseRequestListPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userMap, setUserMap] = useState({});
 
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [query, setQuery] = useState(INITIAL_FILTERS);
@@ -32,15 +34,42 @@ export default function PurchaseRequestListPage() {
     fetchRequests(currentPage, query, pageSize);
   }, [currentPage, query, pageSize]);
 
+  useEffect(() => {
+    const unresolvedIds = requests
+      .map(request => request.requestedByUserId)
+      .filter(id => id && !userMap[id]);
+
+    if (!unresolvedIds.length) {
+      return;
+    }
+
+    const uniqueIds = [...new Set(unresolvedIds)];
+
+    const fetchUsers = async () => {
+      try {
+        const responses = await Promise.all(uniqueIds.map(id => api.get(`/api/users/${id}`)));
+        const nextMap = responses.reduce((acc, { data }) => {
+          acc[data.id] = {
+            name: data.name,
+            code: data.employeeCode,
+          };
+          return acc;
+        }, {});
+        setUserMap(prev => ({ ...prev, ...nextMap }));
+      } catch (err) {
+        console.warn('요청자 정보 조회 실패:', err);
+      }
+    };
+
+    fetchUsers();
+  }, [requests, userMap]);
+
   const fetchRequests = async (page, search, size) => {
     setLoading(true);
     try {
       setError(null);
 
-      const params = {
-        page,
-        size,
-      };
+      const params = { page, size };
 
       if (search.storeName?.trim()) params.storeName = search.storeName.trim();
       if (search.storeCode?.trim()) params.storeCode = search.storeCode.trim();
@@ -52,7 +81,7 @@ export default function PurchaseRequestListPage() {
       setTotalElements(data.totalElements || 0);
     } catch (err) {
       console.error('발주 요청 목록 조회 실패:', err);
-      setError('발주 요청 목록을 불러올 수 없습니다.');
+      setError('발주 요청 목록을 불러오지 못했습니다.');
       setRequests([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -167,33 +196,42 @@ export default function PurchaseRequestListPage() {
                 </td>
               </tr>
             ) : (
-              requests.map(request => (
-                <tr
-                  key={request.purchaseRequestId}
-                  className="clickable-row"
-                  onClick={() => navigate(`/purchase-requests/${request.purchaseRequestId}`)}
-                >
-                  <td title={String(request.purchaseRequestId)}>{request.purchaseRequestId}</td>
-                  <td title={request.createdAt ? new Date(request.createdAt).toLocaleString('ko-KR') : '-'}>
-                    {request.createdAt ? new Date(request.createdAt).toLocaleString('ko-KR') : '-'}
-                  </td>
-                  <td title={`${request.storeName || '-'}${request.storeCode ? ` (${request.storeCode})` : ''}`}>
-                    {request.storeName || '-'}
-                    {request.storeCode ? ` (${request.storeCode})` : ''}
-                  </td>
-                  <td title={request.requestedByUserId ? `사용자 ${request.requestedByUserId}` : '-'}>
-                    {request.requestedByUserId ? `사용자 ${request.requestedByUserId}` : '-'}
-                  </td>
-                  <td>
-                    <span
-                      className="status-badge"
-                      style={{ backgroundColor: getStatusColor(request.status), color: '#fff' }}
-                    >
-                      {getStatusLabel(request.status)}
-                    </span>
-                  </td>
-                </tr>
-              ))
+              requests.map(request => {
+                const requester = request.requestedByUserId
+                  ? formatNameAndCode(
+                      userMap[request.requestedByUserId]?.name,
+                      userMap[request.requestedByUserId]?.code
+                    )
+                  : '-';
+
+                return (
+                  <tr
+                    key={request.purchaseRequestId}
+                    className="clickable-row"
+                    onClick={() => navigate(`/purchase-requests/${request.purchaseRequestId}`)}
+                  >
+                    <td title={formatDocNumber(request.createdAt, request.purchaseRequestId)}>
+                      {formatDocNumber(request.createdAt, request.purchaseRequestId)}
+                    </td>
+                    <td title={request.createdAt ? new Date(request.createdAt).toLocaleString('ko-KR') : '-'}>
+                      {request.createdAt ? new Date(request.createdAt).toLocaleString('ko-KR') : '-'}
+                    </td>
+                    <td title={`${request.storeName || '-'}${request.storeCode ? ` (${request.storeCode})` : ''}`}>
+                      {request.storeName || '-'}
+                      {request.storeCode ? ` (${request.storeCode})` : ''}
+                    </td>
+                    <td title={requester}>{requester}</td>
+                    <td>
+                      <span
+                        className="status-badge"
+                        style={{ backgroundColor: getStatusColor(request.status), color: '#fff' }}
+                      >
+                        {getStatusLabel(request.status)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

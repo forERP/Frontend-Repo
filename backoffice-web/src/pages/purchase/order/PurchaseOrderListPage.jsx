@@ -4,6 +4,7 @@ import ListPagination from '../../../components/list/ListPagination';
 import ListSearchControls from '../../../components/list/ListSearchControls';
 import { PURCHASE_ORDER_STATUS } from '../../../constants/status';
 import { getPurchaseOrderList } from '../../../lib/dataApi';
+import { formatDocNumber } from '../../../utils/purchaseDisplay';
 import '../request/purchase.css';
 import './PurchaseOrderListPage.css';
 
@@ -57,7 +58,7 @@ export default function PurchaseOrderListPage() {
       setOrders(result.content || []);
     } catch (err) {
       console.error('발주 목록 조회 실패:', err);
-      setError('발주 목록을 불러올 수 없습니다.');
+      setError('발주 목록을 불러오지 못했습니다.');
       setOrders([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -199,12 +200,16 @@ export default function PurchaseOrderListPage() {
                   className="clickable-row"
                   onClick={() => navigate(`/purchase-orders/${order.purchaseOrderId}`)}
                 >
-                  <td title={String(order.purchaseOrderId)}>{order.purchaseOrderId}</td>
+                  <td title={formatDocNumber(order.createdAt, order.purchaseOrderId)}>
+                    {formatDocNumber(order.createdAt, order.purchaseOrderId)}
+                  </td>
                   <td title={`${order.storeName || `매장 ${order.storeId}`}${order.storeCode ? ` (${order.storeCode})` : ''}`}>
                     {order.storeName || `매장 ${order.storeId}`}
                     {order.storeCode ? ` (${order.storeCode})` : ''}
                   </td>
-                  <td title={order.supplierName || `거래처 ${order.supplierId}`}>{order.supplierName || `거래처 ${order.supplierId}`}</td>
+                  <td title={order.supplierName || `거래처 ${order.supplierId}`}>
+                    {order.supplierName || `거래처 ${order.supplierId}`}
+                  </td>
                   <td>
                     <span className="status-badge" style={{ backgroundColor: getStatusColor(order.status), color: '#fff' }}>
                       {getStatusLabel(order.status)}

@@ -37,6 +37,15 @@
     word-break: break-word;
 }
 
+.info-item .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    text-align: center;
+    min-width: 88px;
+}
+
 .memo-box {
     background: #f9f9f9;
     border: 1px solid #eee;

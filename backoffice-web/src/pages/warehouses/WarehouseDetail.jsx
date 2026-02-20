@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchWarehouse, updateWarehouse } from '../../api/warehouseApi';
 import './WarehouseDetail.css';
@@ -12,9 +12,29 @@ export default function WarehouseDetailPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ code: '', name: '', active: true });
+  const [editForm, setEditForm] = useState({ code: '', name: '', address: '', active: true });
 
   useEffect(() => {
+    const loadWarehouse = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchWarehouse(id);
+        setWarehouse(data);
+        setEditForm({
+          code: data.code || '',
+          name: data.name || '',
+          address: data.address || '',
+          active: Boolean(data.active),
+        });
+      } catch (err) {
+        setError('창고 정보를 불러오지 못했습니다.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadWarehouse();
   }, [id]);
 
@@ -23,25 +43,6 @@ export default function WarehouseDetailPage() {
       setIsEditing(true);
     }
   }, [searchParams]);
-
-  const loadWarehouse = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchWarehouse(id);
-      setWarehouse(data);
-      setEditForm({
-        code: data.code || '',
-        name: data.name || '',
-        active: Boolean(data.active),
-      });
-    } catch (err) {
-      setError('창고 정보를 불러오지 못했습니다.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEditChange = e => {
     const { name, value } = e.target;
@@ -58,6 +59,7 @@ export default function WarehouseDetailPage() {
       const result = await updateWarehouse(id, {
         code: editForm.code,
         name: editForm.name,
+        address: editForm.address?.trim() || null,
         active: editForm.active,
       });
       setWarehouse(result);
@@ -76,6 +78,7 @@ export default function WarehouseDetailPage() {
       setEditForm({
         code: warehouse.code || '',
         name: warehouse.name || '',
+        address: warehouse.address || '',
         active: Boolean(warehouse.active),
       });
     }
@@ -132,25 +135,19 @@ export default function WarehouseDetailPage() {
                   <tr>
                     <th>창고 코드</th>
                     <td>
-                      <input
-                        name="code"
-                        value={editForm.code}
-                        onChange={handleEditChange}
-                        required
-                        placeholder="코드"
-                      />
+                      <input name="code" value={editForm.code} onChange={handleEditChange} required placeholder="코드" />
                     </td>
                   </tr>
                   <tr>
                     <th>창고명</th>
                     <td>
-                      <input
-                        name="name"
-                        value={editForm.name}
-                        onChange={handleEditChange}
-                        required
-                        placeholder="이름"
-                      />
+                      <input name="name" value={editForm.name} onChange={handleEditChange} required placeholder="이름" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>창고 주소</th>
+                    <td>
+                      <input name="address" value={editForm.address} onChange={handleEditChange} placeholder="주소" />
                     </td>
                   </tr>
                   <tr>
@@ -193,6 +190,10 @@ export default function WarehouseDetailPage() {
                   <tr>
                     <th>창고명</th>
                     <td>{warehouse.name}</td>
+                  </tr>
+                  <tr>
+                    <th>창고 주소</th>
+                    <td>{warehouse.address || '-'}</td>
                   </tr>
                   <tr>
                     <th>생성일</th>

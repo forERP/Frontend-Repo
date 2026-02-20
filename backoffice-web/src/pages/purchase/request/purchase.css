@@ -478,3 +478,59 @@ textarea.memo {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+.order-document-modal {
+    max-width: 860px;
+}
+
+.order-document-section {
+    border: 1px solid #d9dee8;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+    background: #fafbff;
+}
+
+.order-document-section h4 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: #1f2937;
+}
+
+.order-document-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+}
+
+.order-document-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-document-item label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.order-document-item span {
+    font-size: 14px;
+    color: #111827;
+    word-break: break-word;
+}
+
+.order-document-item-full {
+    grid-column: 1 / -1;
+}
+
+.order-document-table {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .order-document-grid {
+        grid-template-columns: 1fr;
+    }
+}

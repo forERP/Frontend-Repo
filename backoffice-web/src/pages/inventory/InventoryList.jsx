@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchInventoryPage, updateInventorySaleStatus } from '../../api/inventoryApi';
+import { subscribeAdminRealtime } from '../../lib/realtime';
 import './InventoryList.css';
 
 const INITIAL_FILTERS = {
@@ -118,6 +119,19 @@ export default function InventoryList() {
   useEffect(() => {
     loadInventory(currentPage, query, pageSize);
   }, [currentPage, query, pageSize, loadInventory]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAdminRealtime({
+      storeId: routeStoreId,
+      onEvent: ({ type }) => {
+        if (type === 'inventory.changed' || type === 'connected') {
+          loadInventory(currentPage, query, pageSize);
+        }
+      },
+    });
+
+    return unsubscribe;
+  }, [routeStoreId, currentPage, pageSize, query, loadInventory]);
 
   const handleFilterChange = event => {
     const { name, value } = event.target;
@@ -292,8 +306,8 @@ export default function InventoryList() {
                       onClick={() => handleRowClick(item.storeProductId)}
                     >
                       <td title={item.storeName || '-'}>{item.storeName || '-'}</td>
-                      <td title={`${item.warehouseCode || '-'} (${item.warehouseName || '-'})`}>
-                        {item.warehouseCode || '-'} ({item.warehouseName || '-'})
+                      <td title={item.warehouseName || '-'}>
+                        {item.warehouseName || '-'}
                       </td>
                       <td title={item.productName || '-'}>{item.productName || '-'}</td>
                       <td title={String(item.onHand ?? 0)}>{item.onHand ?? 0}</td>
