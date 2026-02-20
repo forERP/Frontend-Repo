@@ -1,11 +1,12 @@
 ﻿import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchCategoryDetail, updateCategory } from '../../api/categoryApi';
 import './ProductCategoryDetail.css';
 
 export default function ProductCategoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,6 +22,12 @@ export default function ProductCategoryDetail() {
   useEffect(() => {
     loadCategory();
   }, [id]);
+
+  useEffect(() => {
+    if (searchParams.get('edit') === '1') {
+      setIsEditing(true);
+    }
+  }, [searchParams]);
 
   const loadCategory = async () => {
     try {
@@ -276,3 +283,4 @@ export default function ProductCategoryDetail() {
     </div>
   );
 }
+

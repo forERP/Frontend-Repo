@@ -77,6 +77,11 @@ export default function ProductCategoryList() {
     setPageSize(size);
   };
 
+  const handleEditClick = (event, categoryId) => {
+    event.stopPropagation();
+    navigate(`/product-categories/${categoryId}?edit=1`);
+  };
+
   return (
     <div className="product-page">
       <div className="product-container">
@@ -126,18 +131,19 @@ export default function ProductCategoryList() {
                 <th>카테고리 코드</th>
                 <th>카테고리명</th>
                 <th>설명</th>
+                <th className="actions-col">작업</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={3} className="empty-cell">
+                  <td colSpan={4} className="empty-cell">
                     로딩 중...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="empty-cell">
+                  <td colSpan={4} className="empty-cell">
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -151,6 +157,15 @@ export default function ProductCategoryList() {
                     <td title={category.code || '-'}>{category.code || '-'}</td>
                     <td title={category.name || '-'}>{category.name || '-'}</td>
                     <td title={category.description || '-'}>{category.description || '-'}</td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="edit-btn"
+                        onClick={event => handleEditClick(event, category.id)}
+                      >
+                        수정
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
