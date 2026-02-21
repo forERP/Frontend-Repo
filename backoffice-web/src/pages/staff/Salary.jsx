@@ -15,6 +15,12 @@ const getCurrentYearMonth = () => {
     };
 };
 
+const getDateAfterOneMonth = () => {
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    return nextMonth.toISOString().slice(0, 10);
+};
+
 const formatNumber = (value) => {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
     return new Intl.NumberFormat('ko-KR').format(Number(value));
@@ -22,11 +28,13 @@ const formatNumber = (value) => {
 
 export default function Salary() {
     const { year: currentYear, month: currentMonth } = useMemo(getCurrentYearMonth, []);
+    const minPaymentDate = useMemo(getDateAfterOneMonth, []);
 
     const [registerForm, setRegisterForm] = useState({
         userId: '',
         employmentType: 'HOURLY',
         amount: '',
+        paymentDate: '',
     });
 
     const [payrollForm, setPayrollForm] = useState({
@@ -55,6 +63,10 @@ export default function Salary() {
         if (!registerForm.userId.trim()) return '직원 ID를 입력해주세요.';
         if (!registerForm.amount.trim()) return '급여 금액을 입력해주세요.';
         if (Number(registerForm.amount) <= 0) return '급여 금액은 0보다 커야 합니다.';
+        if (!registerForm.paymentDate.trim()) return '지급일을 입력해주세요.';
+        if (registerForm.paymentDate < minPaymentDate) {
+            return `지급일은 최소 ${minPaymentDate} 이후로 입력해주세요.`;
+        }
         return '';
     };
 
@@ -81,6 +93,7 @@ export default function Salary() {
                 userId: Number(registerForm.userId),
                 employmentType: registerForm.employmentType,
                 amount: Number(registerForm.amount),
+                paymentDate: registerForm.paymentDate,
             });
             setSuccessMessage('급여 기준이 저장되었습니다.');
         } catch (error) {
@@ -169,6 +182,17 @@ export default function Salary() {
                                 step="1"
                                 placeholder="예: 12000"
                                 value={registerForm.amount}
+                                onChange={handleRegisterChange}
+                            />
+                        </label>
+
+                        <label>
+                            지급일
+                            <input
+                                name="paymentDate"
+                                type="date"
+                                min={minPaymentDate}
+                                value={registerForm.paymentDate}
                                 onChange={handleRegisterChange}
                             />
                         </label>
@@ -265,6 +289,10 @@ export default function Salary() {
                         <div className="salary-result-list__total">
                             <dt>총 급여</dt>
                             <dd>{formatNumber(payroll.totalPay)}원</dd>
+                        </div>
+                        <div>
+                            <dt>지급일</dt>
+                            <dd>{payroll.paymentDate || '-'}</dd>
                         </div>
                     </dl>
                 )}

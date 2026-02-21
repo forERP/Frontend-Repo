@@ -27,19 +27,6 @@ const toKey = value => {
   return String(value);
 };
 
-const buildLastDayOfMonth = (year, month) => {
-  const parsedYear = toNumber(year);
-  const parsedMonth = toNumber(month);
-  const safeYear = parsedYear > 0 ? parsedYear : new Date().getFullYear();
-  const safeMonth = parsedMonth >= 1 && parsedMonth <= 12 ? parsedMonth : new Date().getMonth() + 1;
-
-  const date = new Date(safeYear, safeMonth, 0);
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
-
 async function fetchAllPages(fetchPage) {
   const rows = [];
   let page = 0;
@@ -477,7 +464,6 @@ export async function fetchPayrollReport({
   const parsedMonth = toNumber(month) || new Date().getMonth() + 1;
   const normalizedStoreKeyword = toSafeString(storeKeyword);
   const normalizedEmploymentType = toSafeString(employmentType);
-  const paymentDate = buildLastDayOfMonth(parsedYear, parsedMonth);
 
   const users = await fetchAllPages(page =>
     fetchUserPage({
@@ -505,7 +491,7 @@ export async function fetchPayrollReport({
         payrollType: payroll?.type || null,
         baseAmount: payroll?.baseWage ?? null,
         thisMonthPay: payroll?.totalPay ?? null,
-        paymentDate,
+        paymentDate: payroll?.paymentDate || null,
         hasSalary: true,
       };
     } catch (error) {
@@ -525,7 +511,7 @@ export async function fetchPayrollReport({
         payrollType: null,
         baseAmount: null,
         thisMonthPay: null,
-        paymentDate,
+        paymentDate: null,
         hasSalary: false,
       };
     }
