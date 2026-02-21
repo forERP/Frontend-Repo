@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchSupplierPage } from '../../api/supplierApi';
 import { SUPPLIER_STATUS } from '../../constants/status';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './SupplierList.css';
 
 const INITIAL_FILTERS = {
@@ -14,6 +15,8 @@ const INITIAL_FILTERS = {
 
 export default function SupplierListPage() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
 
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -85,9 +88,11 @@ export default function SupplierListPage() {
       <div className="supplier-container">
         <div className="page-header">
           <h1 className="page-title">거래처 목록</h1>
-          <button className="create-btn" onClick={() => navigate('/suppliers/new')}>
-            거래처 등록
-          </button>
+          {!isStoreAdmin && (
+            <button className="create-btn" onClick={() => navigate('/suppliers/new')}>
+              거래처 등록
+            </button>
+          )}
         </div>
 
         <div className="card filter-card">
@@ -146,13 +151,13 @@ export default function SupplierListPage() {
                     <th>연락처</th>
                     <th>이메일</th>
                     <th>상태</th>
-                    <th className="actions-col">작업</th>
+                    {!isStoreAdmin && <th className="actions-col">작업</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {suppliers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="empty-cell">
+                      <td colSpan={isStoreAdmin ? 5 : 6} className="empty-cell">
                         검색 결과가 없습니다.
                       </td>
                     </tr>
@@ -178,17 +183,19 @@ export default function SupplierListPage() {
                             {SUPPLIER_STATUS[supplier.active ? 'ACTIVE' : 'INACTIVE']?.label || '-'}
                           </span>
                         </td>
-                        <td className="actions-cell">
-                          <button
-                            className="edit-btn"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(`/suppliers/${supplier.supplierId}?edit=1`);
-                            }}
-                          >
-                            수정
-                          </button>
-                        </td>
+                        {!isStoreAdmin && (
+                          <td className="actions-cell">
+                            <button
+                              className="edit-btn"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/suppliers/${supplier.supplierId}?edit=1`);
+                              }}
+                            >
+                              수정
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -209,3 +216,4 @@ export default function SupplierListPage() {
     </div>
   );
 }
+

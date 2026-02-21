@@ -4,6 +4,7 @@ import 'chart.js/auto';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchSalesReport } from '../../api/reportApi';
 import { ORDER_STATUS } from '../../constants/status';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './SalesReport.css';
 
@@ -36,9 +37,9 @@ const getDefaultDateRange = () => {
 
 const { from: defaultFrom, to: defaultTo } = getDefaultDateRange();
 
-const createInitialFilters = () => ({
+const createInitialFilters = lockedStoreKeyword => ({
   groupBy: 'product',
-  storeKeyword: '',
+  storeKeyword: lockedStoreKeyword || '',
   orderStatus: 'EXCLUDE_CANCELED',
   from: defaultFrom,
   to: defaultTo,
@@ -63,8 +64,16 @@ const currencyFormatter = new Intl.NumberFormat('ko-KR', {
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export default function SalesReport() {
-  const [filters, setFilters] = useState(createInitialFilters);
-  const [query, setQuery] = useState(createInitialFilters);
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
+
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
   const [report, setReport] = useState(EMPTY_REPORT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -97,8 +106,17 @@ export default function SalesReport() {
     };
   }, [query]);
 
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setError('');
+  }, [initialFilters]);
+
   const handleFilterChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -111,51 +129,56 @@ export default function SalesReport() {
     }
 
     setError('');
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    const initialFilters = createInitialFilters();
     setFilters(initialFilters);
     setQuery(initialFilters);
     setError('');
   };
 
-  const chartData = useMemo(() => ({
-    labels: report.rows.map(row => row.name || '-'),
-    datasets: [
-      {
-        label: '매출액',
-        data: report.rows.map(row => Number(row.salesAmount || 0)),
-        backgroundColor: 'rgba(37, 99, 235, 0.72)',
-        borderColor: 'rgba(37, 99, 235, 1)',
-        borderWidth: 1,
-        borderRadius: 6,
-        maxBarThickness: 48,
-      },
-    ],
-  }), [report.rows]);
+  const chartData = useMemo(
+    () => ({
+      labels: report.rows.map(row => row.name || '-'),
+      datasets: [
+        {
+          label: '매출액',
+          data: report.rows.map(row => Number(row.salesAmount || 0)),
+          backgroundColor: 'rgba(37, 99, 235, 0.72)',
+          borderColor: 'rgba(37, 99, 235, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          maxBarThickness: 48,
+        },
+      ],
+    }),
+    [report.rows],
+  );
 
-  const chartOptions = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true, position: 'top' },
-      tooltip: {
-        callbacks: {
-          label: context => `${context.dataset.label}: ${currencyFormatter.format(context.parsed.y || 0)}`,
+  const chartOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: context => `${context.dataset.label}: ${currencyFormatter.format(context.parsed.y || 0)}`,
+          },
         },
       },
-    },
-    scales: {
-      y: {
-        ticks: {
-          callback: value => currencyFormatter.format(Number(value)),
+      scales: {
+        y: {
+          ticks: {
+            callback: value => currencyFormatter.format(Number(value)),
+          },
+          beginAtZero: true,
         },
-        beginAtZero: true,
       },
-    },
-  }), []);
+    }),
+    [],
+  );
 
   const isProductView = query.groupBy === 'product';
 
@@ -193,6 +216,7 @@ export default function SalesReport() {
               value: filters.storeKeyword,
               onChange: handleFilterChange,
               placeholder: '매장명 또는 매장코드',
+              disabled: isStoreAdmin,
             },
             {
               name: 'orderedRange',

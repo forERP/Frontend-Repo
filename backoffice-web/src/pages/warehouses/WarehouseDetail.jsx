@@ -3,12 +3,14 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchWarehouse, updateWarehouse } from '../../api/warehouseApi';
 import AddressSearchMapField from '../../components/map/AddressSearchMapField';
 import SingleLocationMap from '../../components/map/SingleLocationMap';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './WarehouseDetail.css';
 
 export default function WarehouseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [warehouse, setWarehouse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -50,14 +52,14 @@ export default function WarehouseDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === '1') {
+    if (!isStoreAdmin && searchParams.get('edit') === '1') {
       setIsEditing(true);
     }
-  }, [searchParams]);
+  }, [isStoreAdmin, searchParams]);
 
-  const handleEditChange = (event) => {
+  const handleEditChange = event => {
     const { name, value } = event.target;
-    setEditForm((prev) => ({
+    setEditForm(prev => ({
       ...prev,
       [name]: name === 'active' ? value === 'true' : value,
     }));
@@ -87,16 +89,17 @@ export default function WarehouseDetailPage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    if (warehouse) {
-      setEditForm({
-        code: warehouse.code || '',
-        name: warehouse.name || '',
-        address: warehouse.address || '',
-        latitude: warehouse.latitude ?? null,
-        longitude: warehouse.longitude ?? null,
-        active: Boolean(warehouse.active),
-      });
+    if (!warehouse) {
+      return;
     }
+    setEditForm({
+      code: warehouse.code || '',
+      name: warehouse.name || '',
+      address: warehouse.address || '',
+      latitude: warehouse.latitude ?? null,
+      longitude: warehouse.longitude ?? null,
+      active: Boolean(warehouse.active),
+    });
   };
 
   const handleMoveToInventory = () => {
@@ -160,7 +163,7 @@ export default function WarehouseDetailPage() {
         <div className="detail-card">
           {isEditing ? (
             <form
-              onSubmit={(event) => {
+              onSubmit={event => {
                 event.preventDefault();
                 handleSaveEdit();
               }}
@@ -190,16 +193,16 @@ export default function WarehouseDetailPage() {
                         address={editForm.address}
                         latitude={editForm.latitude}
                         longitude={editForm.longitude}
-                        onAddressChange={(nextAddress) => setEditForm((prev) => ({ ...prev, address: nextAddress }))}
+                        onAddressChange={nextAddress => setEditForm(prev => ({ ...prev, address: nextAddress }))}
                         onLocationChange={({ address, latitude, longitude }) =>
-                          setEditForm((prev) => ({
+                          setEditForm(prev => ({
                             ...prev,
                             address: address ?? prev.address,
                             latitude,
                             longitude,
                           }))
                         }
-                        placeholder="창고 주소를 입력해 검색하세요"
+                        placeholder="창고 주소를 입력하거나 검색하세요"
                       />
                     </td>
                   </tr>
@@ -267,15 +270,17 @@ export default function WarehouseDetailPage() {
                 latitude={warehouse.latitude}
                 longitude={warehouse.longitude}
                 title="창고 위치"
-                emptyMessage="저장된 창고 위치 정보가 없습니다."
+                emptyMessage="등록된 창고 위치 정보가 없습니다."
               />
 
               <div className="form-buttons detail-form-buttons">
-                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
-                  수정
-                </button>
+                {!isStoreAdmin && (
+                  <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
+                    수정
+                  </button>
+                )}
                 <button type="button" onClick={handleMoveToInventory}>
-                  재고관리
+                  재고 관리
                 </button>
                 <button type="button" onClick={() => navigate('/warehouses')}>
                   목록

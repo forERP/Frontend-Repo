@@ -209,7 +209,7 @@ export default function InventoryLog() {
             },
             {
               name: 'actorKeyword',
-              label: '행위자',
+              label: '처리자',
               type: 'text',
               value: filters.actorKeyword,
               onChange: handleFilterChange,
@@ -247,7 +247,7 @@ export default function InventoryLog() {
               <th>매장/창고</th>
               <th>상품</th>
               <th>이동량/전후재고</th>
-              <th>행위자</th>
+              <th>처리자</th>
             </tr>
           </thead>
           <tbody>

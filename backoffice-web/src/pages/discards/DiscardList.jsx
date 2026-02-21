@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchDiscardPage } from '../../api/discardApi';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './DiscardList.css';
 
-const INITIAL_FILTERS = {
-  storeKeyword: '',
+const createInitialFilters = lockedStoreKeyword => ({
+  storeKeyword: lockedStoreKeyword || '',
   warehouseKeyword: '',
   productKeyword: '',
   status: '',
@@ -15,12 +16,12 @@ const INITIAL_FILTERS = {
   createdTo: '',
   discardedFrom: '',
   discardedTo: '',
-};
+});
 
 const DISCARD_STATUS = {
-  CREATED: { label: '생성됨', color: '#6C757D' },
-  CONFIRMED: { label: '확정됨', color: '#16A34A' },
-  CANCELED: { label: '취소됨', color: '#DC2626' },
+  CREATED: { label: '생성', color: '#6C757D' },
+  CONFIRMED: { label: '확정', color: '#16A34A' },
+  CANCELED: { label: '취소', color: '#DC2626' },
 };
 
 const formatDateTime = value => {
@@ -36,12 +37,20 @@ const formatStoreLabel = item => {
 
 export default function DiscardList() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
+
   const [discards, setDiscards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -51,6 +60,12 @@ export default function DiscardList() {
   useEffect(() => {
     loadDiscards(currentPage, query, pageSize);
   }, [currentPage, query, pageSize]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setCurrentPage(0);
+  }, [initialFilters]);
 
   const loadDiscards = async (page, search, size) => {
     try {
@@ -86,18 +101,21 @@ export default function DiscardList() {
 
   const handleFilterChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = event => {
     event.preventDefault();
     setCurrentPage(0);
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
-    setQuery(INITIAL_FILTERS);
+    setFilters(initialFilters);
+    setQuery(initialFilters);
     setCurrentPage(0);
   };
 
@@ -126,6 +144,7 @@ export default function DiscardList() {
               value: filters.storeKeyword,
               onChange: handleFilterChange,
               placeholder: '매장명 또는 매장코드',
+              disabled: isStoreAdmin,
             },
             {
               name: 'warehouseKeyword',
@@ -151,9 +170,9 @@ export default function DiscardList() {
               onChange: handleFilterChange,
               options: [
                 { value: '', label: '전체' },
-                { value: 'CREATED', label: '생성됨' },
-                { value: 'CONFIRMED', label: '확정됨' },
-                { value: 'CANCELED', label: '취소됨' },
+                { value: 'CREATED', label: '생성' },
+                { value: 'CONFIRMED', label: '확정' },
+                { value: 'CANCELED', label: '취소' },
               ],
             },
             {
@@ -199,8 +218,8 @@ export default function DiscardList() {
               <th>상태</th>
               <th>폐기사유</th>
               <th>생성자</th>
-              <th>생성일</th>
-              <th>확정일</th>
+              <th>생성일시</th>
+              <th>확정일시</th>
             </tr>
           </thead>
           <tbody>

@@ -16,6 +16,7 @@ import {
 } from '../../../lib/dataApi';
 import { PURCHASE_ORDER_STATUS, STATUS_LABEL } from '../../../constants/status';
 import { formatDocNumber, formatNameAndCode } from '../../../utils/purchaseDisplay';
+import { getSessionUser, isStoreAdminUser } from '../../../utils/auth';
 import '../request/purchase.css';
 import './PurchaseOrderDetailPage.css';
 
@@ -52,6 +53,7 @@ const toProductDisplay = (item, productMap) => {
 export default function PurchaseOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [order, setOrder] = useState(null);
   const [storeName, setStoreName] = useState('');
@@ -297,8 +299,8 @@ export default function PurchaseOrderDetailPage() {
 
   const isCreated = order.status === 'CREATED';
   const isDraftEditable = isCreated && order.purchaseRequestStatus === 'REQUESTED';
-  const canConfirmOrder = isCreated && order.purchaseRequestStatus === 'APPROVED';
-  const canCancelOrder = isCreated && order.purchaseRequestStatus === 'APPROVED';
+  const canConfirmOrder = !isStoreAdmin && isCreated && order.purchaseRequestStatus === 'APPROVED';
+  const canCancelOrder = !isStoreAdmin && isCreated && order.purchaseRequestStatus === 'APPROVED';
   const requestStatusLabel = order.purchaseRequestStatus ? STATUS_LABEL[order.purchaseRequestStatus] || order.purchaseRequestStatus : '-';
   const documentNumber = order.documentNumber || formatDocNumber(order.createdAt, order.purchaseOrderId);
   const authorLabel = formatNameAndCode(order.authoredByName, order.authoredByCode);

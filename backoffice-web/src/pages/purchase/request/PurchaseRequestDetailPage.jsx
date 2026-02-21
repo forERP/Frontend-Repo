@@ -13,6 +13,7 @@ import {
 } from '../../../lib/dataApi';
 import { STATUS_LABEL } from '../../../constants/status';
 import { formatDocNumber, formatNameAndCode } from '../../../utils/purchaseDisplay';
+import { getSessionUser, isStoreAdminUser } from '../../../utils/auth';
 import './purchase.css';
 import './PurchaseRequestDetailPage.css';
 
@@ -64,6 +65,7 @@ export default function PurchaseRequestDetailPage() {
 
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [approvalForm, setApprovalForm] = useState(INITIAL_APPROVAL_FORM);
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const selectedSupplier = useMemo(
     () => suppliers.find(s => String(s.supplierId) === String(approvalForm.supplierId)),
@@ -353,9 +355,11 @@ export default function PurchaseRequestDetailPage() {
 
         {isRequested && draftOrder && (
           <>
-            <button className="btn-primary" onClick={handleApproveRequest} disabled={submitting}>
-              발주 요청 승인
-            </button>
+            {!isStoreAdmin && (
+              <button className="btn-primary" onClick={handleApproveRequest} disabled={submitting}>
+                발주 요청 승인
+              </button>
+            )}
             <button className="btn-info" onClick={() => navigate(`/purchase-orders/${draftOrder.purchaseOrderId}`)}>
               발주서 조회
             </button>
@@ -368,7 +372,7 @@ export default function PurchaseRequestDetailPage() {
           </button>
         )}
 
-        {isRequested && (
+        {isRequested && !isStoreAdmin && (
           <button className="btn-danger" onClick={handleReject}>
             반려
           </button>

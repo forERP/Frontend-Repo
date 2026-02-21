@@ -22,6 +22,23 @@ export const login = async credentials => {
     sessionStorage.setItem('userId', userId)
     sessionStorage.setItem('userName', name || '')
 
+    try {
+      const profileResponse = await api.get(`/api/users/${userId}`)
+      const profile = profileResponse.data || {}
+      if (profile.storeId) {
+        sessionStorage.setItem('userStoreId', String(profile.storeId))
+      } else {
+        sessionStorage.removeItem('userStoreId')
+      }
+      sessionStorage.setItem('userStoreName', profile.storeName || '')
+      sessionStorage.setItem('userStoreCode', profile.storeCode || '')
+    } catch (profileError) {
+      console.warn('failed to load user store profile on login:', profileError?.response?.status || profileError.message)
+      sessionStorage.removeItem('userStoreId')
+      sessionStorage.setItem('userStoreName', '')
+      sessionStorage.setItem('userStoreCode', '')
+    }
+
     return {
       token,
       role,
@@ -30,7 +47,11 @@ export const login = async credentials => {
     }
   } catch (error) {
     console.error('login error:', error.response?.status, error.response?.data)
-    const errorMessage = error.response?.data?.message || error.message || '로그인에 실패했습니다.'
+    const isForbidden = Number(error?.response?.status) === 403
+    const fallbackMessage = isForbidden
+      ? '관리자(HQ/STORE) 계정만 관리자페이지에 로그인할 수 있습니다.'
+      : '로그인에 실패했습니다.'
+    const errorMessage = error.response?.data?.message || error.message || fallbackMessage
     throw new Error(errorMessage)
   }
 }
@@ -40,6 +61,9 @@ const clearSession = () => {
   sessionStorage.removeItem('userRole')
   sessionStorage.removeItem('userId')
   sessionStorage.removeItem('userName')
+  sessionStorage.removeItem('userStoreId')
+  sessionStorage.removeItem('userStoreName')
+  sessionStorage.removeItem('userStoreCode')
 }
 
 export const logout = async () => {

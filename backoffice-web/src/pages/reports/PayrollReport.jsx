@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchPayrollReport } from '../../api/reportApi';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './PayrollReport.css';
 
@@ -24,10 +25,10 @@ const EMPLOYMENT_TYPE_OPTIONS = [
   { value: 'MONTHLY', label: '월급' },
 ];
 
-const createInitialFilters = () => ({
+const createInitialFilters = lockedStoreKeyword => ({
   year: String(CURRENT_YEAR),
   month: String(CURRENT_MONTH),
-  storeKeyword: '',
+  storeKeyword: lockedStoreKeyword || '',
   employmentType: '',
 });
 
@@ -60,8 +61,16 @@ const formatPayrollType = value => {
 };
 
 export default function PayrollReport() {
-  const [filters, setFilters] = useState(createInitialFilters);
-  const [query, setQuery] = useState(createInitialFilters);
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
+
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
   const [report, setReport] = useState(EMPTY_REPORT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -100,19 +109,27 @@ export default function PayrollReport() {
     };
   }, [query]);
 
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setError('');
+  }, [initialFilters]);
+
   const handleFilterChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = event => {
     event.preventDefault();
     setError('');
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    const initialFilters = createInitialFilters();
     setFilters(initialFilters);
     setQuery(initialFilters);
     setError('');
@@ -162,6 +179,7 @@ export default function PayrollReport() {
               value: filters.storeKeyword,
               onChange: handleFilterChange,
               placeholder: '매장명 또는 매장코드',
+              disabled: isStoreAdmin,
             },
           ]}
           onSearch={handleSearch}
@@ -186,54 +204,50 @@ export default function PayrollReport() {
 
       {error && <div className="error-message">{error}</div>}
 
-      {loading && report.stores.length === 0 && (
-        <div className="card payroll-report-empty">로딩 중...</div>
-      )}
+      {loading && report.stores.length === 0 && <div className="card payroll-report-empty">로딩 중...</div>}
 
-      {!loading && report.stores.length === 0 && (
-        <div className="card payroll-report-empty">검색 결과가 없습니다.</div>
-      )}
+      {!loading && report.stores.length === 0 && <div className="card payroll-report-empty">검색 결과가 없습니다.</div>}
 
       {report.stores.map(store => (
-          <section className="card payroll-report-store-card" key={store.storeId || store.storeName}>
-            <div className="payroll-report-store-title-row">
-              <h3>{store.storeName}</h3>
-              <span>{formatNumber(store.rows.length)}명</span>
-            </div>
+        <section className="card payroll-report-store-card" key={store.storeId || store.storeName}>
+          <div className="payroll-report-store-title-row">
+            <h3>{store.storeName}</h3>
+            <span>{formatNumber(store.rows.length)}명</span>
+          </div>
 
-            <table className="erp-table list-table payroll-report-table">
-              <thead>
+          <table className="erp-table list-table payroll-report-table">
+            <thead>
+              <tr>
+                <th>직원코드</th>
+                <th>직원명</th>
+                <th>급여 유형</th>
+                <th className="align-right">시급/월급</th>
+                <th className="align-right">이번달 급여</th>
+                <th>지급일</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th>직원코드</th>
-                  <th>직원명</th>
-                  <th>급여 유형</th>
-                  <th className="align-right">시급/월급</th>
-                  <th className="align-right">이번달 급여</th>
-                  <th>지급일</th>
+                  <td colSpan={6} className="empty-cell">
+                    로딩 중...
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="empty-cell">
-                      로딩 중...
-                    </td>
+              ) : (
+                store.rows.map(row => (
+                  <tr key={row.userId}>
+                    <td>{row.employeeCode || '-'}</td>
+                    <td>{row.employeeName || '-'}</td>
+                    <td>{formatPayrollType(row.payrollType)}</td>
+                    <td className="align-right">{formatCurrency(row.baseAmount)}</td>
+                    <td className="align-right">{formatCurrency(row.thisMonthPay)}</td>
+                    <td>{row.paymentDate || '-'}</td>
                   </tr>
-                ) : (
-                  store.rows.map(row => (
-                    <tr key={row.userId}>
-                      <td>{row.employeeCode || '-'}</td>
-                      <td>{row.employeeName || '-'}</td>
-                      <td>{formatPayrollType(row.payrollType)}</td>
-                      <td className="align-right">{formatCurrency(row.baseAmount)}</td>
-                      <td className="align-right">{formatCurrency(row.thisMonthPay)}</td>
-                      <td>{row.paymentDate || '-'}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </section>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
       ))}
     </div>
   );

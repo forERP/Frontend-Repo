@@ -2,6 +2,7 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { discontinueProduct, fetchProductDetail, reactivateProduct, updateProduct } from '../../api/productApi';
 import { fetchCategories } from '../../api/categoryApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './ProductDetail.css';
 
 const formatProductDisplay = product => {
@@ -14,6 +15,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -44,11 +46,11 @@ export default function ProductDetail() {
     loadData({
       preferredCategoryId: selectedCategoryId ? String(selectedCategoryId) : null,
       draftForm: draftProductDetailForm || null,
-      openEdit: Boolean(openEdit || selectedCategoryId || draftProductDetailForm),
+      openEdit: !isStoreAdmin && Boolean(openEdit || selectedCategoryId || draftProductDetailForm),
     });
 
     navigate(location.pathname, { replace: true, state: null });
-  }, [location.pathname, location.state, navigate]);
+  }, [isStoreAdmin, location.pathname, location.state, navigate]);
 
   const loadData = async ({ preferredCategoryId = null, draftForm = null, openEdit = false } = {}) => {
     try {
@@ -351,20 +353,22 @@ export default function ProductDetail() {
               </div>
 
               <div className="form-buttons detail-form-buttons">
-                <button
-                  type="button"
-                  className="primary-action"
-                  onClick={() => setIsEditing(true)}
-                  disabled={loading || product.status === 'DISCONTINUED'}
-                >
-                  편집
-                </button>
-                {product.status !== 'DISCONTINUED' && (
+                {!isStoreAdmin && (
+                  <button
+                    type="button"
+                    className="primary-action"
+                    onClick={() => setIsEditing(true)}
+                    disabled={loading || product.status === 'DISCONTINUED'}
+                  >
+                    편집
+                  </button>
+                )}
+                {!isStoreAdmin && product.status !== 'DISCONTINUED' && (
                   <button type="button" className="danger-action" onClick={handleDiscontinue} disabled={loading}>
                     판매 중지
                   </button>
                 )}
-                {product.status === 'DISCONTINUED' && (
+                {!isStoreAdmin && product.status === 'DISCONTINUED' && (
                   <button type="button" className="danger-action" onClick={handleReactivate} disabled={loading}>
                     재판매
                   </button>

@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/Header/Header';
 import Sidebar from '../components/Sidebar/Sidebar';
 import { menus } from '../constants/menus';
+import { getMenusByRole } from '../constants/menuAccess';
 import './MainLayout.css';
 import './AdminUi.css';
 
@@ -11,30 +12,37 @@ export default function MainLayout({ user }) {
   const [activeTopKey, setActiveTopKey] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // 페이지 로드 시 localStorage에서 사이드바 상태 복원
+  const visibleMenus = useMemo(() => getMenusByRole(menus, user?.role), [user?.role]);
+
   useEffect(() => {
     const savedSidebarState = localStorage.getItem('sidebarOpen');
     const savedActiveTopKey = localStorage.getItem('activeTopKey');
-    
+
     if (savedSidebarState !== null) {
       setIsSidebarOpen(JSON.parse(savedSidebarState));
     }
-    if (savedActiveTopKey && menus.some(menu => menu.key === savedActiveTopKey)) {
-      setActiveTopKey(savedActiveTopKey);
-    } else {
-      setActiveTopKey('dashboard');
-    }
-  }, []);
 
-  // 사이드바 상태가 변경될 때마다 localStorage에 저장
+    if (savedActiveTopKey && visibleMenus.some(menu => menu.key === savedActiveTopKey)) {
+      setActiveTopKey(savedActiveTopKey);
+      return;
+    }
+
+    setActiveTopKey(visibleMenus[0]?.key || 'dashboard');
+  }, [visibleMenus]);
+
   useEffect(() => {
     localStorage.setItem('sidebarOpen', JSON.stringify(isSidebarOpen));
   }, [isSidebarOpen]);
 
-  // activeTopKey가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     localStorage.setItem('activeTopKey', activeTopKey);
   }, [activeTopKey]);
+
+  useEffect(() => {
+    if (!visibleMenus.some(menu => menu.key === activeTopKey)) {
+      setActiveTopKey(visibleMenus[0]?.key || 'dashboard');
+    }
+  }, [activeTopKey, visibleMenus]);
 
   useEffect(() => {
     if (location.pathname === '/') {
@@ -44,14 +52,14 @@ export default function MainLayout({ user }) {
   }, [location.pathname]);
 
   const activeTopMenu = useMemo(
-    () => menus.find(menu => menu.key === activeTopKey),
-    [activeTopKey]
+    () => visibleMenus.find(menu => menu.key === activeTopKey),
+    [activeTopKey, visibleMenus],
   );
 
   const isDashboardTop = activeTopKey === 'dashboard' || location.pathname === '/';
   const sidebarMenus = activeTopMenu?.children ?? [];
 
-  const handleTopMenuClick = (key) => {
+  const handleTopMenuClick = key => {
     setActiveTopKey(key);
 
     if (key === 'dashboard') {
@@ -69,7 +77,7 @@ export default function MainLayout({ user }) {
     <div className="main-layout">
       <Header
         user={user}
-        menus={menus}
+        menus={visibleMenus}
         activeTopKey={activeTopKey}
         onTopMenuClick={handleTopMenuClick}
       />
@@ -90,3 +98,4 @@ export default function MainLayout({ user }) {
     </div>
   );
 }
+

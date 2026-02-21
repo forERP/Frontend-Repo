@@ -1,31 +1,44 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './Attendance.css';
 
 export default function Attendance() {
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
+
   const [employees, setEmployees] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
+  }, [scopedStoreId]);
 
   const fetchEmployees = async () => {
     try {
       const res = await api.get('/api/users?role=STORE_HALL_STAFF');
-      setEmployees(res.data);
+      const list = Array.isArray(res.data) ? res.data : [];
+      const scopedList = scopedStoreId == null
+        ? list
+        : list.filter(employee => Number(employee.storeId) === scopedStoreId);
+      setEmployees(scopedList);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const getStatusLabel = (status) => {
+  const getStatusLabel = status => {
     switch (status) {
-      case 'WORK': return '근무중';
-      case 'LEAVE': return '휴가';
-      case 'ABSENT': return '결근';
-      default: return '-';
+      case 'WORK':
+        return '근무중';
+      case 'LEAVE':
+        return '휴가';
+      case 'ABSENT':
+        return '결근';
+      default:
+        return '-';
     }
   };
 
@@ -52,20 +65,17 @@ export default function Attendance() {
                   </td>
                 </tr>
               ) : (
-                employees.map(emp => (
-                  <tr key={emp.id}>
-                    <td>{emp.id}</td>
-                    <td>{emp.name}</td>
+                employees.map(employee => (
+                  <tr key={employee.id}>
+                    <td>{employee.id}</td>
+                    <td>{employee.name}</td>
                     <td>
-                      <span className={`status-badge status-${emp.attendanceStatus?.toLowerCase()}`}>
-                        {getStatusLabel(emp.attendanceStatus)}
+                      <span className={`status-badge status-${employee.attendanceStatus?.toLowerCase()}`}>
+                        {getStatusLabel(employee.attendanceStatus)}
                       </span>
                     </td>
                     <td>
-                      <button
-                        className="detail-btn"
-                        onClick={() => navigate(`/attendance/${emp.id}`)}
-                      >
+                      <button className="detail-btn" onClick={() => navigate(`/attendance/${employee.id}`)}>
                         상세보기
                       </button>
                     </td>

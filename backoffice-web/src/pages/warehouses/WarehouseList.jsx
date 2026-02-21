@@ -2,7 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
-import { fetchWarehousePage } from '../../api/warehouseApi';
+import { fetchWarehousePage, fetchWarehouses } from '../../api/warehouseApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './WarehouseList.css';
 
 const INITIAL_FILTERS = {
@@ -10,8 +11,25 @@ const INITIAL_FILTERS = {
   status: '',
 };
 
+const matchesKeyword = (warehouse, keyword) => {
+  if (!keyword) return true;
+  const normalized = keyword.trim().toLowerCase();
+  const name = String(warehouse?.name || '').toLowerCase();
+  const code = String(warehouse?.code || '').toLowerCase();
+  return name.includes(normalized) || code.includes(normalized);
+};
+
+const matchesStatus = (warehouse, status) => {
+  if (!status) return true;
+  if (status === 'ACTIVE') return Boolean(warehouse?.active);
+  if (status === 'INACTIVE') return !warehouse?.active;
+  return true;
+};
+
 export default function WarehouseListPage() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
 
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,6 +51,21 @@ export default function WarehouseListPage() {
     try {
       setLoading(true);
       setError(null);
+
+      if (isStoreAdmin && sessionUser?.storeId) {
+        const allOwnWarehouses = await fetchWarehouses(sessionUser.storeId);
+        const filtered = (allOwnWarehouses || []).filter(
+          warehouse => matchesKeyword(warehouse, search.keyword) && matchesStatus(warehouse, search.status),
+        );
+
+        const start = page * size;
+        const paged = filtered.slice(start, start + size);
+
+        setWarehouses(paged);
+        setTotalElements(filtered.length);
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / size)));
+        return;
+      }
 
       const data = await fetchWarehousePage({
         page,
@@ -82,9 +115,11 @@ export default function WarehouseListPage() {
       <div className="warehouse-container">
         <div className="page-header">
           <h1 className="page-title">창고 목록</h1>
-          <button className="create-btn" onClick={() => navigate('/warehouses/create')}>
-            창고 등록
-          </button>
+          {!isStoreAdmin && (
+            <button className="create-btn" onClick={() => navigate('/warehouses/create')}>
+              창고 등록
+            </button>
+          )}
         </div>
 
         <div className="card filter-card">
@@ -134,13 +169,13 @@ export default function WarehouseListPage() {
                     <th>창고명</th>
                     <th>매장</th>
                     <th>상태</th>
-                    <th className="actions-col">작업</th>
+                    {!isStoreAdmin && <th className="actions-col">작업</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {warehouses.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="empty-cell">
+                      <td colSpan={isStoreAdmin ? 4 : 5} className="empty-cell">
                         검색 결과가 없습니다.
                       </td>
                     </tr>
@@ -159,17 +194,19 @@ export default function WarehouseListPage() {
                             {warehouse.active ? '활성' : '비활성'}
                           </span>
                         </td>
-                        <td className="actions-cell">
-                          <button
-                            className="edit-btn"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(`/warehouses/${warehouse.warehouseId}?edit=1`);
-                            }}
-                          >
-                            수정
-                          </button>
-                        </td>
+                        {!isStoreAdmin && (
+                          <td className="actions-cell">
+                            <button
+                              className="edit-btn"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/warehouses/${warehouse.warehouseId}?edit=1`);
+                              }}
+                            >
+                              수정
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -190,3 +227,4 @@ export default function WarehouseListPage() {
     </div>
   );
 }
+

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchProducts, discontinueProduct, reactivateProduct } from '../../api/productApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './ProductList.css';
 
 const INITIAL_FILTERS = {
@@ -18,6 +19,8 @@ const formatProductDisplay = product => {
 
 export default function ProductList() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -123,14 +126,16 @@ export default function ProductList() {
       <div className="product-container">
         <div className="page-header">
           <h1 className="page-title">상품 목록</h1>
-          <div className="header-actions">
-            <button className="create-btn" onClick={() => navigate('/products/new')}>
-              상품 등록
-            </button>
-            <button className="create-btn" onClick={() => navigate('/products/bundles/new')}>
-              묶음상품 등록
-            </button>
-          </div>
+          {!isStoreAdmin && (
+            <div className="header-actions">
+              <button className="create-btn" onClick={() => navigate('/products/new')}>
+                상품 등록
+              </button>
+              <button className="create-btn" onClick={() => navigate('/products/bundles/new')}>
+                묶음상품 등록
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="card filter-card">
@@ -181,13 +186,13 @@ export default function ProductList() {
                     <th>카테고리</th>
                     <th>가격</th>
                     <th>상태</th>
-                    <th className="actions-col">작업</th>
+                    {!isStoreAdmin && <th className="actions-col">작업</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {products.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="empty-cell">
+                      <td colSpan={isStoreAdmin ? 5 : 6} className="empty-cell">
                         검색 결과가 없습니다.
                       </td>
                     </tr>
@@ -209,34 +214,36 @@ export default function ProductList() {
                             {product.status === 'ACTIVE' ? '활성' : '판매 중지'}
                           </span>
                         </td>
-                        <td className="actions-cell">
-                          <button
-                            className="edit-btn"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(`/products/${product.id}`);
-                            }}
-                            disabled={product.status === 'DISCONTINUED'}
-                          >
-                            수정
-                          </button>
-                          {product.status !== 'DISCONTINUED' && (
+                        {!isStoreAdmin && (
+                          <td className="actions-cell">
                             <button
-                              className="discontinue-btn"
-                              onClick={e => handleDiscontinue(e, product)}
+                              className="edit-btn"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/products/${product.id}`);
+                              }}
+                              disabled={product.status === 'DISCONTINUED'}
                             >
-                              판매 중지
+                              수정
                             </button>
-                          )}
-                          {product.status === 'DISCONTINUED' && (
-                            <button
-                              className="reactivate-btn"
-                              onClick={e => handleReactivate(e, product.id)}
-                            >
-                              재판매
-                            </button>
-                          )}
-                        </td>
+                            {product.status !== 'DISCONTINUED' && (
+                              <button
+                                className="discontinue-btn"
+                                onClick={e => handleDiscontinue(e, product)}
+                              >
+                                판매 중지
+                              </button>
+                            )}
+                            {product.status === 'DISCONTINUED' && (
+                              <button
+                                className="reactivate-btn"
+                                onClick={e => handleReactivate(e, product.id)}
+                              >
+                                재판매
+                              </button>
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}

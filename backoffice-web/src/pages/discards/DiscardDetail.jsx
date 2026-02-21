@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { cancelDiscard, confirmDiscard, fetchDiscardDetail } from '../../api/discardApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './DiscardDetail.css';
 
@@ -36,6 +37,9 @@ const toWarehouseLabel = discard => {
 export default function DiscardDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [discard, setDiscard] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -44,13 +48,18 @@ export default function DiscardDetail() {
 
   useEffect(() => {
     loadDetail();
-  }, [id]);
+  }, [id, scopedStoreId]);
 
   const loadDetail = async () => {
     try {
       setLoading(true);
       setError('');
       const data = await fetchDiscardDetail(id);
+      if (scopedStoreId != null && Number(data?.storeId) !== scopedStoreId) {
+        setDiscard(null);
+        setError('본인 매장 폐기만 조회할 수 있습니다.');
+        return;
+      }
       setDiscard(data);
     } catch (err) {
       console.error(err);

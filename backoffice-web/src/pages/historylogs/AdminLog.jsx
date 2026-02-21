@@ -8,7 +8,6 @@ import './LogPage.css'
 const INITIAL_FILTERS = {
   actorKeyword: '',
   action: '',
-  targetType: '',
   from: '',
   to: '',
 }
@@ -46,29 +45,7 @@ const ACTION_OPTIONS = [
   { value: 'INVENTORY_ADJUST', label: '재고 조정' },
 ]
 
-const TARGET_TYPE_OPTIONS = [
-  { value: '', label: '전체' },
-  { value: 'USER', label: '직원' },
-  { value: 'PRODUCT', label: '상품' },
-  { value: 'PRODUCT_CATEGORY', label: '카테고리' },
-  { value: 'STORE', label: '매장' },
-  { value: 'WAREHOUSE', label: '창고' },
-  { value: 'SUPPLIER', label: '거래처' },
-  { value: 'PURCHASE_REQUEST', label: '발주 요청' },
-  { value: 'PURCHASE_ORDER', label: '발주서' },
-  { value: 'INBOUND', label: '입고' },
-  { value: 'OUTBOUND', label: '출고' },
-  { value: 'RETURN', label: '반품' },
-  { value: 'DISCARD', label: '폐기' },
-  { value: 'INVENTORY', label: '재고' },
-]
-
 const ACTION_LABEL_MAP = ACTION_OPTIONS.reduce((acc, option) => {
-  if (option.value) acc[option.value] = option.label
-  return acc
-}, {})
-
-const TARGET_LABEL_MAP = TARGET_TYPE_OPTIONS.reduce((acc, option) => {
   if (option.value) acc[option.value] = option.label
   return acc
 }, {})
@@ -82,12 +59,6 @@ const formatActor = item => {
   const name = item.actorName || '-'
   const code = item.actorEmployeeCode ? `(${item.actorEmployeeCode})` : ''
   return `${name}${code}`
-}
-
-const formatTarget = item => {
-  const typeLabel = TARGET_LABEL_MAP[item.targetType] || item.targetType || '-'
-  const idText = item.targetId != null ? `#${item.targetId}` : '-'
-  return `${typeLabel} ${idText}`
 }
 
 export default function AdminLog() {
@@ -117,7 +88,6 @@ export default function AdminLog() {
         size,
         actorKeyword: search.actorKeyword,
         action: search.action,
-        targetType: search.targetType,
         from: search.from,
         to: search.to,
       })
@@ -170,7 +140,7 @@ export default function AdminLog() {
           fields={[
             {
               name: 'actorKeyword',
-              label: '행위자',
+              label: '처리자',
               type: 'text',
               value: filters.actorKeyword,
               onChange: handleFilterChange,
@@ -178,23 +148,15 @@ export default function AdminLog() {
             },
             {
               name: 'action',
-              label: '행위',
+              label: '이벤트',
               type: 'select',
               value: filters.action,
               onChange: handleFilterChange,
               options: ACTION_OPTIONS,
             },
             {
-              name: 'targetType',
-              label: '대상',
-              type: 'select',
-              value: filters.targetType,
-              onChange: handleFilterChange,
-              options: TARGET_TYPE_OPTIONS,
-            },
-            {
               name: 'createdRange',
-              label: '행위 일자',
+              label: '이벤트 일자',
               type: 'date-range',
               fromName: 'from',
               toName: 'to',
@@ -219,22 +181,21 @@ export default function AdminLog() {
         <table className="erp-table list-table admin-log-table">
           <thead>
             <tr>
-              <th>행위시각</th>
-              <th>행위자</th>
-              <th>행위</th>
-              <th>대상</th>
+              <th>이벤트 시각</th>
+              <th>이벤트</th>
+              <th>처리자</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="empty-cell">
+                <td colSpan={3} className="empty-cell">
                   로딩 중...
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="empty-cell">
+                <td colSpan={3} className="empty-cell">
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -242,13 +203,12 @@ export default function AdminLog() {
               logs.map(item => (
                 <tr key={item.logId}>
                   <td title={formatDateTime(item.actionAt)}>{formatDateTime(item.actionAt)}</td>
-                  <td title={formatActor(item)}>{formatActor(item)}</td>
                   <td>
                     <span className="log-action-badge">
                       {ACTION_LABEL_MAP[item.action] || item.action || '-'}
                     </span>
                   </td>
-                  <td title={formatTarget(item)}>{formatTarget(item)}</td>
+                  <td title={formatActor(item)}>{formatActor(item)}</td>
                 </tr>
               ))
             )}

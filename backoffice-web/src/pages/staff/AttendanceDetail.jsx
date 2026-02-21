@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './AttendanceDetail.css';
 
 export default function AttendanceDetail() {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const sessionUser = getSessionUser();
+    const isStoreAdmin = isStoreAdminUser(sessionUser);
+    const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
     const [employee, setEmployee] = useState(null);
     const [history, setHistory] = useState([]);
+    const [error, setError] = useState('');
     const [month, setMonth] = useState(
         new Date().toISOString().slice(0, 7)
     );
@@ -17,13 +22,20 @@ export default function AttendanceDetail() {
         const fetchEmployee = async () => {
             try {
                 const res = await api.get(`/api/users/${userId}`);
+                if (scopedStoreId != null && Number(res.data?.storeId) !== scopedStoreId) {
+                    setError('본인 매장 직원만 조회할 수 있습니다.');
+                    setEmployee(null);
+                    return;
+                }
+                setError('');
                 setEmployee(res.data);
             } catch (err) {
                 console.error(err);
+                setError('직원 정보를 불러오지 못했습니다.');
             }
         };
         fetchEmployee();
-    }, [userId]);
+    }, [scopedStoreId, userId]);
 
     useEffect(() => {
         if (!employee?.storeId) return;
@@ -57,6 +69,7 @@ export default function AttendanceDetail() {
             setHistory(filtered);
         } catch (err) {
             console.error(err);
+            setError('근태 기록을 불러오지 못했습니다.');
         }
     };
 
@@ -77,7 +90,7 @@ export default function AttendanceDetail() {
     if (!employee) {
         return (
             <div style={{ textAlign: 'center', padding: '50px' }}>
-                로딩중...
+                {error || '로딩중...'}
             </div>
         );
     }
@@ -86,6 +99,7 @@ export default function AttendanceDetail() {
         <div className="detail-page">
             <div className="detail-container">
                 <h1>근태 상세</h1>
+                {error && <div className="error-message">{error}</div>}
 
                 <div className="employee-card">
                     <p><strong>직원 ID:</strong> {employee.id}</p>

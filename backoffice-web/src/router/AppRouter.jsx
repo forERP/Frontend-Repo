@@ -82,8 +82,11 @@ import InventoryLog from '../pages/historylogs/InventoryLog.jsx';
 import SupplierList from '../pages/suppliers/SupplierList.jsx';
 import SupplierCreate from '../pages/suppliers/SupplierCreate.jsx';
 import SupplierDetail from '../pages/suppliers/SupplierDetail.jsx';
+import { isStoreAdminRole } from '../utils/auth';
 
 export default function AppRouter({ user, setUser }) {
+  const isStoreAdmin = isStoreAdminRole(user?.role);
+
   return (
     <Routes>
       <Route element={<ProtectedRoute />}>
@@ -93,19 +96,19 @@ export default function AppRouter({ user, setUser }) {
 
           {/* Product Routes */}
           <Route path="/products" element={<ProductList />} />
-          <Route path="/products/new" element={<ProductForm />} />
-          <Route path="/products/bundles/new" element={<ProductBundleForm />} />
+          <Route path="/products/new" element={isStoreAdmin ? <Navigate to="/products" replace /> : <ProductForm />} />
+          <Route path="/products/bundles/new" element={isStoreAdmin ? <Navigate to="/products" replace /> : <ProductBundleForm />} />
           <Route path="/product-categories" element={<ProductCategoryList />} />
-          <Route path="/product-categories/new" element={<ProductCategoryForm />} />
+          <Route path="/product-categories/new" element={isStoreAdmin ? <Navigate to="/product-categories" replace /> : <ProductCategoryForm />} />
           <Route path="/product-categories/:id" element={<ProductCategoryDetail />} />
           <Route path="/products/:id" element={<ProductDetail />} />
 
           {/* Store Routes */}
           <Route path="/stores" element={<StoreList />} />
-          <Route path="/stores/create" element={<StoreCreate />} />
+          <Route path="/stores/create" element={isStoreAdmin ? <Navigate to="/stores" replace /> : <StoreCreate />} />
           <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/warehouses" element={<WarehouseList />} />
-          <Route path="/warehouses/create" element={<WarehouseCreate />} />
+          <Route path="/warehouses/create" element={isStoreAdmin ? <Navigate to="/warehouses" replace /> : <WarehouseCreate />} />
           <Route path="/warehouses/:id" element={<WarehouseDetail />} />
 
           {/* Inventory Routes */}
@@ -163,12 +166,12 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/reports/payroll" element={<PayrollReport />} />
 
           {/* Log Routes */}
-          <Route path="/logs/admin" element={<AdminLog />} />
-          <Route path="/logs/inventory" element={<InventoryLog />} />
+          <Route path="/logs/admin" element={isStoreAdmin ? <Navigate to="/" replace /> : <AdminLog />} />
+          <Route path="/logs/inventory" element={isStoreAdmin ? <Navigate to="/" replace /> : <InventoryLog />} />
 
           {/* Supplier Routes */}
           <Route path="/suppliers" element={<SupplierList />} />
-          <Route path="/suppliers/new" element={<SupplierCreate />} />
+          <Route path="/suppliers/new" element={isStoreAdmin ? <Navigate to="/suppliers" replace /> : <SupplierCreate />} />
           <Route path="/suppliers/:id" element={<SupplierDetail />} />
           <Route path="/settings/suppliers" element={<Navigate to="/suppliers" replace />} />
           <Route path="/settings/roles" element={<NotFound />} />

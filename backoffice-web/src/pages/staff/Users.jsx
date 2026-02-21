@@ -1,29 +1,37 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchUserPage } from '../../api/userApi';
 import { USER_ROLE, USER_ROLE_OPTIONS, USER_STATUS, USER_STATUS_OPTIONS } from '../../constants/user';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './Users.css';
 
-const INITIAL_FILTERS = {
-  storeKeyword: '',
+const createInitialFilters = lockedStoreKeyword => ({
+  storeKeyword: lockedStoreKeyword || '',
   name: '',
   status: '',
   role: '',
   createdFrom: '',
   createdTo: '',
-};
+});
 
 export default function Users() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -33,6 +41,12 @@ export default function Users() {
   useEffect(() => {
     loadUsers(currentPage, query, pageSize);
   }, [currentPage, query, pageSize]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setCurrentPage(0);
+  }, [initialFilters]);
 
   const loadUsers = async (page, search, size) => {
     try {
@@ -66,19 +80,22 @@ export default function Users() {
 
   const handleFilterChange = e => {
     const { name, value } = e.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = e => {
     e.preventDefault();
     setCurrentPage(0);
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
+    setFilters(initialFilters);
     setCurrentPage(0);
-    setQuery(INITIAL_FILTERS);
+    setQuery(initialFilters);
   };
 
   const handlePageSizeChange = size => {
@@ -107,6 +124,7 @@ export default function Users() {
                 value: filters.storeKeyword,
                 onChange: handleFilterChange,
                 placeholder: '매장명 또는 매장코드',
+                disabled: isStoreAdmin,
               },
               {
                 name: 'name',

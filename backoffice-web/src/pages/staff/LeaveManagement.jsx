@@ -1,26 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './LeaveManagement.css';
 
 export default function LeaveManagement() {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const sessionUser = getSessionUser();
+    const isStoreAdmin = isStoreAdminUser(sessionUser);
+    const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
     const [leaveDate, setLeaveDate] = useState('');
     const [employee, setEmployee] = useState(null);
+    const [error, setError] = useState('');
 
     const fetchEmployee = async () => {
         try {
             const res = await api.get(`/api/users/${userId}`);
+            if (scopedStoreId != null && Number(res.data?.storeId) !== scopedStoreId) {
+                setError('본인 매장 직원만 조회할 수 있습니다.');
+                setEmployee(null);
+                return;
+            }
+            setError('');
             setEmployee(res.data);
         } catch (err) {
             console.error(err);
+            setError('직원 정보를 불러오지 못했습니다.');
         }
     };
 
     useEffect(() => {
         fetchEmployee();
-    }, [userId]);
+    }, [scopedStoreId, userId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +43,11 @@ export default function LeaveManagement() {
         }
 
         try {
+            if (scopedStoreId != null && Number(employee?.storeId) !== scopedStoreId) {
+                alert('본인 매장 직원만 휴가를 등록할 수 있습니다.');
+                return;
+            }
+
             await api.post('/api/attendance/leave', {
                 userId: Number(userId),
                 leaveDate
@@ -48,12 +65,13 @@ export default function LeaveManagement() {
     };
 
 
-    if (!employee) return <div style={{ textAlign: 'center', padding: '50px' }}>로딩중...</div>;
+    if (!employee) return <div style={{ textAlign: 'center', padding: '50px' }}>{error || '로딩중...'}</div>;
 
     return (
         <div className="leave-page">
             <div className="leave-container leave-card">
                 <h1>휴가 등록</h1>
+                {error && <div className="error-message">{error}</div>}
 
                 <div className="employee-card" style={{ marginBottom: '20px' }}>
                     <p><strong>직원 ID:</strong> {employee.id}</p>

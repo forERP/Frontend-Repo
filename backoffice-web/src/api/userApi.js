@@ -32,6 +32,18 @@ export const fetchUserDetail = async userId => {
   return response.data;
 };
 
+export const fetchCurrentUserProfile = async () => {
+  const response = await api.get('/api/users/me');
+  return response.data;
+};
+
+export const checkEmployeeCodeAvailable = async employeeCode => {
+  const response = await api.get('/api/users/check-employee-code', {
+    params: { employeeCode },
+  });
+  return Boolean(response.data?.available);
+};
+
 export const createUser = async payload => {
   const response = await api.post('/api/users', payload);
   return response.data;

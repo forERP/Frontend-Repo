@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchUserDetail } from '../../api/userApi';
 import { USER_ROLE, USER_STATUS } from '../../constants/user';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './UserDetail.css';
 
 export default function UserDetail() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -14,13 +18,18 @@ export default function UserDetail() {
 
   useEffect(() => {
     loadUser();
-  }, [userId]);
+  }, [scopedStoreId, userId]);
 
   const loadUser = async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await fetchUserDetail(userId);
+      if (scopedStoreId != null && Number(data?.storeId) !== scopedStoreId) {
+        setUser(null);
+        setError('본인 매장 직원만 조회할 수 있습니다.');
+        return;
+      }
       setUser(data);
     } catch (err) {
       console.error(err);

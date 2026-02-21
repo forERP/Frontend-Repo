@@ -1,23 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUser } from '../../api/userApi';
-import { fetchStores } from '../../api/storeApi';
+import { checkEmployeeCodeAvailable, createUser } from '../../api/userApi';
+import { fetchStoreDetail, fetchStores } from '../../api/storeApi';
 import { USER_ROLE_FORM_OPTIONS } from '../../constants/user';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './UserForm.css';
 
 export default function UserForm() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
 
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [employeeCodeCheck, setEmployeeCodeCheck] = useState({
+    checking: false,
+    checkedCode: '',
+    available: false,
+    message: '',
+  });
+
   const [formData, setFormData] = useState({
     loginId: '',
+    employeeCode: '',
     password: '',
     name: '',
     phoneNumber: '',
-    storeId: '',
+    storeId: isStoreAdmin && sessionUser?.storeId ? String(sessionUser.storeId) : '',
     role: 'STORE_HALL_STAFF',
   });
 
@@ -27,47 +38,117 @@ export default function UserForm() {
 
   const loadStores = async () => {
     try {
+      setError(null);
+
+      if (isStoreAdmin && sessionUser?.storeId) {
+        const store = await fetchStoreDetail(sessionUser.storeId);
+        setStores(store ? [store] : []);
+        setFormData(prev => ({ ...prev, storeId: String(sessionUser.storeId) }));
+        return;
+      }
+
       const data = await fetchStores();
-      setStores(data || []);
-      if (data?.length) {
-        setFormData(prev => ({ ...prev, storeId: String(data[0].id) }));
+      const normalized = data || [];
+      setStores(normalized);
+      if (!isStoreAdmin && normalized.length) {
+        setFormData(prev => ({ ...prev, storeId: String(normalized[0].id) }));
       }
     } catch (err) {
       console.error(err);
-      setError('ë§¤ì¥ ëª©ë¡ì„ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.');
+      setError('¸ÅÀå ¸ñ·ÏÀ» ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù.');
     }
+  };
+
+  const resetEmployeeCodeCheck = () => {
+    setEmployeeCodeCheck({
+      checking: false,
+      checkedCode: '',
+      available: false,
+      message: '',
+    });
   };
 
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'employeeCode') {
+      resetEmployeeCodeCheck();
+    }
+  };
+
+  const handleCheckEmployeeCode = async () => {
+    const normalizedEmployeeCode = formData.employeeCode.trim();
+    if (!normalizedEmployeeCode) {
+      setError('Á÷¿ø ÄÚµå¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      return;
+    }
+
+    try {
+      setError(null);
+      setEmployeeCodeCheck(prev => ({ ...prev, checking: true }));
+
+      const available = await checkEmployeeCodeAvailable(normalizedEmployeeCode);
+      setEmployeeCodeCheck({
+        checking: false,
+        checkedCode: normalizedEmployeeCode,
+        available,
+        message: available
+          ? '»ç¿ë °¡´ÉÇÑ Á÷¿ø ÄÚµåÀÔ´Ï´Ù.'
+          : 'ÀÌ¹Ì »ç¿ë ÁßÀÎ Á÷¿ø ÄÚµåÀÔ´Ï´Ù.',
+      });
+    } catch (err) {
+      console.error(err);
+      setEmployeeCodeCheck({
+        checking: false,
+        checkedCode: '',
+        available: false,
+        message: 'Á÷¿ø ÄÚµå Áßº¹ È®ÀÎ¿¡ ½ÇÆĞÇß½À´Ï´Ù.',
+      });
+    }
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
 
-    if (!formData.loginId.trim()) {
-      setError('ë¡œê·¸ì¸ IDë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
+    const normalizedLoginId = formData.loginId.trim();
+    const normalizedEmployeeCode = formData.employeeCode.trim();
+
+    if (!normalizedLoginId) {
+      setError('·Î±×ÀÎ ID¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      return;
+    }
+
+    if (!normalizedEmployeeCode) {
+      setError('Á÷¿ø ÄÚµå¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
       return;
     }
 
     if (!formData.password || formData.password.length < 8) {
-      setError('ë¹„ë°€ë²ˆí˜¸ëŠ” 8ì ì´ìƒì´ì–´ì•¼ í•©ë‹ˆë‹¤.');
+      setError('ºñ¹Ğ¹øÈ£´Â 8ÀÚ ÀÌ»óÀÌ¾î¾ß ÇÕ´Ï´Ù.');
       return;
     }
 
     if (!formData.name.trim()) {
-      setError('ì§ì›ëª…ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.');
+      setError('Á÷¿ø¸íÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.');
       return;
     }
 
     if (!formData.phoneNumber.trim()) {
-      setError('ì „í™”ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
+      setError('ÀüÈ­¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
       return;
     }
 
     if (!formData.storeId) {
-      setError('ë§¤ì¥ì„ ì„ íƒí•´ì£¼ì„¸ìš”.');
+      setError('¸ÅÀåÀ» ¼±ÅÃÇØÁÖ¼¼¿ä.');
+      return;
+    }
+
+    const isEmployeeCodeVerified =
+      employeeCodeCheck.checkedCode === normalizedEmployeeCode && employeeCodeCheck.available;
+
+    if (!isEmployeeCodeVerified) {
+      setError('Á÷¿ø ÄÚµå Áßº¹ È®ÀÎÀ» ¿Ï·áÇØÁÖ¼¼¿ä.');
       return;
     }
 
@@ -76,7 +157,8 @@ export default function UserForm() {
       setError(null);
 
       const result = await createUser({
-        loginId: formData.loginId.trim(),
+        loginId: normalizedLoginId,
+        employeeCode: normalizedEmployeeCode,
         password: formData.password,
         name: formData.name.trim(),
         phoneNumber: formData.phoneNumber.trim(),
@@ -87,7 +169,7 @@ export default function UserForm() {
       navigate(`/users/${result.id}`);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'ì§ì› ë“±ë¡ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+      setError(err.response?.data?.message || 'Á÷¿ø µî·Ï¿¡ ½ÇÆĞÇß½À´Ï´Ù.');
     } finally {
       setLoading(false);
     }
@@ -96,49 +178,75 @@ export default function UserForm() {
   return (
     <div className="user-form-page">
       <div className="user-form-container">
-        <h1>ì§ì› ë“±ë¡</h1>
+        <h1>Á÷¿ø µî·Ï</h1>
 
         <div className="form-card">
           {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleSubmit} className="user-form">
             <div className="form-group">
-              <label>ë¡œê·¸ì¸ ID *</label>
+              <label>·Î±×ÀÎ ID *</label>
               <input
                 name="loginId"
                 value={formData.loginId}
                 onChange={handleChange}
-                placeholder="ë¡œê·¸ì¸ IDë¥¼ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="·Î±×ÀÎ ID¸¦ ÀÔ·ÂÇÏ¼¼¿ä"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>ë¹„ë°€ë²ˆí˜¸ *</label>
+              <label>Á÷¿ø ÄÚµå *</label>
+              <div className="input-with-action">
+                <input
+                  name="employeeCode"
+                  value={formData.employeeCode}
+                  onChange={handleChange}
+                  placeholder="Á÷¿ø ÄÚµå"
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleCheckEmployeeCode}
+                  disabled={employeeCodeCheck.checking || !formData.employeeCode.trim()}
+                >
+                  {employeeCodeCheck.checking ? 'È®ÀÎ Áß...' : 'Áßº¹ È®ÀÎ'}
+                </button>
+              </div>
+              {employeeCodeCheck.message && (
+                <p className={employeeCodeCheck.available ? 'helper-text success' : 'helper-text error'}>
+                  {employeeCodeCheck.message}
+                </p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>ºñ¹Ğ¹øÈ£ *</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="8ì ì´ìƒ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="8ÀÚ ÀÌ»ó ÀÔ·ÂÇÏ¼¼¿ä"
                 minLength={8}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>ì§ì›ëª… *</label>
+              <label>Á÷¿ø¸í *</label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="ì§ì›ëª…ì„ ì…ë ¥í•˜ì„¸ìš”"
+                placeholder="Á÷¿ø¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>ì „í™”ë²ˆí˜¸ *</label>
+              <label>ÀüÈ­¹øÈ£ *</label>
               <input
                 name="phoneNumber"
                 value={formData.phoneNumber}
@@ -149,19 +257,25 @@ export default function UserForm() {
             </div>
 
             <div className="form-group">
-              <label>ë§¤ì¥ *</label>
-              <select name="storeId" value={formData.storeId} onChange={handleChange} required>
-                <option value="">ë§¤ì¥ ì„ íƒ</option>
+              <label>¸ÅÀå *</label>
+              <select
+                name="storeId"
+                value={formData.storeId}
+                onChange={handleChange}
+                required
+                disabled={isStoreAdmin}
+              >
+                <option value="">¸ÅÀå ¼±ÅÃ</option>
                 {stores.map(store => (
                   <option key={store.id} value={store.id}>
-                    {store.name} ({store.code})
+                    {store.name} ({store.code || store.storeCode || '-'})
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label>ì—­í•  *</label>
+              <label>¿ªÇÒ *</label>
               <select name="role" value={formData.role} onChange={handleChange} required>
                 {USER_ROLE_FORM_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
@@ -173,10 +287,10 @@ export default function UserForm() {
 
             <div className="form-buttons">
               <button type="submit" disabled={loading}>
-                {loading ? 'ë“±ë¡ ì¤‘...' : 'ë“±ë¡'}
+                {loading ? 'µî·Ï Áß...' : 'µî·Ï'}
               </button>
               <button type="button" onClick={() => navigate('/users')} disabled={loading}>
-                ì·¨ì†Œ
+                Ãë¼Ò
               </button>
             </div>
           </form>

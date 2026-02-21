@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createDiscard } from '../../api/discardApi';
 import { getAllProducts, getAllStores, getWarehouses } from '../../lib/dataApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './DiscardForm.css';
 
 const EMPTY_ITEM = { productId: '', qty: 1 };
-const INITIAL_FORM = {
-  storeId: '',
+
+const createInitialForm = storeId => ({
+  storeId: storeId ? String(storeId) : '',
   warehouseId: '',
   reason: '',
   items: [{ ...EMPTY_ITEM }],
-};
+});
 
 const parseProductList = payload => {
   if (!payload) return [];
@@ -22,14 +24,26 @@ const parseProductList = payload => {
 
 export default function DiscardForm() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? sessionUser.storeId : null;
+
   const [stores, setStores] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
 
-  const [form, setForm] = useState(INITIAL_FORM);
+  const [form, setForm] = useState(() => createInitialForm(scopedStoreId));
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      storeId: scopedStoreId ? String(scopedStoreId) : prev.storeId,
+      warehouseId: scopedStoreId && String(scopedStoreId) !== String(prev.storeId) ? '' : prev.warehouseId,
+    }));
+  }, [scopedStoreId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -37,13 +51,28 @@ export default function DiscardForm() {
     const loadOptions = async () => {
       try {
         setLoadingOptions(true);
-        const [storeResult, productResult] = await Promise.all([
-          getAllStores(),
-          getAllProducts(0, 300),
-        ]);
+        const [storeResult, productResult] = await Promise.all([getAllStores(), getAllProducts(0, 300)]);
 
         if (!isMounted) return;
-        setStores(Array.isArray(storeResult) ? storeResult : []);
+
+        const nextStores = Array.isArray(storeResult) ? storeResult : [];
+        if (isStoreAdmin && scopedStoreId) {
+          const scopedStores = nextStores.filter(store => Number(store.id) === Number(scopedStoreId));
+          if (scopedStores.length > 0) {
+            setStores(scopedStores);
+          } else {
+            setStores([
+              {
+                id: scopedStoreId,
+                name: sessionUser?.storeName || `매장 ${scopedStoreId}`,
+                code: sessionUser?.storeCode || '',
+              },
+            ]);
+          }
+        } else {
+          setStores(nextStores);
+        }
+
         setProducts(parseProductList(productResult));
       } catch (err) {
         console.error(err);
@@ -61,12 +90,12 @@ export default function DiscardForm() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isStoreAdmin, scopedStoreId, sessionUser?.storeCode, sessionUser?.storeName]);
 
   useEffect(() => {
     let isMounted = true;
 
-    const loadWarehouses = async () => {
+    const loadWarehouseOptions = async () => {
       if (!form.storeId) {
         setWarehouses([]);
         setForm(prev => ({ ...prev, warehouseId: '' }));
@@ -93,7 +122,7 @@ export default function DiscardForm() {
       }
     };
 
-    loadWarehouses();
+    loadWarehouseOptions();
     return () => {
       isMounted = false;
     };
@@ -101,15 +130,16 @@ export default function DiscardForm() {
 
   const handleFieldChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeId') {
+      return;
+    }
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleItemChange = (index, key, value) => {
     setForm(prev => ({
       ...prev,
-      items: prev.items.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, [key]: value } : item,
-      ),
+      items: prev.items.map((item, itemIndex) => (itemIndex === index ? { ...item, [key]: value } : item)),
     }));
   };
 
@@ -119,7 +149,9 @@ export default function DiscardForm() {
 
   const handleRemoveItem = index => {
     setForm(prev => {
-      if (prev.items.length === 1) return prev;
+      if (prev.items.length === 1) {
+        return prev;
+      }
       return {
         ...prev,
         items: prev.items.filter((_, itemIndex) => itemIndex !== index),
@@ -128,13 +160,13 @@ export default function DiscardForm() {
   };
 
   const validateForm = () => {
-    if (!form.storeId) return '매장을 선택해주세요.';
-    if (!form.warehouseId) return '창고를 선택해주세요.';
-    if (!form.items.length) return '폐기 상품을 한 개 이상 추가해주세요.';
+    if (!form.storeId) return '매장을 선택해 주세요.';
+    if (!form.warehouseId) return '창고를 선택해 주세요.';
+    if (!form.items.length) return '폐기 상품을 1개 이상 추가해 주세요.';
 
     const selectedProducts = new Set();
     for (const item of form.items) {
-      if (!item.productId) return '상품을 선택해주세요.';
+      if (!item.productId) return '상품을 선택해 주세요.';
 
       const qty = Number(item.qty);
       if (!Number.isInteger(qty) || qty <= 0) {
@@ -183,7 +215,7 @@ export default function DiscardForm() {
   };
 
   const handleReset = () => {
-    setForm(INITIAL_FORM);
+    setForm(createInitialForm(scopedStoreId));
     setError('');
   };
 
@@ -206,7 +238,7 @@ export default function DiscardForm() {
                   name="storeId"
                   value={form.storeId}
                   onChange={handleFieldChange}
-                  disabled={submitting}
+                  disabled={submitting || isStoreAdmin}
                 >
                   <option value="">매장을 선택하세요</option>
                   {stores.map(store => (

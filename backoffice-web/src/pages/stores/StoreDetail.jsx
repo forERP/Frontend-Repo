@@ -5,6 +5,7 @@ import { fetchWarehouses } from '../../api/warehouseApi';
 import AddressSearchMapField from '../../components/map/AddressSearchMapField';
 import SingleLocationMap from '../../components/map/SingleLocationMap';
 import StoreGroupMap from '../../components/map/StoreGroupMap';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './StoreDetail.css';
 
 const STATUS_LABEL = {
@@ -24,6 +25,7 @@ export default function StoreDetailPage() {
   const { id: storeId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [store, setStore] = useState(null);
   const [allStores, setAllStores] = useState([]);
@@ -52,10 +54,10 @@ export default function StoreDetailPage() {
   }, [storeId]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === '1') {
+    if (!isStoreAdmin && searchParams.get('edit') === '1') {
       setIsEditing(true);
     }
-  }, [searchParams]);
+  }, [isStoreAdmin, searchParams]);
 
   const loadStoreDetail = async () => {
     try {
@@ -64,7 +66,7 @@ export default function StoreDetailPage() {
       const data = await fetchStoreDetail(storeId);
       setStore(data);
       setEditForm({
-        name: data.name,
+        name: data.name || '',
         address: data.address || '',
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
@@ -91,9 +93,9 @@ export default function StoreDetailPage() {
     }
   };
 
-  const handleEditChange = (event) => {
+  const handleEditChange = event => {
     const { name, value } = event.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
+    setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSaveEdit = async () => {
@@ -126,22 +128,28 @@ export default function StoreDetailPage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    if (store) {
-      setEditForm({
-        name: store.name,
-        address: store.address || '',
-        latitude: store.latitude ?? null,
-        longitude: store.longitude ?? null,
-        phone: store.phone || '',
-        status: store.status || 'OPEN',
-      });
+    if (!store) {
+      return;
     }
+    setEditForm({
+      name: store.name || '',
+      address: store.address || '',
+      latitude: store.latitude ?? null,
+      longitude: store.longitude ?? null,
+      phone: store.phone || '',
+      status: store.status || 'OPEN',
+    });
   };
 
   const handleWarehouseManage = async () => {
+    if (isStoreAdmin) {
+      navigate('/warehouses');
+      return;
+    }
+
     try {
       const list = await fetchWarehouses(storeId);
-      if (list && list.length > 0) {
+      if (list?.length > 0) {
         navigate(`/warehouses/${list[0].warehouseId}`);
         return;
       }
@@ -156,8 +164,7 @@ export default function StoreDetailPage() {
     if (!store) {
       return allStores;
     }
-
-    const hasCurrentStore = (allStores || []).some((item) => Number(item.id) === Number(store.id));
+    const hasCurrentStore = (allStores || []).some(item => Number(item.id) === Number(store.id));
     return hasCurrentStore ? allStores : [...(allStores || []), store];
   }, [allStores, store]);
 
@@ -165,7 +172,7 @@ export default function StoreDetailPage() {
     if (!store) {
       return [];
     }
-    return (allWarehouses || []).filter((warehouse) => Number(warehouse.storeId) === Number(store.id));
+    return (allWarehouses || []).filter(warehouse => Number(warehouse.storeId) === Number(store.id));
   }, [allWarehouses, store]);
 
   if (loading && !store) {
@@ -209,7 +216,7 @@ export default function StoreDetailPage() {
         <div className="detail-card">
           {isEditing ? (
             <form
-              onSubmit={(event) => {
+              onSubmit={event => {
                 event.preventDefault();
                 handleSaveEdit();
               }}
@@ -237,21 +244,21 @@ export default function StoreDetailPage() {
                         address={editForm.address}
                         latitude={editForm.latitude}
                         longitude={editForm.longitude}
-                        onAddressChange={(nextAddress) =>
-                          setEditForm((prev) => ({
+                        onAddressChange={nextAddress =>
+                          setEditForm(prev => ({
                             ...prev,
                             address: nextAddress,
                           }))
                         }
                         onLocationChange={({ address, latitude, longitude }) =>
-                          setEditForm((prev) => ({
+                          setEditForm(prev => ({
                             ...prev,
                             address: address ?? prev.address,
                             latitude,
                             longitude,
                           }))
                         }
-                        placeholder="매장 주소를 입력해 검색하세요"
+                        placeholder="매장 주소를 입력하거나 검색하세요"
                       />
                     </td>
                   </tr>
@@ -275,7 +282,7 @@ export default function StoreDetailPage() {
                     <th>운영 상태</th>
                     <td>
                       <select name="status" value={editForm.status} onChange={handleEditChange}>
-                        {STATUS_OPTIONS.map((status) => (
+                        {STATUS_OPTIONS.map(status => (
                           <option key={status} value={status}>
                             {STATUS_LABEL[status]}
                           </option>
@@ -293,14 +300,8 @@ export default function StoreDetailPage() {
                 <button type="button" onClick={handleCancel} disabled={loading}>
                   취소
                 </button>
-                <button type="button" onClick={() => console.log('매출관리')}>
-                  매출관리
-                </button>
-                <button type="button" onClick={() => console.log('직원관리')}>
-                  직원관리
-                </button>
                 <button type="button" onClick={handleWarehouseManage}>
-                  창고관리
+                  창고 관리
                 </button>
               </div>
             </form>
@@ -343,7 +344,7 @@ export default function StoreDetailPage() {
                 latitude={store.latitude}
                 longitude={store.longitude}
                 title="현재 매장 위치"
-                emptyMessage="해당 매장의 위치 정보가 아직 저장되지 않았습니다."
+                emptyMessage="해당 매장의 위치 정보가 아직 등록되지 않았습니다."
               />
 
               <StoreGroupMap
@@ -356,20 +357,16 @@ export default function StoreDetailPage() {
               />
 
               <div className="form-buttons detail-form-buttons">
-                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
-                  수정
-                </button>
+                {!isStoreAdmin && (
+                  <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
+                    수정
+                  </button>
+                )}
                 <button type="button" onClick={() => navigate('/stores')}>
                   목록
                 </button>
-                <button type="button" onClick={() => console.log('매출관리')}>
-                  매출관리
-                </button>
-                <button type="button" onClick={() => console.log('직원관리')}>
-                  직원관리
-                </button>
                 <button type="button" onClick={handleWarehouseManage}>
-                  창고관리
+                  창고 관리
                 </button>
               </div>
             </>

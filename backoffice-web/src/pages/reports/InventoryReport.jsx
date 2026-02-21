@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchInventoryReport } from '../../api/reportApi';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './InventoryReport.css';
 
@@ -15,10 +16,10 @@ const MOVEMENT_OPTIONS = [
   { value: 'OUTBOUND', label: '출고' },
 ];
 
-const createInitialFilters = () => ({
+const createInitialFilters = lockedStoreKeyword => ({
   groupBy: 'product',
   movementType: 'ALL',
-  storeKeyword: '',
+  storeKeyword: lockedStoreKeyword || '',
   from: '',
   to: '',
 });
@@ -33,16 +34,24 @@ const EMPTY_REPORT = {
   totalRows: 0,
 };
 
-const formatNumber = value => toNumber(value).toLocaleString('ko-KR');
-
 const toNumber = value => {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
+const formatNumber = value => toNumber(value).toLocaleString('ko-KR');
+
 export default function InventoryReport() {
-  const [filters, setFilters] = useState(createInitialFilters);
-  const [query, setQuery] = useState(createInitialFilters);
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
+
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
   const [report, setReport] = useState(EMPTY_REPORT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -75,8 +84,17 @@ export default function InventoryReport() {
     };
   }, [query]);
 
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setError('');
+  }, [initialFilters]);
+
   const handleFilterChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -89,11 +107,10 @@ export default function InventoryReport() {
     }
 
     setError('');
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    const initialFilters = createInitialFilters();
     setFilters(initialFilters);
     setQuery(initialFilters);
     setError('');
@@ -135,6 +152,7 @@ export default function InventoryReport() {
               value: filters.storeKeyword,
               onChange: handleFilterChange,
               placeholder: '매장명 또는 매장코드',
+              disabled: isStoreAdmin,
             },
             {
               name: 'createdRange',

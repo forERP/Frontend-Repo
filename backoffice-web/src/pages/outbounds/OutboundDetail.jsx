@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { arriveOutboundShipment, confirmOutbound, fetchOutboundDetail } from '../../api/outboundApi';
 import { fetchShipmentCarriers } from '../../api/shipmentApi';
 import { OUTBOUND_STATUS, SHIPMENT_STATUS } from '../../constants/status';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './OutboundDetail.css';
 
@@ -47,6 +48,9 @@ const normalizeCarrierOptions = carriers => {
 export default function OutboundDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [outbound, setOutbound] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -59,7 +63,7 @@ export default function OutboundDetail() {
 
   useEffect(() => {
     loadOutboundDetail();
-  }, [id]);
+  }, [id, scopedStoreId]);
 
   useEffect(() => {
     if (!showConfirmModal) {
@@ -73,6 +77,11 @@ export default function OutboundDetail() {
       setLoading(true);
       setError(null);
       const data = await fetchOutboundDetail(id);
+      if (scopedStoreId != null && Number(data?.storeId) !== scopedStoreId) {
+        setOutbound(null);
+        setError('본인 매장 출고만 조회할 수 있습니다.');
+        return;
+      }
       setOutbound(data);
     } catch (err) {
       console.error(err);

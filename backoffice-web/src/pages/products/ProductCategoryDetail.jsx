@@ -1,12 +1,14 @@
 ﻿import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchCategoryDetail, updateCategory } from '../../api/categoryApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './ProductCategoryDetail.css';
 
 export default function ProductCategoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,10 +27,10 @@ export default function ProductCategoryDetail() {
   }, [id]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === '1') {
+    if (!isStoreAdmin && searchParams.get('edit') === '1') {
       setIsEditing(true);
     }
-  }, [searchParams]);
+  }, [isStoreAdmin, searchParams]);
 
   const loadCategory = async () => {
     try {
@@ -286,14 +288,16 @@ export default function ProductCategoryDetail() {
               </div>
 
               <div className="form-buttons detail-form-buttons">
-                <button
-                  type="button"
-                  className="primary-action"
-                  onClick={() => setIsEditing(true)}
-                  disabled={loading}
-                >
-                  수정
-                </button>
+                {!isStoreAdmin && (
+                  <button
+                    type="button"
+                    className="primary-action"
+                    onClick={() => setIsEditing(true)}
+                    disabled={loading}
+                  >
+                    수정
+                  </button>
+                )}
                 <button type="button" onClick={() => navigate('/product-categories')}>
                   목록
                 </button>
@@ -305,4 +309,6 @@ export default function ProductCategoryDetail() {
     </div>
   );
 }
+
+
 

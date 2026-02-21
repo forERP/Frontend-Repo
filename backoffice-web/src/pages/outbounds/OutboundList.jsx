@@ -1,29 +1,37 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchOutboundPage } from '../../api/outboundApi';
 import { OUTBOUND_STATUS, SHIPMENT_STATUS } from '../../constants/status';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './OutboundList.css';
 
-const INITIAL_FILTERS = {
-  storeKeyword: '',
+const createInitialFilters = lockedStoreKeyword => ({
+  storeKeyword: lockedStoreKeyword || '',
   status: '',
   shipmentStatus: '',
   from: '',
   to: '',
-};
+});
 
 export default function OutboundList() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
+  const initialFilters = useMemo(
+    () => createInitialFilters(isStoreAdmin ? lockedStoreKeyword : ''),
+    [isStoreAdmin, lockedStoreKeyword],
+  );
 
   const [outbounds, setOutbounds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -33,6 +41,12 @@ export default function OutboundList() {
   useEffect(() => {
     loadOutbounds(currentPage, query, pageSize);
   }, [currentPage, query, pageSize]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setCurrentPage(0);
+  }, [initialFilters]);
 
   const loadOutbounds = async (page, search, size) => {
     try {
@@ -65,19 +79,22 @@ export default function OutboundList() {
 
   const handleFilterChange = e => {
     const { name, value } = e.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = e => {
     e.preventDefault();
     setCurrentPage(0);
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
+    setFilters(initialFilters);
     setCurrentPage(0);
-    setQuery(INITIAL_FILTERS);
+    setQuery(initialFilters);
   };
 
   const handlePageSizeChange = size => {
@@ -102,6 +119,7 @@ export default function OutboundList() {
               value: filters.storeKeyword,
               onChange: handleFilterChange,
               placeholder: '매장명 또는 매장코드',
+              disabled: isStoreAdmin,
             },
             {
               name: 'status',

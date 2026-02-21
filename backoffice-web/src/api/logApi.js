@@ -5,7 +5,6 @@ export const fetchAdminLogPage = async ({
   size = 10,
   actorKeyword = '',
   action = '',
-  targetType = '',
   from = '',
   to = '',
 } = {}) => {
@@ -13,7 +12,6 @@ export const fetchAdminLogPage = async ({
 
   if (actorKeyword?.trim()) params.actorKeyword = actorKeyword.trim()
   if (action) params.action = action
-  if (targetType) params.targetType = targetType
   if (from) params.from = from
   if (to) params.to = to
 

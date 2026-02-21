@@ -3,12 +3,14 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchSupplierDetail, updateSupplier } from '../../api/supplierApi';
 import AddressSearchMapField from '../../components/map/AddressSearchMapField';
 import SingleLocationMap from '../../components/map/SingleLocationMap';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './SupplierDetail.css';
 
 export default function SupplierDetailPage() {
   const { id: supplierId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isStoreAdmin = isStoreAdminUser(getSessionUser());
 
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -30,10 +32,10 @@ export default function SupplierDetailPage() {
   }, [supplierId]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === '1') {
+    if (!isStoreAdmin && searchParams.get('edit') === '1') {
       setIsEditing(true);
     }
-  }, [searchParams]);
+  }, [isStoreAdmin, searchParams]);
 
   const loadSupplierDetail = async () => {
     try {
@@ -59,9 +61,9 @@ export default function SupplierDetailPage() {
     }
   };
 
-  const handleEditChange = (event) => {
+  const handleEditChange = event => {
     const { name, value } = event.target;
-    setEditForm((prev) => ({
+    setEditForm(prev => ({
       ...prev,
       [name]: name === 'active' ? value === 'true' : value,
     }));
@@ -93,18 +95,19 @@ export default function SupplierDetailPage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    if (supplier) {
-      setEditForm({
-        name: supplier.name || '',
-        contactName: supplier.contactName || '',
-        contactPhone: supplier.contactPhone || '',
-        contactEmail: supplier.contactEmail || '',
-        address: supplier.address || '',
-        latitude: supplier.latitude ?? null,
-        longitude: supplier.longitude ?? null,
-        active: Boolean(supplier.active),
-      });
+    if (!supplier) {
+      return;
     }
+    setEditForm({
+      name: supplier.name || '',
+      contactName: supplier.contactName || '',
+      contactPhone: supplier.contactPhone || '',
+      contactEmail: supplier.contactEmail || '',
+      address: supplier.address || '',
+      latitude: supplier.latitude ?? null,
+      longitude: supplier.longitude ?? null,
+      active: Boolean(supplier.active),
+    });
   };
 
   if (loading && !supplier) {
@@ -147,7 +150,7 @@ export default function SupplierDetailPage() {
         <div className="detail-card">
           {isEditing ? (
             <form
-              onSubmit={(event) => {
+              onSubmit={event => {
                 event.preventDefault();
                 handleSaveEdit();
               }}
@@ -172,25 +175,24 @@ export default function SupplierDetailPage() {
                     </td>
                   </tr>
                   <tr>
-                    <th>연락처</th>
+                    <th>담당자 연락처</th>
                     <td>
                       <input
                         name="contactPhone"
                         value={editForm.contactPhone}
                         onChange={handleEditChange}
-                        placeholder="연락처"
+                        placeholder="담당자 연락처"
                       />
                     </td>
                   </tr>
                   <tr>
-                    <th>이메일</th>
+                    <th>담당자 이메일</th>
                     <td>
                       <input
                         name="contactEmail"
-                        type="email"
                         value={editForm.contactEmail}
                         onChange={handleEditChange}
-                        placeholder="이메일"
+                        placeholder="담당자 이메일"
                       />
                     </td>
                   </tr>
@@ -201,16 +203,16 @@ export default function SupplierDetailPage() {
                         address={editForm.address}
                         latitude={editForm.latitude}
                         longitude={editForm.longitude}
-                        onAddressChange={(nextAddress) => setEditForm((prev) => ({ ...prev, address: nextAddress }))}
+                        onAddressChange={nextAddress => setEditForm(prev => ({ ...prev, address: nextAddress }))}
                         onLocationChange={({ address, latitude, longitude }) =>
-                          setEditForm((prev) => ({
+                          setEditForm(prev => ({
                             ...prev,
                             address: address ?? prev.address,
                             latitude,
                             longitude,
                           }))
                         }
-                        placeholder="거래처 주소를 입력해 검색하세요"
+                        placeholder="거래처 주소를 입력하거나 검색하세요"
                       />
                     </td>
                   </tr>
@@ -222,10 +224,6 @@ export default function SupplierDetailPage() {
                         <option value="false">비활성</option>
                       </select>
                     </td>
-                  </tr>
-                  <tr>
-                    <th>생성일</th>
-                    <td>{supplier.createdAt ? new Date(supplier.createdAt).toLocaleString('ko-KR') : '-'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -245,18 +243,18 @@ export default function SupplierDetailPage() {
                 <tbody>
                   <tr>
                     <th>거래처명</th>
-                    <td>{supplier.name}</td>
+                    <td>{supplier.name || '-'}</td>
                   </tr>
                   <tr>
                     <th>담당자명</th>
                     <td>{supplier.contactName || '-'}</td>
                   </tr>
                   <tr>
-                    <th>연락처</th>
+                    <th>담당자 연락처</th>
                     <td>{supplier.contactPhone || '-'}</td>
                   </tr>
                   <tr>
-                    <th>이메일</th>
+                    <th>담당자 이메일</th>
                     <td>{supplier.contactEmail || '-'}</td>
                   </tr>
                   <tr>
@@ -271,10 +269,6 @@ export default function SupplierDetailPage() {
                       </span>
                     </td>
                   </tr>
-                  <tr>
-                    <th>생성일</th>
-                    <td>{supplier.createdAt ? new Date(supplier.createdAt).toLocaleString('ko-KR') : '-'}</td>
-                  </tr>
                 </tbody>
               </table>
 
@@ -282,13 +276,15 @@ export default function SupplierDetailPage() {
                 latitude={supplier.latitude}
                 longitude={supplier.longitude}
                 title="거래처 위치"
-                emptyMessage="저장된 거래처 위치 정보가 없습니다."
+                emptyMessage="등록된 거래처 위치 정보가 없습니다."
               />
 
               <div className="form-buttons detail-form-buttons">
-                <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
-                  수정
-                </button>
+                {!isStoreAdmin && (
+                  <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
+                    수정
+                  </button>
+                )}
                 <button type="button" onClick={() => navigate('/suppliers')}>
                   목록
                 </button>

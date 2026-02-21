@@ -6,20 +6,25 @@ import { SHIPMENT_STATUS } from '../../constants/status';
 import { getAllStores, getWarehouses } from '../../lib/dataApi';
 import { subscribeAdminRealtime } from '../../lib/realtime';
 import { fetchShipmentPage } from '../../api/shipmentApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './Shipments.css';
 
-const INITIAL_FILTERS = {
+const createInitialFilters = storeId => ({
   flowType: '',
-  storeId: '',
+  storeId: storeId ? String(storeId) : '',
   warehouseId: '',
   shipmentStatus: '',
   from: '',
   to: '',
-};
+});
 
 export default function Shipments() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? sessionUser.storeId : null;
+  const initialFilters = useMemo(() => createInitialFilters(scopedStoreId), [scopedStoreId]);
 
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,8 +33,8 @@ export default function Shipments() {
   const [stores, setStores] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
@@ -38,18 +43,25 @@ export default function Shipments() {
 
   useEffect(() => {
     loadStores();
-  }, []);
+  }, [isStoreAdmin, scopedStoreId]);
 
   useEffect(() => {
-    loadWarehouses(query.storeId || null);
-  }, [query.storeId]);
+    loadWarehouses(query.storeId || scopedStoreId || null);
+  }, [query.storeId, scopedStoreId]);
 
   useEffect(() => {
     loadShipments(currentPage, query, pageSize);
   }, [currentPage, query, pageSize]);
 
   useEffect(() => {
+    setFilters(initialFilters);
+    setQuery(initialFilters);
+    setCurrentPage(0);
+  }, [initialFilters]);
+
+  useEffect(() => {
     const unsubscribe = subscribeAdminRealtime({
+      storeId: scopedStoreId,
       onEvent: event => {
         if (event.type === 'shipment.changed') {
           loadShipments(currentPage, query, pageSize);
@@ -58,15 +70,44 @@ export default function Shipments() {
     });
 
     return () => unsubscribe();
-  }, [currentPage, query, pageSize]);
+  }, [currentPage, query, pageSize, scopedStoreId]);
 
   const loadStores = async () => {
     try {
       const data = await getAllStores();
-      setStores(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+
+      if (isStoreAdmin && scopedStoreId) {
+        const scoped = list.filter(store => Number(store.id) === Number(scopedStoreId));
+        if (scoped.length > 0) {
+          setStores(scoped);
+          return;
+        }
+
+        setStores([
+          {
+            id: scopedStoreId,
+            name: sessionUser?.storeName || `매장 ${scopedStoreId}`,
+            code: sessionUser?.storeCode || '',
+          },
+        ]);
+        return;
+      }
+
+      setStores(list);
     } catch (err) {
       console.warn('매장 목록 조회 실패:', err);
-      setStores([]);
+      if (isStoreAdmin && scopedStoreId) {
+        setStores([
+          {
+            id: scopedStoreId,
+            name: sessionUser?.storeName || `매장 ${scopedStoreId}`,
+            code: sessionUser?.storeCode || '',
+          },
+        ]);
+      } else {
+        setStores([]);
+      }
     }
   };
 
@@ -110,8 +151,12 @@ export default function Shipments() {
     }
   };
 
-  const handleFilterChange = e => {
-    const { name, value } = e.target;
+  const handleFilterChange = event => {
+    const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeId') {
+      return;
+    }
+
     setFilters(prev => {
       if (name === 'storeId') {
         return { ...prev, storeId: value, warehouseId: '' };
@@ -124,17 +169,17 @@ export default function Shipments() {
     }
   };
 
-  const handleSearch = e => {
-    e.preventDefault();
+  const handleSearch = event => {
+    event.preventDefault();
     setCurrentPage(0);
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeId: String(scopedStoreId || '') } : { ...filters });
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
-    setQuery(INITIAL_FILTERS);
+    setFilters(initialFilters);
+    setQuery(initialFilters);
     setCurrentPage(0);
-    loadWarehouses(null);
+    loadWarehouses(isStoreAdmin ? scopedStoreId : null);
   };
 
   const handlePageSizeChange = size => {
@@ -193,6 +238,7 @@ export default function Shipments() {
               value: filters.storeId,
               onChange: handleFilterChange,
               options: storeOptions,
+              disabled: isStoreAdmin,
             },
             {
               name: 'warehouseId',
@@ -252,11 +298,15 @@ export default function Shipments() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="empty-cell">로딩 중...</td>
+                <td colSpan={7} className="empty-cell">
+                  로딩 중...
+                </td>
               </tr>
             ) : shipments.length === 0 ? (
               <tr>
-                <td colSpan={7} className="empty-cell">조회 결과가 없습니다.</td>
+                <td colSpan={7} className="empty-cell">
+                  조회 결과가 없습니다.
+                </td>
               </tr>
             ) : (
               shipments.map(shipment => (

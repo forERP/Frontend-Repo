@@ -3,7 +3,15 @@ import axios from 'axios';
 // 개발 환경: http://localhost:8089 직접 접근
 // 프로덕션/Docker: 빈 문자열 (NginX 프록시를 통해 /api로 요청)
 const baseURL = import.meta.env.DEV ? 'http://localhost:8089' : '';
-const AUTH_SESSION_KEYS = ['accessToken', 'userRole', 'userId'];
+const AUTH_SESSION_KEYS = [
+    'accessToken',
+    'userRole',
+    'userId',
+    'userName',
+    'userStoreId',
+    'userStoreName',
+    'userStoreCode',
+];
 
 function clearAuthSession() {
     AUTH_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));

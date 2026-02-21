@@ -2,24 +2,28 @@
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
-import { fetchStorePage } from '../../api/storeApi';
+import { fetchStoreDetail, fetchStorePage } from '../../api/storeApi';
 import { STORE_STATUS } from '../../constants/status';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './StoreList.css';
 
-const INITIAL_FILTERS = {
-  keyword: '',
+const createInitialFilters = sessionUser => ({
+  keyword: isStoreAdminUser(sessionUser) ? getLockedStoreKeyword(sessionUser) : '',
   status: '',
-};
+});
 
 export default function StoreListPage() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const initialFilters = createInitialFilters(sessionUser);
 
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(initialFilters);
+  const [query, setQuery] = useState(initialFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -34,6 +38,17 @@ export default function StoreListPage() {
     try {
       setLoading(true);
       setError(null);
+
+      if (isStoreAdmin && sessionUser?.storeId) {
+        const ownStore = await fetchStoreDetail(sessionUser.storeId);
+        const passStatus = !search.status || ownStore.status === search.status;
+        const ownStores = passStatus ? [ownStore] : [];
+
+        setStores(ownStores);
+        setTotalPages(1);
+        setTotalElements(ownStores.length);
+        return;
+      }
 
       const data = await fetchStorePage({
         page,
@@ -58,6 +73,9 @@ export default function StoreListPage() {
 
   const handleFilterChange = e => {
     const { name, value } = e.target;
+    if (isStoreAdmin && name === 'keyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -68,9 +86,10 @@ export default function StoreListPage() {
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
+    const next = createInitialFilters(sessionUser);
+    setFilters(next);
     setCurrentPage(0);
-    setQuery(INITIAL_FILTERS);
+    setQuery(next);
   };
 
   const handlePageSizeChange = nextSize => {
@@ -83,9 +102,11 @@ export default function StoreListPage() {
       <div className="store-container">
         <div className="page-header">
           <h1 className="page-title">매장 목록</h1>
-          <button className="create-btn" onClick={() => navigate('/stores/create')}>
-            매장 등록
-          </button>
+          {!isStoreAdmin && (
+            <button className="create-btn" onClick={() => navigate('/stores/create')}>
+              매장 등록
+            </button>
+          )}
         </div>
 
         <div className="card filter-card">
@@ -98,6 +119,7 @@ export default function StoreListPage() {
                 value: filters.keyword,
                 onChange: handleFilterChange,
                 placeholder: '매장명 또는 매장코드',
+                disabled: isStoreAdmin,
               },
               {
                 name: 'status',
@@ -135,13 +157,13 @@ export default function StoreListPage() {
                     <th>주소</th>
                     <th>전화번호</th>
                     <th>운영 상태</th>
-                    <th className="actions-col">작업</th>
+                    {!isStoreAdmin && <th className="actions-col">작업</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {stores.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="empty-cell">
+                      <td colSpan={isStoreAdmin ? 5 : 6} className="empty-cell">
                         검색 결과가 없습니다.
                       </td>
                     </tr>
@@ -167,17 +189,19 @@ export default function StoreListPage() {
                             {STORE_STATUS[store.status]?.label || store.status}
                           </span>
                         </td>
-                        <td className="actions-cell">
-                          <button
-                            className="edit-btn"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(`/stores/${store.id}?edit=1`);
-                            }}
-                          >
-                            수정
-                          </button>
-                        </td>
+                        {!isStoreAdmin && (
+                          <td className="actions-cell">
+                            <button
+                              className="edit-btn"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/stores/${store.id}?edit=1`);
+                              }}
+                            >
+                              수정
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -198,3 +222,4 @@ export default function StoreListPage() {
     </div>
   );
 }
+

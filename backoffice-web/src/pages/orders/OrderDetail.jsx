@@ -3,12 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchOrderDetail } from '../../api/orderApi';
 import { fetchProductDetail } from '../../api/productApi';
 import { ORDER_STATUS } from '../../constants/status';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import '../purchase/request/purchase.css';
 import './OrderDetail.css';
 
 export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [order, setOrder] = useState(null);
   const [productSkuMap, setProductSkuMap] = useState({});
@@ -17,7 +21,7 @@ export default function OrderDetail() {
 
   useEffect(() => {
     loadOrderDetail();
-  }, [id]);
+  }, [id, scopedStoreId]);
 
   useEffect(() => {
     loadItemProducts();
@@ -28,6 +32,11 @@ export default function OrderDetail() {
       setLoading(true);
       setError(null);
       const data = await fetchOrderDetail(id);
+      if (scopedStoreId != null && Number(data?.storeId) !== scopedStoreId) {
+        setOrder(null);
+        setError('본인 매장 주문만 조회할 수 있습니다.');
+        return;
+      }
       setOrder(data);
     } catch (err) {
       console.error(err);

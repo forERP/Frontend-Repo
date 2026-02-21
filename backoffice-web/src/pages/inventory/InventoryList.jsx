@@ -4,6 +4,7 @@ import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchInventoryPage, updateInventorySaleStatus } from '../../api/inventoryApi';
 import { subscribeAdminRealtime } from '../../lib/realtime';
+import { getLockedStoreKeyword, getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './InventoryList.css';
 
 const DEFAULT_FILTERS = {
@@ -80,9 +81,27 @@ const formatStoreProductDisplay = item => {
 export default function InventoryList() {
   const location = useLocation();
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const lockedStoreKeyword = getLockedStoreKeyword(sessionUser);
   const { storeId } = useParams();
   const routeStoreId = useMemo(() => normalizeNumericId(storeId), [storeId]);
-  const prefilledFilters = useMemo(() => buildFiltersFromSearch(location.search), [location.search]);
+
+  const scopedStoreId = useMemo(
+    () => (isStoreAdmin && sessionUser?.storeId ? sessionUser.storeId : routeStoreId),
+    [isStoreAdmin, routeStoreId, sessionUser?.storeId],
+  );
+
+  const prefilledFilters = useMemo(() => {
+    const parsed = buildFiltersFromSearch(location.search);
+    if (!isStoreAdmin) {
+      return parsed;
+    }
+    return {
+      ...parsed,
+      storeKeyword: lockedStoreKeyword,
+    };
+  }, [isStoreAdmin, location.search, lockedStoreKeyword]);
 
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -101,36 +120,39 @@ export default function InventoryList() {
     setFilters(prefilledFilters);
     setQuery(prefilledFilters);
     setCurrentPage(0);
-  }, [routeStoreId, prefilledFilters]);
+  }, [scopedStoreId, prefilledFilters]);
 
-  const loadInventory = useCallback(async (page, search, size) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadInventory = useCallback(
+    async (page, search, size) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const data = await fetchInventoryPage({
-        page,
-        size,
-        storeId: routeStoreId ?? '',
-        storeKeyword: search.storeKeyword,
-        warehouseKeyword: search.warehouseKeyword,
-        productKeyword: search.productKeyword,
-        saleStatus: search.saleStatus,
-      });
+        const data = await fetchInventoryPage({
+          page,
+          size,
+          storeId: scopedStoreId ?? '',
+          storeKeyword: search.storeKeyword,
+          warehouseKeyword: search.warehouseKeyword,
+          productKeyword: search.productKeyword,
+          saleStatus: search.saleStatus,
+        });
 
-      setInventories(data.content || []);
-      setTotalPages(data.totalPages || 0);
-      setTotalElements(data.totalElements || 0);
-    } catch (err) {
-      console.error(err);
-      setError('재고 목록 조회에 실패했습니다.');
-      setInventories([]);
-      setTotalPages(0);
-      setTotalElements(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [routeStoreId]);
+        setInventories(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      } catch (err) {
+        console.error(err);
+        setError('재고 목록 조회에 실패했습니다.');
+        setInventories([]);
+        setTotalPages(0);
+        setTotalElements(0);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [scopedStoreId],
+  );
 
   useEffect(() => {
     loadInventory(currentPage, query, pageSize);
@@ -138,7 +160,7 @@ export default function InventoryList() {
 
   useEffect(() => {
     const unsubscribe = subscribeAdminRealtime({
-      storeId: routeStoreId,
+      storeId: scopedStoreId,
       onEvent: ({ type }) => {
         if (type === 'inventory.changed' || type === 'connected') {
           loadInventory(currentPage, query, pageSize);
@@ -147,17 +169,20 @@ export default function InventoryList() {
     });
 
     return unsubscribe;
-  }, [routeStoreId, currentPage, pageSize, query, loadInventory]);
+  }, [scopedStoreId, currentPage, pageSize, query, loadInventory]);
 
   const handleFilterChange = event => {
     const { name, value } = event.target;
+    if (isStoreAdmin && name === 'storeKeyword') {
+      return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = event => {
     event.preventDefault();
     setCurrentPage(0);
-    setQuery({ ...filters });
+    setQuery(isStoreAdmin ? { ...filters, storeKeyword: lockedStoreKeyword } : { ...filters });
   };
 
   const handleReset = () => {
@@ -186,9 +211,8 @@ export default function InventoryList() {
     }
 
     const nextStatus = item.saleStatus === 'ON' ? 'OFF' : 'ON';
-
     const { storeLabel, productLabel } = formatStoreProductDisplay(item);
-    const discontinueMessage = `'${storeLabel}'의 '${productLabel}'을(를) 판매 중지 처리하시겠습니까?`;
+    const discontinueMessage = `'${storeLabel}'의 '${productLabel}'을 판매중지 처리하시겠습니까?`;
 
     if (nextStatus === 'OFF' && !window.confirm(discontinueMessage)) {
       return;
@@ -236,6 +260,7 @@ export default function InventoryList() {
                 onChange: handleFilterChange,
                 placeholder: '매장명 또는 매장코드',
                 className: 'inventory-filter-store',
+                disabled: isStoreAdmin,
               },
               {
                 name: 'warehouseKeyword',
@@ -322,14 +347,10 @@ export default function InventoryList() {
                       onClick={() => handleRowClick(item.storeProductId)}
                     >
                       <td title={item.storeName || '-'}>{item.storeName || '-'}</td>
-                      <td title={item.warehouseName || '-'}>
-                        {item.warehouseName || '-'}
-                      </td>
+                      <td title={item.warehouseName || '-'}>{item.warehouseName || '-'}</td>
                       <td title={item.productName || '-'}>{item.productName || '-'}</td>
                       <td title={String(item.onHand ?? 0)}>{item.onHand ?? 0}</td>
-                      <td title={formatPrice(item.salePrice, item.productPrice)}>
-                        {formatPrice(item.salePrice, item.productPrice)}
-                      </td>
+                      <td title={formatPrice(item.salePrice, item.productPrice)}>{formatPrice(item.salePrice, item.productPrice)}</td>
                       <td>
                         <span
                           className="status-badge"

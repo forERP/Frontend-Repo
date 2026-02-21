@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchStores } from '../../api/storeApi';
+import { fetchStoreDetail, fetchStores } from '../../api/storeApi';
 import { fetchUserDetail, updateUser } from '../../api/userApi';
 import { USER_ROLE_FORM_OPTIONS, USER_STATUS_OPTIONS } from '../../constants/user';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './UserUpdate.css';
 
 export default function UserUpdate() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,17 +34,28 @@ export default function UserUpdate() {
 
   useEffect(() => {
     loadPageData();
-  }, [userId]);
+  }, [scopedStoreId, userId]);
 
   const loadPageData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [user, storeList] = await Promise.all([
-        fetchUserDetail(userId),
-        fetchStores(),
-      ]);
+      const user = await fetchUserDetail(userId);
+
+      if (scopedStoreId != null && Number(user?.storeId) !== scopedStoreId) {
+        setError('본인 매장 직원만 수정할 수 있습니다.');
+        setLoaded(true);
+        return;
+      }
+
+      let storeList = [];
+      if (isStoreAdmin && scopedStoreId != null) {
+        const ownStore = await fetchStoreDetail(scopedStoreId);
+        storeList = ownStore ? [ownStore] : [];
+      } else {
+        storeList = await fetchStores();
+      }
 
       setStores(storeList || []);
       setDisplayInfo({
@@ -87,6 +102,11 @@ export default function UserUpdate() {
       return;
     }
 
+    if (scopedStoreId != null && Number(formData.storeId) !== scopedStoreId) {
+      setError('본인 매장 직원만 수정할 수 있습니다.');
+      return;
+    }
+
     if (formData.password && formData.password.length < 8) {
       setError('비밀번호를 변경하려면 8자 이상 입력해주세요.');
       return;
@@ -124,6 +144,24 @@ export default function UserUpdate() {
         <div className="user-update-container">
           <h1>직원 수정</h1>
           <div className="form-card loading-box">로딩 중...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loaded && error && !displayInfo.loginId) {
+    return (
+      <div className="user-update-page">
+        <div className="user-update-container">
+          <h1>직원 수정</h1>
+          <div className="form-card">
+            <div className="error-message">{error}</div>
+            <div className="form-buttons">
+              <button type="button" onClick={() => navigate('/users')}>
+                목록
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -184,11 +222,11 @@ export default function UserUpdate() {
 
             <div className="form-group">
               <label>매장 *</label>
-              <select name="storeId" value={formData.storeId} onChange={handleChange} required>
+              <select name="storeId" value={formData.storeId} onChange={handleChange} required disabled={isStoreAdmin}>
                 <option value="">매장 선택</option>
                 {stores.map(store => (
                   <option key={store.id} value={store.id}>
-                    {store.name} ({store.code})
+                    {store.name} ({store.code || store.storeCode || '-'})
                   </option>
                 ))}
               </select>

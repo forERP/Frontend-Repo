@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchCategoryPage } from '../../api/categoryApi';
+import { getSessionUser, isStoreAdminUser } from '../../utils/auth';
 import './ProductCategoryList.css';
 
 const INITIAL_FILTERS = {
@@ -12,6 +13,8 @@ const INITIAL_FILTERS = {
 
 export default function ProductCategoryList() {
   const navigate = useNavigate();
+  const sessionUser = getSessionUser();
+  const isStoreAdmin = isStoreAdminUser(sessionUser);
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -87,9 +90,11 @@ export default function ProductCategoryList() {
       <div className="product-container">
         <div className="page-header">
           <h1 className="page-title">카테고리 조회</h1>
-          <button className="create-btn" onClick={() => navigate('/product-categories/new')}>
-            카테고리 등록
-          </button>
+          {!isStoreAdmin && (
+            <button className="create-btn" onClick={() => navigate('/product-categories/new')}>
+              카테고리 등록
+            </button>
+          )}
         </div>
 
         <div className="card filter-card">
@@ -136,19 +141,19 @@ export default function ProductCategoryList() {
                 <th>카테고리명</th>
                 <th>설명</th>
                 <th>상태</th>
-                <th className="actions-col">작업</th>
+                {!isStoreAdmin && <th className="actions-col">작업</th>}
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="empty-cell">
+                  <td colSpan={isStoreAdmin ? 4 : 5} className="empty-cell">
                     로딩 중...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="empty-cell">
+                  <td colSpan={isStoreAdmin ? 4 : 5} className="empty-cell">
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -167,15 +172,17 @@ export default function ProductCategoryList() {
                         {category.active ? '활성' : '비활성'}
                       </span>
                     </td>
-                    <td className="actions-cell">
-                      <button
-                        type="button"
-                        className="edit-btn"
-                        onClick={event => handleEditClick(event, category.id)}
-                      >
-                        수정
-                      </button>
-                    </td>
+                    {!isStoreAdmin && (
+                      <td className="actions-cell">
+                        <button
+                          type="button"
+                          className="edit-btn"
+                          onClick={event => handleEditClick(event, category.id)}
+                        >
+                          수정
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
