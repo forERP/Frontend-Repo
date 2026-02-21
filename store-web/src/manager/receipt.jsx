@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cancelPayment } from '../api/paymentApi'
 import { confirmPosOrder, fetchPosOrderDetail, fetchPosOrderList, preparePosOrder } from '../api/orderApi'
+import { fetchReturnByOrderId, processOrderReturn } from '../api/returnApi'
 import { subscribePosRealtime } from '../api/realtimeApi'
 import { getApiErrorMessage } from '../utils/posUtils'
 import '../pages/css/recepit.css'
@@ -58,17 +59,21 @@ const escapeHtml = (value) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;')
 
+const isNotFoundError = (error) => Number(error?.response?.status) === 404
+
 export default function ReceiptPage() {
   const navigate = useNavigate()
+
   const [statusFilter, setStatusFilter] = useState('')
   const [orders, setOrders] = useState([])
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [detail, setDetail] = useState(null)
+  const [returnInfo, setReturnInfo] = useState(null)
   const [loadingList, setLoadingList] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [actionLoading, setActionLoading] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
-  const [cancelReason, setCancelReason] = useState('')
+  const [reason, setReason] = useState('')
   const [discardStock, setDiscardStock] = useState(false)
   const [cancelQtyByItemId, setCancelQtyByItemId] = useState({})
 
@@ -92,6 +97,7 @@ export default function ReceiptPage() {
         if (content.length === 0) {
           setSelectedOrderId(null)
           setDetail(null)
+          setReturnInfo(null)
           return
         }
 
@@ -101,6 +107,7 @@ export default function ReceiptPage() {
       } catch (error) {
         setOrders([])
         setDetail(null)
+        setReturnInfo(null)
         setSelectedOrderId(null)
         setErrorMsg(getApiErrorMessage(error, '주문 목록을 불러오지 못했습니다.'))
       } finally {
@@ -115,6 +122,7 @@ export default function ReceiptPage() {
   const loadOrderDetail = useCallback(async (orderId, { background = false } = {}) => {
     if (!orderId) {
       setDetail(null)
+      setReturnInfo(null)
       return
     }
 
@@ -122,10 +130,24 @@ export default function ReceiptPage() {
       if (!background) {
         setLoadingDetail(true)
       }
-      const data = await fetchPosOrderDetail(orderId)
-      setDetail(data)
+      setErrorMsg('')
+
+      const orderDetail = await fetchPosOrderDetail(orderId)
+      setDetail(orderDetail)
+
+      try {
+        const returnDetail = await fetchReturnByOrderId(orderId)
+        setReturnInfo(returnDetail)
+      } catch (error) {
+        if (isNotFoundError(error)) {
+          setReturnInfo(null)
+        } else {
+          throw error
+        }
+      }
     } catch (error) {
       setDetail(null)
+      setReturnInfo(null)
       setErrorMsg(getApiErrorMessage(error, '주문 상세를 불러오지 못했습니다.'))
     } finally {
       if (!background) {
@@ -169,10 +191,12 @@ export default function ReceiptPage() {
   const orderStatus = detail?.order?.status || ''
   const canPrepare = orderStatus === 'PLACED'
   const canConfirm = orderStatus === 'PLACED' || orderStatus === 'PREPARED' || orderStatus === 'SHIPPED'
-  const canCancel =
-    orderStatus === 'PLACED' || orderStatus === 'PREPARED' || orderStatus === 'SHIPPED' || orderStatus === 'ARRIVED'
+
+  const canCancel = orderStatus === 'PLACED' || orderStatus === 'PREPARED'
   const partialCancelable = orderStatus === 'PLACED'
-  const fullCancelOnly = orderStatus === 'PREPARED' || orderStatus === 'SHIPPED' || orderStatus === 'ARRIVED'
+  const fullCancelOnly = orderStatus === 'PREPARED'
+
+  const canReturn = (orderStatus === 'SHIPPED' || orderStatus === 'ARRIVED') && !returnInfo
 
   const cancelItems = useMemo(() => {
     const items = detail?.order?.items ?? []
@@ -225,7 +249,7 @@ export default function ReceiptPage() {
       return
     }
 
-    if (!cancelReason.trim()) {
+    if (!reason.trim()) {
       setErrorMsg('취소 사유를 입력해 주세요.')
       return
     }
@@ -235,13 +259,11 @@ export default function ReceiptPage() {
       return
     }
 
-    if (
-      !window.confirm(
-        fullCancelOnly
-          ? '전체취소(전체환불)를 진행하시겠습니까?'
-          : '선택한 수량 기준으로 취소(환불)를 진행하시겠습니까?',
-      )
-    ) {
+    const confirmMessage = fullCancelOnly
+      ? '전체취소(전체환불)를 진행하시겠습니까?'
+      : '선택한 수량 기준으로 취소(환불)를 진행하시겠습니까?'
+
+    if (!window.confirm(confirmMessage)) {
       return
     }
 
@@ -251,16 +273,50 @@ export default function ReceiptPage() {
 
       await cancelPayment({
         paymentId: detail.payment.paymentId,
-        reason: cancelReason.trim(),
+        reason: reason.trim(),
         discardStock,
         items: partialCancelable ? cancelItems : [],
       })
 
       await loadOrders({ background: true })
       await loadOrderDetail(selectedOrderId, { background: true })
-      setCancelReason('')
+      setReason('')
     } catch (error) {
       setErrorMsg(getApiErrorMessage(error, '취소(환불) 처리에 실패했습니다.'))
+    } finally {
+      setActionLoading('')
+    }
+  }
+
+  const handleReturn = async () => {
+    if (!detail?.order?.orderId || !canReturn) {
+      return
+    }
+
+    if (!reason.trim()) {
+      setErrorMsg('반품 사유를 입력해 주세요.')
+      return
+    }
+
+    if (!window.confirm('전체 반품(전체환불)을 진행하시겠습니까?')) {
+      return
+    }
+
+    try {
+      setActionLoading('return')
+      setErrorMsg('')
+      const processed = await processOrderReturn({
+        orderId: detail.order.orderId,
+        reason: reason.trim(),
+        discardStock,
+      })
+
+      setReturnInfo(processed)
+      await loadOrders({ background: true })
+      await loadOrderDetail(selectedOrderId, { background: true })
+      setReason('')
+    } catch (error) {
+      setErrorMsg(getApiErrorMessage(error, '반품 처리에 실패했습니다.'))
     } finally {
       setActionLoading('')
     }
@@ -407,6 +463,14 @@ export default function ReceiptPage() {
                 <p>주문일시: {formatDateTime(detail.order.orderedAt)}</p>
               </div>
 
+              {returnInfo && (
+                <div className='return-info-box'>
+                  <p>반품 처리 완료: {formatDateTime(returnInfo.processedAt)}</p>
+                  <p>환불금액: {formatMoney(returnInfo.refundedAmount)}</p>
+                  <p>처리방식: {returnInfo.discardStock ? '폐기 처리' : '재고 복원'}</p>
+                </div>
+              )}
+
               <div className='detail-items'>
                 {(detail.order.items || []).map((item) => (
                   <div key={item.orderItemId} className='item-row'>
@@ -443,16 +507,16 @@ export default function ReceiptPage() {
 
               <p className='total'>총 결제금액: {formatMoney(detail.order.totalAmount)}</p>
 
-              {canCancel && (
+              {(canCancel || canReturn) && (
                 <div className='cancel-panel'>
-                  <label htmlFor='cancel-reason'>취소 사유</label>
+                  <label htmlFor='reason'>사유</label>
                   <input
-                    id='cancel-reason'
+                    id='reason'
                     type='text'
-                    value={cancelReason}
-                    onChange={(event) => setCancelReason(event.target.value)}
-                    placeholder='환불/취소 사유 입력'
-                    disabled={actionLoading === 'cancel'}
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                    placeholder={canReturn ? '반품 사유 입력' : '취소/환불 사유 입력'}
+                    disabled={actionLoading === 'cancel' || actionLoading === 'return'}
                   />
                   <label className='discard-checkbox' htmlFor='discard-stock'>
                     <input
@@ -460,7 +524,7 @@ export default function ReceiptPage() {
                       type='checkbox'
                       checked={discardStock}
                       onChange={(event) => setDiscardStock(event.target.checked)}
-                      disabled={actionLoading === 'cancel'}
+                      disabled={actionLoading === 'cancel' || actionLoading === 'return'}
                     />
                     재고 폐기 처리 (미선택 시 재고 복원)
                   </label>
@@ -468,6 +532,9 @@ export default function ReceiptPage() {
                     <p className='cancel-guide'>
                       현재 상태에서는 전체취소(전체환불)만 가능합니다. 부분취소는 주문접수 상태에서만 가능합니다.
                     </p>
+                  )}
+                  {canReturn && (
+                    <p className='cancel-guide'>반품은 전체 반품(전체환불)만 가능합니다.</p>
                   )}
                 </div>
               )}
@@ -500,6 +567,14 @@ export default function ReceiptPage() {
                 onClick={handleCancel}
               >
                 {actionLoading === 'cancel' ? '처리 중...' : fullCancelOnly ? '전체취소' : '부분/전체취소'}
+              </button>
+              <button
+                type='button'
+                className='return-btn'
+                disabled={!canReturn || actionLoading !== ''}
+                onClick={handleReturn}
+              >
+                {actionLoading === 'return' ? '처리 중...' : '반품 처리'}
               </button>
               <button type='button' className='receipt-back-btn' onClick={() => navigate('/manager')}>
                 관리자 메뉴

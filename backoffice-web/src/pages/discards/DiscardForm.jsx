@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createDiscard } from '../../api/discardApi';
 import { getAllProducts, getAllStores, getWarehouses } from '../../lib/dataApi';
@@ -14,15 +14,9 @@ const INITIAL_FORM = {
 };
 
 const parseProductList = payload => {
-  if (!payload) {
-    return [];
-  }
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-  if (Array.isArray(payload.content)) {
-    return payload.content;
-  }
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.content)) return payload.content;
   return [];
 };
 
@@ -48,10 +42,7 @@ export default function DiscardForm() {
           getAllProducts(0, 300),
         ]);
 
-        if (!isMounted) {
-          return;
-        }
-
+        if (!isMounted) return;
         setStores(Array.isArray(storeResult) ? storeResult : []);
         setProducts(parseProductList(productResult));
       } catch (err) {
@@ -84,9 +75,7 @@ export default function DiscardForm() {
 
       try {
         const result = await getWarehouses(Number(form.storeId));
-        if (!isMounted) {
-          return;
-        }
+        if (!isMounted) return;
 
         const list = Array.isArray(result) ? result : [];
         setWarehouses(list);
@@ -108,15 +97,7 @@ export default function DiscardForm() {
     return () => {
       isMounted = false;
     };
-  }, [form.storeId]);
-
-  const productNameMap = useMemo(() => {
-    const map = new Map();
-    products.forEach(product => {
-      map.set(String(product.id), `${product.name} (${product.sku})`);
-    });
-    return map;
-  }, [products]);
+  }, [form.storeId, form.warehouseId]);
 
   const handleFieldChange = event => {
     const { name, value } = event.target;
@@ -138,9 +119,7 @@ export default function DiscardForm() {
 
   const handleRemoveItem = index => {
     setForm(prev => {
-      if (prev.items.length === 1) {
-        return prev;
-      }
+      if (prev.items.length === 1) return prev;
       return {
         ...prev,
         items: prev.items.filter((_, itemIndex) => itemIndex !== index),
@@ -149,29 +128,23 @@ export default function DiscardForm() {
   };
 
   const validateForm = () => {
-    if (!form.storeId) {
-      return '매장을 선택해주세요.';
-    }
-    if (!form.warehouseId) {
-      return '창고를 선택해주세요.';
-    }
-    if (!form.items.length) {
-      return '폐기 상품을 한 개 이상 추가해주세요.';
-    }
+    if (!form.storeId) return '매장을 선택해주세요.';
+    if (!form.warehouseId) return '창고를 선택해주세요.';
+    if (!form.items.length) return '폐기 상품을 한 개 이상 추가해주세요.';
 
-    const productSet = new Set();
+    const selectedProducts = new Set();
     for (const item of form.items) {
-      if (!item.productId) {
-        return '상품을 선택해주세요.';
-      }
+      if (!item.productId) return '상품을 선택해주세요.';
+
       const qty = Number(item.qty);
       if (!Number.isInteger(qty) || qty <= 0) {
         return '수량은 1 이상의 정수여야 합니다.';
       }
-      if (productSet.has(item.productId)) {
+
+      if (selectedProducts.has(item.productId)) {
         return '동일한 상품을 중복으로 선택할 수 없습니다.';
       }
-      productSet.add(item.productId);
+      selectedProducts.add(item.productId);
     }
 
     return '';
@@ -331,14 +304,6 @@ export default function DiscardForm() {
                   ))}
                 </tbody>
               </table>
-
-              <ul className="discard-item-preview">
-                {form.items.map((item, index) => (
-                  <li key={`preview-${index}`}>
-                    {productNameMap.get(String(item.productId)) || '상품 미선택'} / 수량 {item.qty || 0}
-                  </li>
-                ))}
-              </ul>
             </div>
           </>
         )}

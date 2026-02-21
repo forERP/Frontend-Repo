@@ -20,7 +20,7 @@
 
 .purchase-page .discard-list-table th:nth-child(6),
 .purchase-page .discard-list-table th:nth-child(7) {
-    width: 170px;
+    width: 145px;
 }
 
 @media (max-width: 1024px) {
