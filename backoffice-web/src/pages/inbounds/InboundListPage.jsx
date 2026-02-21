@@ -89,6 +89,8 @@ export default function InboundListPage() {
 
   const getStatusLabel = status => INBOUND_STATUS[status]?.label || status;
   const getStatusColor = status => INBOUND_STATUS[status]?.color || '#666';
+  const getShipmentStatusLabel = status => SHIPMENT_STATUS[status]?.label || status;
+  const getShipmentStatusColor = status => SHIPMENT_STATUS[status]?.color || '#6C757D';
 
   return (
     <div className="purchase-page">
@@ -203,7 +205,18 @@ export default function InboundListPage() {
                       {getStatusLabel(inbound.status)}
                     </span>
                   </td>
-                  <td title={inbound.shipmentStatus || '-'}>{inbound.shipmentStatus || '-'}</td>
+                  <td title={inbound.shipmentStatus || '-'}>
+                    {inbound.shipmentStatus ? (
+                      <span
+                        className="status-badge"
+                        style={{ backgroundColor: getShipmentStatusColor(inbound.shipmentStatus), color: '#fff' }}
+                      >
+                        {getShipmentStatusLabel(inbound.shipmentStatus)}
+                      </span>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td title={inbound.createdAt ? new Date(inbound.createdAt).toLocaleDateString('ko-KR') : '-'}>
                     {inbound.createdAt ? new Date(inbound.createdAt).toLocaleDateString('ko-KR') : '-'}
                   </td>

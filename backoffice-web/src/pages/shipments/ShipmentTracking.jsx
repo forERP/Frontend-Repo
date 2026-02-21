@@ -11,7 +11,6 @@ export default function ShipmentTracking() {
 
   const [tracking, setTracking] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -37,11 +36,7 @@ export default function ShipmentTracking() {
 
   const loadTracking = async sync => {
     try {
-      if (sync) {
-        setSyncing(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
       setError(null);
 
       const data = await fetchShipmentTracking(id, { sync });
@@ -54,7 +49,6 @@ export default function ShipmentTracking() {
       }
     } finally {
       setLoading(false);
-      setSyncing(false);
     }
   };
 
@@ -71,9 +65,6 @@ export default function ShipmentTracking() {
       <div className="page-header">
         <h2>송장 추적</h2>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn-primary" onClick={() => loadTracking(true)} disabled={syncing}>
-            {syncing ? '동기화 중...' : '상태 동기화'}
-          </button>
           <button className="btn-secondary" onClick={() => navigate('/shipments')}>
             목록으로
           </button>

@@ -7,6 +7,7 @@ import { getAllStores, getWarehouses } from '../../lib/dataApi';
 import { subscribeAdminRealtime } from '../../lib/realtime';
 import { fetchShipmentPage } from '../../api/shipmentApi';
 import '../purchase/request/purchase.css';
+import './Shipments.css';
 
 const INITIAL_FILTERS = {
   flowType: '',
@@ -236,12 +237,10 @@ export default function Shipments() {
           <span className="total-count">총 {totalElements.toLocaleString('ko-KR')}건</span>
         </div>
 
-        <table className="erp-table list-table outbound-list-table">
+        <table className="erp-table list-table shipment-list-table">
           <thead>
             <tr>
-              <th>배송ID</th>
               <th>구분</th>
-              <th>참조ID</th>
               <th>매장</th>
               <th>창고</th>
               <th>상태</th>
@@ -253,11 +252,11 @@ export default function Shipments() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="empty-cell">로딩 중...</td>
+                <td colSpan={7} className="empty-cell">로딩 중...</td>
               </tr>
             ) : shipments.length === 0 ? (
               <tr>
-                <td colSpan={9} className="empty-cell">조회 결과가 없습니다.</td>
+                <td colSpan={7} className="empty-cell">조회 결과가 없습니다.</td>
               </tr>
             ) : (
               shipments.map(shipment => (
@@ -266,9 +265,7 @@ export default function Shipments() {
                   className="clickable-row"
                   onClick={() => navigate(`/shipments/${shipment.shipmentId}/tracking`)}
                 >
-                  <td>{shipment.shipmentId}</td>
                   <td>{shipment.flowType === 'INBOUND' ? '입고' : '출고'}</td>
-                  <td>{shipment.referenceId || '-'}</td>
                   <td>
                     {shipment.storeName || '-'}
                     {shipment.storeCode ? ` (${shipment.storeCode})` : ''}
