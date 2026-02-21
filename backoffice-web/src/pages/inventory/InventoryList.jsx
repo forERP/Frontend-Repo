@@ -1,16 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
 import { fetchInventoryPage, updateInventorySaleStatus } from '../../api/inventoryApi';
 import { subscribeAdminRealtime } from '../../lib/realtime';
 import './InventoryList.css';
 
-const INITIAL_FILTERS = {
+const DEFAULT_FILTERS = {
   storeKeyword: '',
   warehouseKeyword: '',
   productKeyword: '',
   saleStatus: '',
+};
+
+const toSaleStatus = value => (value === 'ON' || value === 'OFF' ? value : '');
+
+const buildFiltersFromSearch = search => {
+  const params = new URLSearchParams(search);
+
+  return {
+    ...DEFAULT_FILTERS,
+    storeKeyword: (params.get('storeKeyword') || '').trim(),
+    warehouseKeyword: (params.get('warehouseKeyword') || '').trim(),
+    productKeyword: (params.get('productKeyword') || '').trim(),
+    saleStatus: toSaleStatus((params.get('saleStatus') || '').trim().toUpperCase()),
+  };
 };
 
 const SALE_STATUS_META = {
@@ -64,17 +78,19 @@ const formatStoreProductDisplay = item => {
 };
 
 export default function InventoryList() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { storeId } = useParams();
   const routeStoreId = useMemo(() => normalizeNumericId(storeId), [storeId]);
+  const prefilledFilters = useMemo(() => buildFiltersFromSearch(location.search), [location.search]);
 
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [updatingStoreProductId, setUpdatingStoreProductId] = useState(null);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [query, setQuery] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(prefilledFilters);
+  const [query, setQuery] = useState(prefilledFilters);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -82,10 +98,10 @@ export default function InventoryList() {
   const [totalElements, setTotalElements] = useState(0);
 
   useEffect(() => {
-    setFilters(INITIAL_FILTERS);
-    setQuery(INITIAL_FILTERS);
+    setFilters(prefilledFilters);
+    setQuery(prefilledFilters);
     setCurrentPage(0);
-  }, [routeStoreId]);
+  }, [routeStoreId, prefilledFilters]);
 
   const loadInventory = useCallback(async (page, search, size) => {
     try {
@@ -145,8 +161,8 @@ export default function InventoryList() {
   };
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS);
-    setQuery(INITIAL_FILTERS);
+    setFilters(prefilledFilters);
+    setQuery(prefilledFilters);
     setCurrentPage(0);
   };
 

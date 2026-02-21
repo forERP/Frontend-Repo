@@ -149,13 +149,14 @@ export const getInbound = async inboundId => {
 };
 
 export const getInboundList = async (filters = {}) => {
-  const { storeId, storeKeyword, storeName, storeCode, status, from, to, page = 0, size = 20 } = filters;
+  const { storeId, storeKeyword, storeName, storeCode, status, shipmentStatus, from, to, page = 0, size = 20 } = filters;
   const params = { page, size };
   if (storeId) params.storeId = storeId;
   if (storeKeyword) params.storeKeyword = storeKeyword;
   if (storeName) params.storeName = storeName;
   if (storeCode) params.storeCode = storeCode;
   if (status) params.status = status;
+  if (shipmentStatus) params.shipmentStatus = shipmentStatus;
   if (from) params.from = from;
   if (to) params.to = to;
   const { data } = await api.get('/api/inbounds', { params });

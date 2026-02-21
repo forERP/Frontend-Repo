@@ -479,8 +479,9 @@ textarea.memo {
     cursor: not-allowed;
 }
 
-.order-document-modal {
-    max-width: 860px;
+.purchase-page .modal.order-document-modal {
+    width: min(900px, 98vw);
+    max-width: 1100px;
 }
 
 .order-document-section {

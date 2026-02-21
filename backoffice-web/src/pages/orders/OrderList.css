@@ -2,10 +2,6 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.purchase-page .order-list-search-form .list-search-field.date-range-field {
-    grid-column: span 2;
-}
-
 .purchase-page .order-list-search-form .list-search-actions {
     justify-self: end;
 }
@@ -27,20 +23,12 @@
 }
 
 @media (max-width: 1024px) {
-    .purchase-page .order-list-search-form .list-search-field.date-range-field {
-        grid-column: span 2;
-    }
-
     .purchase-page .order-list-search-form .list-search-actions {
         justify-self: end;
     }
 }
 
 @media (max-width: 768px) {
-    .purchase-page .order-list-search-form .list-search-field.date-range-field {
-        grid-column: auto;
-    }
-
     .purchase-page .order-list-search-form .list-search-actions {
         justify-self: end;
     }

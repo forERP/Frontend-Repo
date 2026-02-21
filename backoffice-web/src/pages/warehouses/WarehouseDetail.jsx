@@ -84,6 +84,27 @@ export default function WarehouseDetailPage() {
     }
   };
 
+  const handleMoveToInventory = () => {
+    if (!warehouse?.storeId) {
+      navigate('/inventory');
+      return;
+    }
+
+    const params = new URLSearchParams();
+    const storeKeyword = [warehouse.storeName].filter(Boolean).join(' ').trim();
+    const warehouseKeyword = (warehouse.name || '').trim();
+
+    if (storeKeyword) {
+      params.set('storeKeyword', storeKeyword);
+    }
+    if (warehouseKeyword) {
+      params.set('warehouseKeyword', warehouseKeyword);
+    }
+
+    const queryString = params.toString();
+    navigate(`/stores/${warehouse.storeId}/inventory${queryString ? `?${queryString}` : ''}`);
+  };
+
   if (loading && !warehouse) {
     return (
       <div className="warehouse-detail-page">
@@ -213,6 +234,9 @@ export default function WarehouseDetailPage() {
               <div className="form-buttons detail-form-buttons">
                 <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
                   수정
+                </button>
+                <button type="button" onClick={handleMoveToInventory}>
+                  재고관리
                 </button>
                 <button type="button" onClick={() => navigate('/warehouses')}>
                   목록

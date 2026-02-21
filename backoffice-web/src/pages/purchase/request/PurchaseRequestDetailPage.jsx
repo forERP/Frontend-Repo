@@ -277,10 +277,12 @@ export default function PurchaseRequestDetailPage() {
 
   return (
     <div className="purchase-page">
-      <h2>발주 요청 상세</h2>
-      <button className="btn-secondary" onClick={() => navigate(-1)}>
-        목록으로
-      </button>
+      <div className="page-header">
+        <h2>발주 요청 상세</h2>
+        <button type="button" className="btn-secondary" onClick={() => navigate(-1)}>
+          목록으로
+        </button>
+      </div>
 
       <div className="info-box">
         <h3>요청 정보</h3>

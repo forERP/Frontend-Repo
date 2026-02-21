@@ -158,7 +158,7 @@ export default function DiscardList() {
             },
             {
               name: 'createdRange',
-              label: '생성일 범위',
+              label: '생성일',
               type: 'date-range',
               fromName: 'createdFrom',
               toName: 'createdTo',
@@ -169,7 +169,7 @@ export default function DiscardList() {
             },
             {
               name: 'discardedRange',
-              label: '확정일 범위',
+              label: '확정일',
               type: 'date-range',
               fromName: 'discardedFrom',
               toName: 'discardedTo',

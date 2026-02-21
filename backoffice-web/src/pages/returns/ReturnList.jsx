@@ -131,7 +131,7 @@ export default function ReturnList() {
             },
             {
               name: 'processedRange',
-              label: '처리일 범위',
+              label: '처리일',
               type: 'date-range',
               fromName: 'from',
               toName: 'to',

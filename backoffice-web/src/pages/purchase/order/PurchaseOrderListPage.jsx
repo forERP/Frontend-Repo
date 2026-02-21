@@ -136,7 +136,7 @@ export default function PurchaseOrderListPage() {
             },
             {
               name: 'createdRange',
-              label: '생성일 범위',
+              label: '생성일',
               type: 'date-range',
               fromName: 'createdFrom',
               toName: 'createdTo',
@@ -147,7 +147,7 @@ export default function PurchaseOrderListPage() {
             },
             {
               name: 'orderedRange',
-              label: '확정일 범위',
+              label: '확정일',
               type: 'date-range',
               fromName: 'orderedFrom',
               toName: 'orderedTo',

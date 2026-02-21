@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import ListPagination from '../../components/list/ListPagination';
 import ListSearchControls from '../../components/list/ListSearchControls';
-import { INBOUND_STATUS } from '../../constants/status';
+import { INBOUND_STATUS, SHIPMENT_STATUS } from '../../constants/status';
 import { getInboundList } from '../../lib/dataApi';
 import { formatDocNumber } from '../../utils/purchaseDisplay';
 import '../purchase/request/purchase.css';
@@ -11,6 +11,7 @@ import './InboundListPage.css';
 const INITIAL_FILTERS = {
   storeKeyword: '',
   status: '',
+  shipmentStatus: '',
   from: '',
   to: '',
 };
@@ -45,6 +46,7 @@ export default function InboundListPage() {
 
       if (search.storeKeyword?.trim()) filterParams.storeKeyword = search.storeKeyword.trim();
       if (search.status) filterParams.status = search.status;
+      if (search.shipmentStatus) filterParams.shipmentStatus = search.shipmentStatus;
       if (search.from) filterParams.from = search.from;
       if (search.to) filterParams.to = search.to;
 
@@ -118,6 +120,17 @@ export default function InboundListPage() {
               options: [
                 { value: '', label: '전체' },
                 ...Object.entries(INBOUND_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
+              ],
+            },
+            {
+              name: 'shipmentStatus',
+              label: '배송상태',
+              type: 'select',
+              value: filters.shipmentStatus,
+              onChange: handleFilterChange,
+              options: [
+                { value: '', label: '전체' },
+                ...Object.entries(SHIPMENT_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
               ],
             },
             {
