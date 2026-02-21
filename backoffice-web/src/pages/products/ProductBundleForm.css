@@ -1,0 +1,138 @@
+.bundle-form-container {
+    max-width: 1240px;
+}
+
+.bundle-form {
+    gap: 16px;
+}
+
+.bundle-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.bundle-form .inline-field {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.bundle-form .inline-field button {
+    white-space: nowrap;
+}
+
+.bundle-summary {
+    padding: 16px;
+}
+
+.bundle-summary h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+
+.bundle-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    color: #374151;
+}
+
+.bundle-summary-row.highlight {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 6px;
+    padding-top: 10px;
+}
+
+.bundle-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.bundle-panel {
+    padding: 16px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bundle-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.bundle-panel-header h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.bundle-panel-header input {
+    max-width: 280px;
+}
+
+.bundle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: auto;
+    max-height: 520px;
+}
+
+.bundle-candidate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+}
+
+.bundle-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.bundle-item-meta {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.bundle-empty {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.bundle-selected-table input[type='number'] {
+    width: 88px;
+}
+
+@media (max-width: 1024px) {
+    .bundle-form .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bundle-panel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bundle-panel-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bundle-panel-header input {
+        max-width: 100%;
+    }
+}

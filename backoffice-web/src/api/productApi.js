@@ -40,6 +40,28 @@ export const createProduct = async productData => {
   }
 };
 
+// 묶음상품 구성 후보 조회 (활성 상품, SET 제외)
+export const fetchBundleCandidates = async () => {
+  try {
+    const response = await api.get('/api/products/bundle-candidates');
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('묶음상품 구성 후보 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 묶음상품 생성
+export const createBundleProduct = async bundleData => {
+  try {
+    const response = await api.post('/api/products/bundles', bundleData);
+    return response.data;
+  } catch (error) {
+    console.error('묶음상품 생성 실패:', error);
+    throw error;
+  }
+};
+
 // 상품 수정
 export const updateProduct = async (productId, productData) => {
   try {

@@ -10,6 +10,7 @@ import NotFound from '../pages/NotFound.jsx';
 // Product Pages
 import ProductList from '../pages/products/ProductList.jsx';
 import ProductForm from '../pages/products/ProductForm.jsx';
+import ProductBundleForm from '../pages/products/ProductBundleForm.jsx';
 import ProductDetail from '../pages/products/ProductDetail.jsx';
 import ProductCategoryList from '../pages/products/ProductCategoryList.jsx';
 import ProductCategoryForm from '../pages/products/ProductCategoryForm.jsx';
@@ -93,6 +94,7 @@ export default function AppRouter({ user, setUser }) {
           {/* Product Routes */}
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/new" element={<ProductForm />} />
+          <Route path="/products/bundles/new" element={<ProductBundleForm />} />
           <Route path="/product-categories" element={<ProductCategoryList />} />
           <Route path="/product-categories/new" element={<ProductCategoryForm />} />
           <Route path="/product-categories/:id" element={<ProductCategoryDetail />} />

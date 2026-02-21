@@ -12,6 +12,7 @@
     children: [
       { key: 'product-list', label: '상품 조회', path: '/products', permissionCode: 'PRODUCT_LIST_VIEW' },
       { key: 'product-new', label: '상품 등록', path: '/products/new', permissionCode: 'PRODUCT_CREATE' },
+      { key: 'product-bundle-new', label: '묶음상품 등록', path: '/products/bundles/new', permissionCode: 'PRODUCT_CREATE' },
       { key: 'product-category-list', label: '카테고리 조회', path: '/product-categories', permissionCode: 'PRODUCT_LIST_VIEW' },
       { key: 'product-category-new', label: '카테고리 등록', path: '/product-categories/new', permissionCode: 'PRODUCT_CREATE' },
       { key: 'product-category-detail', label: '카테고리 상세', path: '/product-categories/:id', hidden: true, permissionCode: 'PRODUCT_LIST_VIEW' },

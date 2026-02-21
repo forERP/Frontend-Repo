@@ -123,9 +123,14 @@ export default function ProductList() {
       <div className="product-container">
         <div className="page-header">
           <h1 className="page-title">상품 목록</h1>
-          <button className="create-btn" onClick={() => navigate('/products/new')}>
-            상품 등록
-          </button>
+          <div className="header-actions">
+            <button className="create-btn" onClick={() => navigate('/products/new')}>
+              상품 등록
+            </button>
+            <button className="create-btn" onClick={() => navigate('/products/bundles/new')}>
+              묶음상품 등록
+            </button>
+          </div>
         </div>
 
         <div className="card filter-card">
