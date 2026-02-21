@@ -29,3 +29,13 @@ export const fetchOutboundDetail = async outboundId => {
   const response = await api.get(`/api/outbounds/${outboundId}`);
   return response.data;
 };
+
+export const confirmOutbound = async (outboundId, payload) => {
+  const response = await api.post(`/api/outbounds/${outboundId}/confirm`, payload);
+  return response.data;
+};
+
+export const arriveOutboundShipment = async outboundId => {
+  const response = await api.post(`/api/outbounds/${outboundId}/shipment/arrive`);
+  return response.data;
+};

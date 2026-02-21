@@ -1,6 +1,6 @@
 import api from './axiosConfig'
 
-const DEFAULT_EVENTS = ['connected', 'inventory.changed', 'order.changed', 'payment.changed']
+const DEFAULT_EVENTS = ['connected', 'inventory.changed', 'order.changed', 'payment.changed', 'shipment.changed']
 
 const resolveEventStreamUrl = () => {
   const baseUrl = api.defaults.baseURL || '/api'

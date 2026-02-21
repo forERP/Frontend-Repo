@@ -168,11 +168,20 @@ export const createInbound = async purchaseOrderId => {
   return data;
 };
 
-export const departShipment = async (inboundId, carrier, trackingNumber) => {
-  const { data } = await api.post(`/api/inbounds/${inboundId}/shipment/depart`, {
-    carrier,
-    trackingNumber,
-  });
+export const getShipmentCarriers = async ({ searchText = '', size = 100 } = {}) => {
+  const params = {};
+  if (searchText?.trim()) params.searchText = searchText.trim();
+  if (size) params.size = size;
+  const { data } = await api.get('/api/shipments/carriers', { params });
+  return data;
+};
+
+export const departShipment = async (inboundId, carrierOrPayload, trackingNumber) => {
+  const payload = typeof carrierOrPayload === 'object' && carrierOrPayload !== null
+    ? carrierOrPayload
+    : { carrier: carrierOrPayload, trackingNumber };
+
+  const { data } = await api.post(`/api/inbounds/${inboundId}/shipment/depart`, payload);
   return data;
 };
 

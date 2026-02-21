@@ -1,6 +1,6 @@
 import api from './api'
 
-const DEFAULT_EVENTS = ['connected', 'inventory.changed', 'order.changed', 'payment.changed']
+const DEFAULT_EVENTS = ['connected', 'inventory.changed', 'order.changed', 'payment.changed', 'shipment.changed']
 
 const resolveStreamBaseUrl = () => {
   const baseURL = api.defaults.baseURL || ''
