@@ -68,7 +68,7 @@
     margin-top: 24px;
 }
 
-.store-form button {
+.store-form .form-buttons button {
     flex: 1;
     padding: 10px 16px;
     cursor: pointer;
@@ -79,27 +79,27 @@
     transition: all 0.2s ease;
 }
 
-.store-form button[type='submit'] {
+.store-form .form-buttons button[type='submit'] {
     background-color: #4f46e5;
     color: #fff;
 }
 
-.store-form button[type='submit']:hover:not(:disabled) {
+.store-form .form-buttons button[type='submit']:hover:not(:disabled) {
     background-color: #4038cc;
     transform: translateY(-1px);
 }
 
-.store-form button[type='submit']:disabled {
+.store-form .form-buttons button[type='submit']:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
-.store-form button[type='button'] {
+.store-form .form-buttons button[type='button'] {
     background-color: #e5e7eb;
     color: #333;
 }
 
-.store-form button[type='button']:hover {
+.store-form .form-buttons button[type='button']:hover {
     background-color: #d1d5db;
 }
 

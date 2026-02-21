@@ -68,7 +68,7 @@
 	margin-top: 24px;
 }
 
-.warehouse-form button {
+.warehouse-form .form-buttons button {
 	flex: 1;
 	padding: 10px 16px;
 	cursor: pointer;
@@ -79,27 +79,27 @@
 	transition: all 0.2s ease;
 }
 
-.warehouse-form button[type='submit'] {
+.warehouse-form .form-buttons button[type='submit'] {
 	background-color: #4f46e5;
 	color: #fff;
 }
 
-.warehouse-form button[type='submit']:hover:not(:disabled) {
+.warehouse-form .form-buttons button[type='submit']:hover:not(:disabled) {
 	background-color: #4038cc;
 	transform: translateY(-1px);
 }
 
-.warehouse-form button[type='submit']:disabled {
+.warehouse-form .form-buttons button[type='submit']:disabled {
 	background-color: #ccc;
 	cursor: not-allowed;
 }
 
-.warehouse-form button[type='button'] {
+.warehouse-form .form-buttons button[type='button'] {
 	background-color: #e5e7eb;
 	color: #333;
 }
 
-.warehouse-form button[type='button']:hover {
+.warehouse-form .form-buttons button[type='button']:hover {
 	background-color: #d1d5db;
 }
 

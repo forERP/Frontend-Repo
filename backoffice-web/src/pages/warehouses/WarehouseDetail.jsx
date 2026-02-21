@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchWarehouse, updateWarehouse } from '../../api/warehouseApi';
+import AddressSearchMapField from '../../components/map/AddressSearchMapField';
+import SingleLocationMap from '../../components/map/SingleLocationMap';
 import './WarehouseDetail.css';
 
 export default function WarehouseDetailPage() {
@@ -12,7 +14,14 @@ export default function WarehouseDetailPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ code: '', name: '', address: '', active: true });
+  const [editForm, setEditForm] = useState({
+    code: '',
+    name: '',
+    address: '',
+    latitude: null,
+    longitude: null,
+    active: true,
+  });
 
   useEffect(() => {
     const loadWarehouse = async () => {
@@ -25,6 +34,8 @@ export default function WarehouseDetailPage() {
           code: data.code || '',
           name: data.name || '',
           address: data.address || '',
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
           active: Boolean(data.active),
         });
       } catch (err) {
@@ -44,9 +55,9 @@ export default function WarehouseDetailPage() {
     }
   }, [searchParams]);
 
-  const handleEditChange = e => {
-    const { name, value } = e.target;
-    setEditForm(prev => ({
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({
       ...prev,
       [name]: name === 'active' ? value === 'true' : value,
     }));
@@ -60,6 +71,8 @@ export default function WarehouseDetailPage() {
         code: editForm.code,
         name: editForm.name,
         address: editForm.address?.trim() || null,
+        latitude: editForm.latitude,
+        longitude: editForm.longitude,
         active: editForm.active,
       });
       setWarehouse(result);
@@ -79,6 +92,8 @@ export default function WarehouseDetailPage() {
         code: warehouse.code || '',
         name: warehouse.name || '',
         address: warehouse.address || '',
+        latitude: warehouse.latitude ?? null,
+        longitude: warehouse.longitude ?? null,
         active: Boolean(warehouse.active),
       });
     }
@@ -110,7 +125,10 @@ export default function WarehouseDetailPage() {
       <div className="warehouse-detail-page">
         <div className="warehouse-detail-container">
           <h1>창고 상세</h1>
-          <div className="detail-card" style={{ minHeight: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            className="detail-card"
+            style={{ minHeight: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
             로딩 중...
           </div>
         </div>
@@ -142,8 +160,8 @@ export default function WarehouseDetailPage() {
         <div className="detail-card">
           {isEditing ? (
             <form
-              onSubmit={e => {
-                e.preventDefault();
+              onSubmit={(event) => {
+                event.preventDefault();
                 handleSaveEdit();
               }}
             >
@@ -168,7 +186,21 @@ export default function WarehouseDetailPage() {
                   <tr>
                     <th>창고 주소</th>
                     <td>
-                      <input name="address" value={editForm.address} onChange={handleEditChange} placeholder="주소" />
+                      <AddressSearchMapField
+                        address={editForm.address}
+                        latitude={editForm.latitude}
+                        longitude={editForm.longitude}
+                        onAddressChange={(nextAddress) => setEditForm((prev) => ({ ...prev, address: nextAddress }))}
+                        onLocationChange={({ address, latitude, longitude }) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            address: address ?? prev.address,
+                            latitude,
+                            longitude,
+                          }))
+                        }
+                        placeholder="창고 주소를 입력해 검색하세요"
+                      />
                     </td>
                   </tr>
                   <tr>
@@ -217,6 +249,14 @@ export default function WarehouseDetailPage() {
                     <td>{warehouse.address || '-'}</td>
                   </tr>
                   <tr>
+                    <th>좌표</th>
+                    <td>
+                      {warehouse.latitude != null && warehouse.longitude != null
+                        ? `위도 ${Number(warehouse.latitude).toFixed(6)} / 경도 ${Number(warehouse.longitude).toFixed(6)}`
+                        : '-'}
+                    </td>
+                  </tr>
+                  <tr>
                     <th>생성일</th>
                     <td>{warehouse.createdAt ? new Date(warehouse.createdAt).toLocaleString('ko-KR') : '-'}</td>
                   </tr>
@@ -230,6 +270,13 @@ export default function WarehouseDetailPage() {
                   </tr>
                 </tbody>
               </table>
+
+              <SingleLocationMap
+                latitude={warehouse.latitude}
+                longitude={warehouse.longitude}
+                title="창고 위치"
+                emptyMessage="저장된 창고 좌표가 없습니다."
+              />
 
               <div className="form-buttons detail-form-buttons">
                 <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>

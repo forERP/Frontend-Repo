@@ -1,4 +1,3 @@
-## 빌드 스테이지: Vite React 앱 빌드
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -9,20 +8,18 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-## 런타임 스테이지: Nginx로 정적 파일 서빙
 FROM nginx:1.27-alpine
 
 WORKDIR /usr/share/nginx/html
 
-# 기본 Nginx 정적 파일 삭제
 RUN rm -rf ./*
 
-# 빌드 결과 복사
 COPY --from=builder /app/dist ./
-
-# Nginx 기본 설정 덮어쓰기 (단일 페이지 앱 라우팅 지원)
+COPY public/runtime-config.js /usr/share/nginx/html/runtime-config.js
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker-entrypoint.d/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
 
-# 외부에서 접근할 포트 (docker-compose에서 3100으로 매핑 예정)
+RUN sed -i 's/\r$//' /docker-entrypoint.d/40-runtime-config.sh \
+    && chmod +x /docker-entrypoint.d/40-runtime-config.sh
+
 EXPOSE 80
-

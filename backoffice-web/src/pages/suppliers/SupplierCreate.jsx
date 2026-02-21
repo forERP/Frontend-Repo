@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSupplier } from '../../api/supplierApi';
+import AddressSearchMapField from '../../components/map/AddressSearchMapField';
 import './SupplierCreate.css';
 
 export default function SupplierCreatePage() {
@@ -11,27 +12,33 @@ export default function SupplierCreatePage() {
     contactPhone: '',
     contactEmail: '',
     address: '',
+    latitude: null,
+    longitude: null,
     active: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!form.name.trim()) {
-      setError('거래처명을 입력해주세요.');
+      setError('거래처명을 입력해 주세요.');
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      const result = await createSupplier(form);
+      const result = await createSupplier({
+        ...form,
+        name: form.name.trim(),
+        address: form.address?.trim() || null,
+      });
       navigate(`/suppliers/${result.supplierId}`);
     } catch (err) {
       setError('거래처 등록에 실패했습니다.');
@@ -52,33 +59,17 @@ export default function SupplierCreatePage() {
           <form onSubmit={handleSubmit} className="supplier-form">
             <div className="form-group">
               <label>거래처명 *</label>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                placeholder="거래처명을 입력하세요"
-              />
+              <input name="name" value={form.name} onChange={handleChange} required placeholder="거래처명을 입력하세요" />
             </div>
 
             <div className="form-group">
               <label>담당자명</label>
-              <input
-                name="contactName"
-                value={form.contactName}
-                onChange={handleChange}
-                placeholder="담당자명을 입력하세요"
-              />
+              <input name="contactName" value={form.contactName} onChange={handleChange} placeholder="담당자명을 입력하세요" />
             </div>
 
             <div className="form-group">
               <label>연락처</label>
-              <input
-                name="contactPhone"
-                value={form.contactPhone}
-                onChange={handleChange}
-                placeholder="연락처를 입력하세요"
-              />
+              <input name="contactPhone" value={form.contactPhone} onChange={handleChange} placeholder="연락처를 입력하세요" />
             </div>
 
             <div className="form-group">
@@ -94,11 +85,20 @@ export default function SupplierCreatePage() {
 
             <div className="form-group">
               <label>주소</label>
-              <input
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                placeholder="주소를 입력하세요"
+              <AddressSearchMapField
+                address={form.address}
+                latitude={form.latitude}
+                longitude={form.longitude}
+                onAddressChange={(nextAddress) => setForm((prev) => ({ ...prev, address: nextAddress }))}
+                onLocationChange={({ address, latitude, longitude }) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    address: address ?? prev.address,
+                    latitude,
+                    longitude,
+                  }))
+                }
+                placeholder="거래처 주소를 입력해 검색하세요"
               />
             </div>
 
@@ -107,7 +107,7 @@ export default function SupplierCreatePage() {
               <select
                 name="active"
                 value={String(form.active)}
-                onChange={e => setForm(prev => ({ ...prev, active: e.target.value === 'true' }))}
+                onChange={(event) => setForm((prev) => ({ ...prev, active: event.target.value === 'true' }))}
               >
                 <option value="true">활성</option>
                 <option value="false">비활성</option>

@@ -1,6 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchSupplierDetail, updateSupplier } from '../../api/supplierApi';
+import AddressSearchMapField from '../../components/map/AddressSearchMapField';
+import SingleLocationMap from '../../components/map/SingleLocationMap';
 import './SupplierDetail.css';
 
 export default function SupplierDetailPage() {
@@ -18,6 +20,8 @@ export default function SupplierDetailPage() {
     contactPhone: '',
     contactEmail: '',
     address: '',
+    latitude: null,
+    longitude: null,
     active: true,
   });
 
@@ -43,6 +47,8 @@ export default function SupplierDetailPage() {
         contactPhone: data.contactPhone || '',
         contactEmail: data.contactEmail || '',
         address: data.address || '',
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
         active: Boolean(data.active),
       });
     } catch (err) {
@@ -53,9 +59,9 @@ export default function SupplierDetailPage() {
     }
   };
 
-  const handleEditChange = e => {
-    const { name, value } = e.target;
-    setEditForm(prev => ({
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({
       ...prev,
       [name]: name === 'active' ? value === 'true' : value,
     }));
@@ -70,7 +76,11 @@ export default function SupplierDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      const result = await updateSupplier(supplierId, editForm);
+      const result = await updateSupplier(supplierId, {
+        ...editForm,
+        name: editForm.name.trim(),
+        address: editForm.address?.trim() || null,
+      });
       setSupplier(result);
       setIsEditing(false);
     } catch (err) {
@@ -90,6 +100,8 @@ export default function SupplierDetailPage() {
         contactPhone: supplier.contactPhone || '',
         contactEmail: supplier.contactEmail || '',
         address: supplier.address || '',
+        latitude: supplier.latitude ?? null,
+        longitude: supplier.longitude ?? null,
         active: Boolean(supplier.active),
       });
     }
@@ -100,7 +112,10 @@ export default function SupplierDetailPage() {
       <div className="supplier-detail-page">
         <div className="supplier-detail-container">
           <h1>거래처 상세</h1>
-          <div className="detail-card" style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            className="detail-card"
+            style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
             로딩 중...
           </div>
         </div>
@@ -132,8 +147,8 @@ export default function SupplierDetailPage() {
         <div className="detail-card">
           {isEditing ? (
             <form
-              onSubmit={e => {
-                e.preventDefault();
+              onSubmit={(event) => {
+                event.preventDefault();
                 handleSaveEdit();
               }}
             >
@@ -142,13 +157,7 @@ export default function SupplierDetailPage() {
                   <tr>
                     <th>거래처명</th>
                     <td>
-                      <input
-                        name="name"
-                        value={editForm.name}
-                        onChange={handleEditChange}
-                        required
-                        placeholder="거래처명"
-                      />
+                      <input name="name" value={editForm.name} onChange={handleEditChange} required placeholder="거래처명" />
                     </td>
                   </tr>
                   <tr>
@@ -188,11 +197,20 @@ export default function SupplierDetailPage() {
                   <tr>
                     <th>주소</th>
                     <td>
-                      <input
-                        name="address"
-                        value={editForm.address}
-                        onChange={handleEditChange}
-                        placeholder="주소"
+                      <AddressSearchMapField
+                        address={editForm.address}
+                        latitude={editForm.latitude}
+                        longitude={editForm.longitude}
+                        onAddressChange={(nextAddress) => setEditForm((prev) => ({ ...prev, address: nextAddress }))}
+                        onLocationChange={({ address, latitude, longitude }) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            address: address ?? prev.address,
+                            latitude,
+                            longitude,
+                          }))
+                        }
+                        placeholder="거래처 주소를 입력해 검색하세요"
                       />
                     </td>
                   </tr>
@@ -246,6 +264,14 @@ export default function SupplierDetailPage() {
                     <td>{supplier.address || '-'}</td>
                   </tr>
                   <tr>
+                    <th>좌표</th>
+                    <td>
+                      {supplier.latitude != null && supplier.longitude != null
+                        ? `위도 ${Number(supplier.latitude).toFixed(6)} / 경도 ${Number(supplier.longitude).toFixed(6)}`
+                        : '-'}
+                    </td>
+                  </tr>
+                  <tr>
                     <th>상태</th>
                     <td>
                       <span className={`status-badge ${supplier.active ? 'active' : 'inactive'}`}>
@@ -259,6 +285,13 @@ export default function SupplierDetailPage() {
                   </tr>
                 </tbody>
               </table>
+
+              <SingleLocationMap
+                latitude={supplier.latitude}
+                longitude={supplier.longitude}
+                title="거래처 위치"
+                emptyMessage="저장된 거래처 좌표가 없습니다."
+              />
 
               <div className="form-buttons detail-form-buttons">
                 <button type="button" className="primary-action" onClick={() => setIsEditing(true)}>
