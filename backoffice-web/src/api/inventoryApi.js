@@ -53,7 +53,23 @@ export const fetchInventoryDetail = async storeProductId => {
   return response.data;
 };
 
+export const fetchInventoryByStoreWarehouseProduct = async ({ storeId, warehouseId, productId }) => {
+  if (!storeId || !productId) {
+    throw new Error('storeId and productId are required');
+  }
+
+  const response = await api.get(`/api/stores/${storeId}/inventory/${productId}`, {
+    params: warehouseId ? { warehouseId: Number(warehouseId) } : {},
+  });
+  return response.data;
+};
+
 export const updateInventoryDetail = async (storeProductId, payload) => {
   const response = await api.patch(`/api/inventory/${storeProductId}`, payload);
+  return response.data;
+};
+
+export const adjustInventoryQuantity = async payload => {
+  const response = await api.patch('/api/inventory/adjustments', payload);
   return response.data;
 };
