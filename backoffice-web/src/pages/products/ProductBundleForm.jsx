@@ -3,10 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createBundleProduct, fetchBundleCandidates } from '../../api/productApi';
 import './ProductBundleForm.css';
 
-const toNumber = value => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
+const ITEMS_PER_PAGE = 5;
 
 const INITIAL_FORM = {
   name: '',
@@ -16,12 +13,102 @@ const INITIAL_FORM = {
   imageUrl: '',
 };
 
+const toNumber = value => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const toPriceText = value => `${toNumber(value).toLocaleString('ko-KR')}원`;
+
+const compareBySku = (left, right) => {
+  const leftSku = String(left?.sku || '');
+  const rightSku = String(right?.sku || '');
+  const skuCompare = leftSku.localeCompare(rightSku, 'ko-KR', {
+    numeric: true,
+    sensitivity: 'base',
+  });
+
+  if (skuCompare !== 0) {
+    return skuCompare;
+  }
+
+  return String(left?.name || '').localeCompare(String(right?.name || ''), 'ko-KR');
+};
+
+const slicePageItems = (items, page) => {
+  const start = (page - 1) * ITEMS_PER_PAGE;
+  return items.slice(start, start + ITEMS_PER_PAGE);
+};
+
+const getVisiblePages = (currentPage, totalPages) => {
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (currentPage <= 3) {
+    return [1, 2, 3, 4, 5];
+  }
+
+  if (currentPage >= totalPages - 2) {
+    return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
+};
+
+function BundlePager({ currentPage, totalPages, onPageChange, disabled = false }) {
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const pages = getVisiblePages(currentPage, totalPages);
+
+  return (
+    <div className="bundle-pagination">
+      <button
+        type="button"
+        className="bundle-pagination-btn"
+        disabled={disabled || currentPage <= 1}
+        onClick={() => onPageChange(currentPage - 1)}
+        aria-label="이전 페이지"
+      >
+        &lt;
+      </button>
+
+      {pages.map(pageNumber => (
+        <button
+          type="button"
+          key={pageNumber}
+          className={`bundle-pagination-btn ${pageNumber === currentPage ? 'is-active' : ''}`}
+          disabled={disabled || pageNumber === currentPage}
+          onClick={() => onPageChange(pageNumber)}
+        >
+          {pageNumber}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        className="bundle-pagination-btn"
+        disabled={disabled || currentPage >= totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+        aria-label="다음 페이지"
+      >
+        &gt;
+      </button>
+    </div>
+  );
+}
+
 export default function ProductBundleForm() {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [keyword, setKeyword] = useState('');
   const [candidates, setCandidates] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [candidatePage, setCandidatePage] = useState(1);
+  const [selectedPage, setSelectedPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -32,9 +119,9 @@ export default function ProductBundleForm() {
         setLoading(true);
         setError(null);
         const result = await fetchBundleCandidates();
-        setCandidates(result);
-      } catch (err) {
-        console.error(err);
+        setCandidates(Array.isArray(result) ? result : []);
+      } catch (loadError) {
+        console.error(loadError);
         setError('활성 상품 목록을 불러오지 못했습니다.');
       } finally {
         setLoading(false);
@@ -49,23 +136,43 @@ export default function ProductBundleForm() {
     [selectedItems],
   );
 
+  const sortedCandidates = useMemo(
+    () => [...candidates].sort(compareBySku),
+    [candidates],
+  );
+
   const filteredCandidates = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
     if (!normalizedKeyword) {
-      return candidates;
+      return sortedCandidates;
     }
 
-    return candidates.filter(candidate => {
+    return sortedCandidates.filter(candidate => {
       const name = String(candidate.name || '').toLowerCase();
       const sku = String(candidate.sku || '').toLowerCase();
       const categoryName = String(candidate.categoryName || '').toLowerCase();
+
       return (
         name.includes(normalizedKeyword) ||
         sku.includes(normalizedKeyword) ||
         categoryName.includes(normalizedKeyword)
       );
     });
-  }, [candidates, keyword]);
+  }, [keyword, sortedCandidates]);
+
+  const candidateTotalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
+  const safeCandidatePage = Math.min(candidatePage, candidateTotalPages);
+  const visibleCandidates = useMemo(
+    () => slicePageItems(filteredCandidates, safeCandidatePage),
+    [filteredCandidates, safeCandidatePage],
+  );
+
+  const selectedTotalPages = Math.max(1, Math.ceil(selectedItems.length / ITEMS_PER_PAGE));
+  const safeSelectedPage = Math.min(selectedPage, selectedTotalPages);
+  const visibleSelectedItems = useMemo(
+    () => slicePageItems(selectedItems, safeSelectedPage),
+    [selectedItems, safeSelectedPage],
+  );
 
   const originalTotalPrice = useMemo(
     () =>
@@ -91,30 +198,47 @@ export default function ProductBundleForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleKeywordChange = event => {
+    setKeyword(event.target.value);
+    setCandidatePage(1);
+  };
+
   const handleAddItem = candidate => {
     if (!candidate || selectedIdSet.has(candidate.productId)) {
       return;
     }
 
-    setSelectedItems(prev => [
-      ...prev,
-      {
-        productId: candidate.productId,
-        sku: candidate.sku,
-        name: candidate.name,
-        categoryName: candidate.categoryName,
-        price: toNumber(candidate.price),
-        quantity: 1,
-      },
-    ]);
+    setSelectedItems(prev => {
+      const next = [
+        ...prev,
+        {
+          productId: candidate.productId,
+          sku: candidate.sku,
+          name: candidate.name,
+          categoryName: candidate.categoryName,
+          price: toNumber(candidate.price),
+          quantity: 1,
+        },
+      ];
+
+      const nextTotalPages = Math.max(1, Math.ceil(next.length / ITEMS_PER_PAGE));
+      setSelectedPage(nextTotalPages);
+      return next;
+    });
   };
 
   const handleRemoveItem = productId => {
-    setSelectedItems(prev => prev.filter(item => item.productId !== productId));
+    setSelectedItems(prev => {
+      const next = prev.filter(item => item.productId !== productId);
+      const nextTotalPages = Math.max(1, Math.ceil(next.length / ITEMS_PER_PAGE));
+      setSelectedPage(currentPage => Math.min(currentPage, nextTotalPages));
+      return next;
+    });
   };
 
   const handleQuantityChange = (productId, nextQuantity) => {
     const normalizedQuantity = Math.max(1, Number.parseInt(nextQuantity, 10) || 1);
+
     setSelectedItems(prev =>
       prev.map(item =>
         item.productId === productId ? { ...item, quantity: normalizedQuantity } : item,
@@ -133,6 +257,7 @@ export default function ProductBundleForm() {
     if (!formData.name.trim()) {
       return '묶음상품명은 필수입니다.';
     }
+
     if (selectedItems.length === 0) {
       return '구성 상품을 1개 이상 선택해 주세요.';
     }
@@ -184,9 +309,9 @@ export default function ProductBundleForm() {
 
       await createBundleProduct(payload);
       navigate('/products', { state: { message: '묶음상품이 정상적으로 등록되었습니다.' } });
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || '묶음상품 등록에 실패했습니다.');
+    } catch (submitError) {
+      console.error(submitError);
+      setError(submitError.response?.data?.message || '묶음상품 등록에 실패했습니다.');
     } finally {
       setSaving(false);
     }
@@ -201,7 +326,7 @@ export default function ProductBundleForm() {
           {error && <div className="error-message">{error}</div>}
 
           <form className="product-form bundle-form" onSubmit={handleSubmit}>
-            <div className="form-grid">
+            <div className="bundle-form-row bundle-form-row--two">
               <div className="form-group">
                 <label htmlFor="name">묶음상품명 *</label>
                 <input
@@ -217,21 +342,33 @@ export default function ProductBundleForm() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="setPrice">세트 판매가(원) *</label>
+                <label htmlFor="imageUrl">이미지 URL</label>
                 <input
-                  id="setPrice"
-                  name="setPrice"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={formData.setPrice}
+                  id="imageUrl"
+                  name="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
                   onChange={handleFormInput}
-                  placeholder="0"
+                  placeholder="https://example.com/set-image.jpg"
                   disabled={saving}
-                  required
                 />
               </div>
+            </div>
 
+            <div className="form-group bundle-description-group">
+              <label htmlFor="description">설명</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                value={formData.description}
+                onChange={handleFormInput}
+                placeholder="묶음상품 설명"
+                disabled={saving}
+              />
+            </div>
+
+            <div className="bundle-form-row bundle-form-row--two bundle-form-row--pricing">
               <div className="form-group">
                 <label htmlFor="discountRate">할인율(%)</label>
                 <div className="inline-field">
@@ -259,45 +396,35 @@ export default function ProductBundleForm() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="imageUrl">이미지 URL</label>
+                <label htmlFor="setPrice">세트 판매가(원) *</label>
                 <input
-                  id="imageUrl"
-                  name="imageUrl"
-                  type="url"
-                  value={formData.imageUrl}
+                  id="setPrice"
+                  name="setPrice"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={formData.setPrice}
                   onChange={handleFormInput}
-                  placeholder="https://example.com/set-image.jpg"
+                  placeholder="0"
                   disabled={saving}
+                  required
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="description">설명</label>
-              <textarea
-                id="description"
-                name="description"
-                rows="4"
-                value={formData.description}
-                onChange={handleFormInput}
-                placeholder="묶음상품 설명"
-                disabled={saving}
-              />
             </div>
 
             <div className="bundle-summary card">
               <h2>가격 요약</h2>
               <div className="bundle-summary-row">
                 <span>구성 상품 합계</span>
-                <strong>{originalTotalPrice.toLocaleString('ko-KR')}원</strong>
+                <strong>{toPriceText(originalTotalPrice)}</strong>
               </div>
               <div className="bundle-summary-row">
                 <span>할인율 기준 예상가</span>
-                <strong>{expectedSetPriceByDiscount.toLocaleString('ko-KR')}원</strong>
+                <strong>{toPriceText(expectedSetPriceByDiscount)}</strong>
               </div>
               <div className="bundle-summary-row highlight">
                 <span>세트 판매가</span>
-                <strong>{toNumber(formData.setPrice).toLocaleString('ko-KR')}원</strong>
+                <strong>{toPriceText(formData.setPrice)}</strong>
               </div>
             </div>
 
@@ -307,9 +434,10 @@ export default function ProductBundleForm() {
                   <h2>활성 상품 목록</h2>
                   <input
                     type="text"
-                    placeholder="상품명/SKU/카테고리 검색"
+                    className="bundle-search-input"
+                    placeholder="상품명 / SKU / 카테고리"
                     value={keyword}
-                    onChange={event => setKeyword(event.target.value)}
+                    onChange={handleKeywordChange}
                     disabled={saving}
                   />
                 </div>
@@ -319,29 +447,45 @@ export default function ProductBundleForm() {
                 ) : filteredCandidates.length === 0 ? (
                   <div className="bundle-empty">표시할 활성 상품이 없습니다.</div>
                 ) : (
-                  <div className="bundle-list">
-                    {filteredCandidates.map(candidate => (
-                      <div key={candidate.productId} className="bundle-candidate-item">
-                        <div>
-                          <div className="bundle-item-title">
-                            {candidate.name} ({candidate.sku})
+                  <>
+                    <div className="bundle-list">
+                      {visibleCandidates.map(candidate => (
+                        <article key={candidate.productId} className="bundle-item-card">
+                          <div className="bundle-item-body">
+                            <div className="bundle-item-title-row">
+                              <p className="bundle-item-title">{candidate.name || '-'}</p>
+                              <span className="bundle-item-sku">{candidate.sku || '-'}</span>
+                            </div>
+                            <div className="bundle-item-meta">
+                              <span className="bundle-item-meta-category">
+                                {candidate.categoryName || '-'}
+                              </span>
+                              <span className="bundle-item-meta-divider">|</span>
+                              <span className="bundle-item-meta-price">{toPriceText(candidate.price)}</span>
+                            </div>
                           </div>
-                          <div className="bundle-item-meta">
-                            {candidate.categoryName || '-'} |{' '}
-                            {toNumber(candidate.price).toLocaleString('ko-KR')}원
+
+                          <div className="bundle-item-actions">
+                            <button
+                              type="button"
+                              className="create-btn"
+                              disabled={saving || selectedIdSet.has(candidate.productId)}
+                              onClick={() => handleAddItem(candidate)}
+                            >
+                              {selectedIdSet.has(candidate.productId) ? '추가됨' : '추가'}
+                            </button>
                           </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="create-btn"
-                          disabled={saving || selectedIdSet.has(candidate.productId)}
-                          onClick={() => handleAddItem(candidate)}
-                        >
-                          {selectedIdSet.has(candidate.productId) ? '추가됨' : '추가'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                        </article>
+                      ))}
+                    </div>
+
+                    <BundlePager
+                      currentPage={safeCandidatePage}
+                      totalPages={candidateTotalPages}
+                      onPageChange={setCandidatePage}
+                      disabled={saving || loading}
+                    />
+                  </>
                 )}
               </section>
 
@@ -353,39 +497,40 @@ export default function ProductBundleForm() {
                 {selectedItems.length === 0 ? (
                   <div className="bundle-empty">구성 상품을 선택해 주세요.</div>
                 ) : (
-                  <table className="erp-table bundle-selected-table">
-                    <thead>
-                      <tr>
-                        <th>상품</th>
-                        <th>단가</th>
-                        <th>수량</th>
-                        <th>금액</th>
-                        <th>작업</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedItems.map(item => (
-                        <tr key={item.productId}>
-                          <td>
-                            {item.name} ({item.sku})
-                          </td>
-                          <td>{toNumber(item.price).toLocaleString('ko-KR')}원</td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.quantity}
-                              disabled={saving}
-                              onChange={event =>
-                                handleQuantityChange(item.productId, event.target.value)
-                              }
-                            />
-                          </td>
-                          <td>
-                            {(toNumber(item.price) * toNumber(item.quantity)).toLocaleString('ko-KR')}
-                            원
-                          </td>
-                          <td>
+                  <>
+                    <div className="bundle-list">
+                      {visibleSelectedItems.map(item => (
+                        <article key={item.productId} className="bundle-item-card">
+                          <div className="bundle-item-body">
+                            <div className="bundle-item-title-row">
+                              <p className="bundle-item-title">{item.name || '-'}</p>
+                              <span className="bundle-item-sku">{item.sku || '-'}</span>
+                            </div>
+                            <div className="bundle-item-meta">
+                              <span className="bundle-item-meta-category">{item.categoryName || '-'}</span>
+                              <span className="bundle-item-meta-divider">|</span>
+                              <span className="bundle-item-meta-price">{toPriceText(item.price)}</span>
+                            </div>
+                          </div>
+
+                          <div className="bundle-item-actions bundle-item-actions--selected">
+                            <label className="bundle-quantity-field">
+                              <span>수량</span>
+                              <input
+                                type="number"
+                                min="1"
+                                value={item.quantity}
+                                disabled={saving}
+                                onChange={event =>
+                                  handleQuantityChange(item.productId, event.target.value)
+                                }
+                              />
+                            </label>
+
+                            <div className="bundle-selected-subtotal">
+                              {toPriceText(toNumber(item.price) * toNumber(item.quantity))}
+                            </div>
+
                             <button
                               type="button"
                               className="discontinue-btn"
@@ -394,11 +539,18 @@ export default function ProductBundleForm() {
                             >
                               제거
                             </button>
-                          </td>
-                        </tr>
+                          </div>
+                        </article>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+
+                    <BundlePager
+                      currentPage={safeSelectedPage}
+                      totalPages={selectedTotalPages}
+                      onPageChange={setSelectedPage}
+                      disabled={saving}
+                    />
+                  </>
                 )}
               </section>
             </div>

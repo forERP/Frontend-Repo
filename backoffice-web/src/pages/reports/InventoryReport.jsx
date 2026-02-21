@@ -11,8 +11,8 @@ const GROUP_OPTIONS = [
 
 const MOVEMENT_OPTIONS = [
   { value: 'ALL', label: '전체' },
-  { value: 'INBOUND', label: '입고 중심' },
-  { value: 'OUTBOUND', label: '출고 중심' },
+  { value: 'INBOUND', label: '입고' },
+  { value: 'OUTBOUND', label: '출고' },
 ];
 
 const createInitialFilters = () => ({
