@@ -1,194 +1,89 @@
-.inventory-report-page {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.report-page .list-filter-card {
+    margin-bottom: 16px;
 }
 
-.inventory-report-header h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    color: #1f2937;
-    text-align: left;
+.inventory-report-page .report-search-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.inventory-report-header p {
-    margin-top: 8px;
-    color: #6b7280;
+.inventory-report-page .report-search-actions {
+    justify-self: end;
 }
 
-.inventory-report-filter-card,
-.inventory-report-table-card,
-.inventory-report-summary-card {
-    background: #ffffff;
+.report-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.report-summary-card {
+    background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    padding: 14px 16px;
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
 }
 
-.inventory-report-filter-card {
-    padding: 18px;
-}
-
-.inventory-report-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
-}
-
-.inventory-report-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.inventory-report-field span {
+.report-summary-card h3 {
+    margin: 0;
     font-size: 13px;
-    font-weight: 600;
     color: #4b5563;
+    font-weight: 700;
 }
 
-.inventory-report-field select,
-.inventory-report-field input {
-    height: 38px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 0 10px;
-    font-size: 14px;
+.report-summary-card strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 24px;
+    line-height: 1.25;
     color: #111827;
-    background: #fff;
 }
 
-.inventory-report-field select:focus,
-.inventory-report-field input:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.inventory-report-filter-actions {
-    margin-top: 14px;
+.inventory-report-page .table-toolbar {
     display: flex;
     justify-content: flex-end;
+    margin-bottom: 12px;
 }
 
-.inventory-report-filter-actions button {
-    min-width: 88px;
-    height: 38px;
-    border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.inventory-report-filter-actions button:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-}
-
-.inventory-report-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 14px;
-}
-
-.inventory-report-summary-card {
-    padding: 16px;
-}
-
-.inventory-report-summary-card h3 {
-    margin: 0;
-    font-size: 14px;
-    color: #6b7280;
-    font-weight: 600;
-}
-
-.inventory-report-summary-card p {
-    margin: 8px 0 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.inventory-report-table-card {
-    padding: 18px;
-}
-
-.inventory-report-table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 12px;
-    margin-bottom: 14px;
-}
-
-.inventory-report-table-header h2 {
-    margin: 0;
-    font-size: 19px;
-    color: #1f2937;
-}
-
-.inventory-report-table-header small {
-    color: #6b7280;
-}
-
-.inventory-report-table-wrap {
-    overflow-x: auto;
-}
-
-.inventory-report-table-wrap table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.inventory-report-table-wrap th,
-.inventory-report-table-wrap td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    color: #374151;
-}
-
-.inventory-report-table-wrap th {
-    background: #f9fafb;
+.inventory-report-page .total-count {
+    font-size: 13px;
     color: #4b5563;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-.inventory-report-table-wrap tbody tr:hover {
-    background: #f8fbff;
-}
-
-.align-right {
+.inventory-report-page .align-right {
     text-align: right;
 }
 
-.increase {
-    color: #15803d !important;
-    font-weight: 600;
+.inventory-report-page .increase {
+    color: #15803d;
+    font-weight: 700;
 }
 
-.decrease {
-    color: #b91c1c !important;
-    font-weight: 600;
-}
-
-.inventory-report-empty,
-.inventory-report-error {
-    margin: 0 0 12px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.inventory-report-empty {
-    background: #f3f4f6;
-    color: #4b5563;
-}
-
-.inventory-report-error {
-    background: #fef2f2;
+.inventory-report-page .decrease {
     color: #b91c1c;
+    font-weight: 700;
+}
+
+.inventory-report-page .empty-cell {
+    text-align: center;
+    color: #6b7280;
+    padding: 24px 12px;
+}
+
+@media (max-width: 1024px) {
+    .inventory-report-page .report-search-actions {
+        justify-self: end;
+    }
+}
+
+@media (max-width: 768px) {
+    .inventory-report-page .report-search-actions {
+        justify-self: end;
+    }
+
+    .report-summary-grid {
+        grid-template-columns: 1fr;
+    }
 }
