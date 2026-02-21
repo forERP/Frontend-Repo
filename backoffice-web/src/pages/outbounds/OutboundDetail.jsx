@@ -12,6 +12,37 @@ const INITIAL_CONFIRM_FORM = {
   carrier: '',
   trackingNumber: '',
 };
+const DUMMY_CARRIER_CODE = 'dev.track.dummy';
+const DUMMY_CARRIER_NAME = 'Dummy (테스트)';
+
+const toTwoDigits = value => String(value).padStart(2, '0');
+
+const buildDummyTrackingNumber = () => {
+  const now = new Date();
+  const flooredUtcHour = now.getUTCHours() - (now.getUTCHours() % 3);
+  const target = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    flooredUtcHour,
+    0,
+    0,
+    0,
+  ));
+
+  // Dummy tracker가 안정적으로 조회되도록 현재보다 충분히 과거(6시간 전) 슬롯을 기본값으로 사용한다.
+  target.setUTCHours(target.getUTCHours() - 6);
+
+  return `${target.getUTCFullYear()}-${toTwoDigits(target.getUTCMonth() + 1)}-${toTwoDigits(target.getUTCDate())}T${toTwoDigits(target.getUTCHours())}:00:00Z`;
+};
+
+const normalizeCarrierOptions = carriers => {
+  const list = Array.isArray(carriers) ? carriers : [];
+  const filtered = list.filter(
+    carrier => carrier?.carrierCode && carrier?.carrierName && carrier.carrierCode.toLowerCase() !== DUMMY_CARRIER_CODE,
+  );
+  return [{ carrierCode: DUMMY_CARRIER_CODE, carrierName: DUMMY_CARRIER_NAME }, ...filtered];
+};
 
 export default function OutboundDetail() {
   const { id } = useParams();
@@ -54,10 +85,10 @@ export default function OutboundDetail() {
   const loadCarriers = async searchText => {
     try {
       const carriers = await fetchShipmentCarriers({ searchText, size: 100 });
-      setCarrierOptions(Array.isArray(carriers) ? carriers : []);
+      setCarrierOptions(normalizeCarrierOptions(carriers));
     } catch (err) {
       console.warn('택배사 목록 조회 실패:', err);
-      setCarrierOptions([]);
+      setCarrierOptions(normalizeCarrierOptions([]));
     }
   };
 
@@ -70,12 +101,20 @@ export default function OutboundDetail() {
     const matched = carrierOptions.find(
       option => option.carrierCode === parsedCode || option.carrierName === parsedName,
     );
+    const resolvedCode = matched?.carrierCode || parsedCode || '';
+    const resolvedName = matched?.carrierName || parsedName;
 
     setConfirmForm(prev => ({
       ...prev,
       carrierInput: raw,
-      carrier: parsedName,
-      carrierCode: matched?.carrierCode || parsedCode || '',
+      carrier: resolvedName,
+      carrierCode: resolvedCode,
+      trackingNumber:
+        resolvedCode === DUMMY_CARRIER_CODE
+          ? buildDummyTrackingNumber()
+          : prev.carrierCode === DUMMY_CARRIER_CODE
+            ? ''
+            : prev.trackingNumber,
     }));
   };
 
@@ -304,11 +343,27 @@ export default function OutboundDetail() {
                 <label>송장번호 *</label>
                 <input
                   type="text"
-                  placeholder="송장번호를 입력해 주세요."
+                  placeholder={confirmForm.carrierCode === DUMMY_CARRIER_CODE ? '더미 송장번호가 자동 생성됩니다.' : '송장번호를 입력해 주세요.'}
                   value={confirmForm.trackingNumber}
+                  readOnly={confirmForm.carrierCode === DUMMY_CARRIER_CODE}
                   onChange={e => setConfirmForm(prev => ({ ...prev, trackingNumber: e.target.value }))}
                   required
                 />
+                {confirmForm.carrierCode === DUMMY_CARRIER_CODE && (
+                  <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => setConfirmForm(prev => ({ ...prev, trackingNumber: buildDummyTrackingNumber() }))}
+                      disabled={submitting}
+                    >
+                      더미 송장 재생성
+                    </button>
+                    <span style={{ fontSize: 12, color: '#6b7280' }}>
+                      UTC 기준 3시간 단위 더미 송장번호 형식입니다.
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="modal-actions">
                 <button type="submit" disabled={submitting} className="btn-primary">
