@@ -48,7 +48,7 @@ export default function ShipmentTracking() {
       setTracking(data);
     } catch (err) {
       console.error(err);
-      setError('Failed to load tracking details.');
+      setError('배송 추적 정보를 불러오지 못했습니다.');
       if (!tracking) {
         setTracking(null);
       }
@@ -59,23 +59,23 @@ export default function ShipmentTracking() {
   };
 
   if (loading && !tracking) {
-    return <div className="purchase-page">Loading...</div>;
+    return <div className="purchase-page">로딩 중...</div>;
   }
 
   if (!tracking) {
-    return <div className="purchase-page">{error || 'Tracking detail not found.'}</div>;
+    return <div className="purchase-page">{error || '배송 추적 정보를 찾을 수 없습니다.'}</div>;
   }
 
   return (
     <div className="purchase-page">
       <div className="page-header">
-        <h2>Shipment Tracking</h2>
+        <h2>송장 추적</h2>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn-primary" onClick={() => loadTracking(true)} disabled={syncing}>
-            {syncing ? 'Syncing...' : 'Sync Status'}
+            {syncing ? '동기화 중...' : '상태 동기화'}
           </button>
           <button className="btn-secondary" onClick={() => navigate('/shipments')}>
-            Back to List
+            목록으로
           </button>
         </div>
       </div>
@@ -86,15 +86,15 @@ export default function ShipmentTracking() {
         <table className="info-table">
           <tbody>
             <tr>
-              <th>Shipment ID</th>
+              <th>배송ID</th>
               <td>{tracking.shipmentId}</td>
             </tr>
             <tr>
-              <th>Flow Type</th>
-              <td>{tracking.flowType === 'INBOUND' ? 'Inbound' : 'Outbound'}</td>
+              <th>구분</th>
+              <td>{tracking.flowType === 'INBOUND' ? '입고' : '출고'}</td>
             </tr>
             <tr>
-              <th>Local Status</th>
+              <th>내부 배송 상태</th>
               <td>
                 <span
                   className="status-badge"
@@ -108,43 +108,43 @@ export default function ShipmentTracking() {
               </td>
             </tr>
             <tr>
-              <th>Carrier</th>
+              <th>택배사</th>
               <td>
                 {tracking.carrier || '-'}
                 {tracking.carrierCode ? ` (${tracking.carrierCode})` : ''}
               </td>
             </tr>
             <tr>
-              <th>Tracking Number</th>
+              <th>송장번호</th>
               <td>{tracking.trackingNumber || '-'}</td>
             </tr>
             <tr>
-              <th>Tracker Status Code</th>
+              <th>트래커 상태 코드</th>
               <td>{tracking.trackerStatusCode || '-'}</td>
             </tr>
             <tr>
-              <th>Tracker Status Name</th>
+              <th>트래커 상태명</th>
               <td>{tracking.trackerStatusName || '-'}</td>
             </tr>
             <tr>
-              <th>Last Event Time</th>
+              <th>최근 이벤트 시각</th>
               <td>{tracking.trackerEventTime || '-'}</td>
             </tr>
             <tr>
-              <th>Last Event Location</th>
+              <th>최근 이벤트 위치</th>
               <td>{tracking.trackerEventLocation || '-'}</td>
             </tr>
             <tr>
-              <th>Last Event Description</th>
+              <th>최근 이벤트 내용</th>
               <td>{tracking.trackerEventDescription || '-'}</td>
             </tr>
             <tr>
-              <th>Local Status Changed</th>
-              <td>{tracking.localStatusChanged ? 'Yes' : 'No'}</td>
+              <th>내부 상태 반영 여부</th>
+              <td>{tracking.localStatusChanged ? '반영됨' : '변경 없음'}</td>
             </tr>
             {tracking.message && (
               <tr>
-                <th>Message</th>
+                <th>메시지</th>
                 <td>{tracking.message}</td>
               </tr>
             )}
@@ -153,16 +153,16 @@ export default function ShipmentTracking() {
       </div>
 
       <div className="info-box">
-        <h3>Tracking Events</h3>
+        <h3>배송 이벤트</h3>
         <table className="erp-table list-table">
           <thead>
             <tr>
               <th>No</th>
-              <th>Status Code</th>
-              <th>Status Name</th>
-              <th>Time</th>
-              <th>Location</th>
-              <th>Description</th>
+              <th>상태 코드</th>
+              <th>상태명</th>
+              <th>시각</th>
+              <th>위치</th>
+              <th>설명</th>
             </tr>
           </thead>
           <tbody>
@@ -179,7 +179,7 @@ export default function ShipmentTracking() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="empty-cell">No tracking events.</td>
+                <td colSpan={6} className="empty-cell">배송 이벤트가 없습니다.</td>
               </tr>
             )}
           </tbody>

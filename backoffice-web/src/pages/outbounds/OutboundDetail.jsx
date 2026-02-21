@@ -45,7 +45,7 @@ export default function OutboundDetail() {
       setOutbound(data);
     } catch (err) {
       console.error(err);
-      setError('Failed to load outbound detail.');
+      setError('출고 상세 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ export default function OutboundDetail() {
       const carriers = await fetchShipmentCarriers({ searchText, size: 100 });
       setCarrierOptions(Array.isArray(carriers) ? carriers : []);
     } catch (err) {
-      console.warn('Failed to load carriers:', err);
+      console.warn('택배사 목록 조회 실패:', err);
       setCarrierOptions([]);
     }
   };
@@ -67,8 +67,8 @@ export default function OutboundDetail() {
     const parsedName = parsed ? parsed[1].trim() : raw.trim();
     const parsedCode = parsed ? parsed[2].trim() : '';
 
-    const matched = carrierOptions.find(option =>
-      option.carrierCode === parsedCode || option.carrierName === parsedName,
+    const matched = carrierOptions.find(
+      option => option.carrierCode === parsedCode || option.carrierName === parsedName,
     );
 
     setConfirmForm(prev => ({
@@ -81,7 +81,7 @@ export default function OutboundDetail() {
 
   const handleConfirm = async () => {
     if (!confirmForm.carrier || !confirmForm.trackingNumber) {
-      alert('Please enter carrier and tracking number.');
+      alert('택배사와 송장번호를 입력해 주세요.');
       return;
     }
 
@@ -95,10 +95,10 @@ export default function OutboundDetail() {
       setOutbound(updated);
       setShowConfirmModal(false);
       setConfirmForm(INITIAL_CONFIRM_FORM);
-      alert('Outbound confirmed.');
+      alert('출고 확정이 완료되었습니다.');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to confirm outbound.');
+      alert(err.response?.data?.message || '출고 확정에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -109,21 +109,21 @@ export default function OutboundDetail() {
       setSubmitting(true);
       const updated = await arriveOutboundShipment(id);
       setOutbound(updated);
-      alert('Shipment marked as arrived.');
+      alert('배송 완료 처리가 완료되었습니다.');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to mark arrival.');
+      alert(err.response?.data?.message || '배송 완료 처리에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
   };
 
   if (loading && !outbound) {
-    return <div className="purchase-page">Loading...</div>;
+    return <div className="purchase-page">로딩 중...</div>;
   }
 
   if (!outbound) {
-    return <div className="purchase-page">{error || 'Outbound not found.'}</div>;
+    return <div className="purchase-page">{error || '출고 정보를 찾을 수 없습니다.'}</div>;
   }
 
   const canConfirm = outbound.status === 'CREATED';
@@ -133,9 +133,9 @@ export default function OutboundDetail() {
   return (
     <div className="purchase-page">
       <div className="page-header">
-        <h2>Outbound Detail</h2>
+        <h2>출고 상세</h2>
         <button className="btn-secondary" onClick={() => navigate('/outbounds')}>
-          Back to List
+          목록으로
         </button>
       </div>
 
@@ -145,29 +145,29 @@ export default function OutboundDetail() {
         <table className="info-table">
           <tbody>
             <tr>
-              <th>Outbound ID</th>
+              <th>출고번호</th>
               <td>{outbound.outboundId}</td>
             </tr>
             <tr>
-              <th>Order ID</th>
+              <th>주문번호</th>
               <td>{outbound.orderId}</td>
             </tr>
             <tr>
-              <th>Store</th>
+              <th>매장</th>
               <td>
-                {outbound.storeName || `Store ${outbound.storeId}`}
+                {outbound.storeName || `매장 ${outbound.storeId}`}
                 {outbound.storeCode ? ` (${outbound.storeCode})` : ''}
               </td>
             </tr>
             <tr>
-              <th>Warehouse</th>
+              <th>창고</th>
               <td>
                 {outbound.warehouseName || '-'}
                 {outbound.warehouseCode ? ` (${outbound.warehouseCode})` : ''}
               </td>
             </tr>
             <tr>
-              <th>Outbound Status</th>
+              <th>출고 상태</th>
               <td>
                 <span
                   className="status-badge"
@@ -178,7 +178,7 @@ export default function OutboundDetail() {
               </td>
             </tr>
             <tr>
-              <th>Shipment Status</th>
+              <th>배송 상태</th>
               <td>
                 <span
                   className="status-badge"
@@ -192,23 +192,23 @@ export default function OutboundDetail() {
               </td>
             </tr>
             <tr>
-              <th>Created At</th>
+              <th>생성일시</th>
               <td>{outbound.createdAt ? new Date(outbound.createdAt).toLocaleString('ko-KR') : '-'}</td>
             </tr>
             <tr>
-              <th>Carrier</th>
+              <th>택배사</th>
               <td>{outbound.shipment?.carrier || '-'}</td>
             </tr>
             <tr>
-              <th>Tracking Number</th>
+              <th>송장번호</th>
               <td>{outbound.shipment?.trackingNumber || '-'}</td>
             </tr>
             <tr>
-              <th>Departed At</th>
+              <th>출발일시</th>
               <td>{outbound.shipment?.departedAt ? new Date(outbound.shipment.departedAt).toLocaleString('ko-KR') : '-'}</td>
             </tr>
             <tr>
-              <th>Arrived At</th>
+              <th>도착일시</th>
               <td>{outbound.shipment?.arrivedAt ? new Date(outbound.shipment.arrivedAt).toLocaleString('ko-KR') : '-'}</td>
             </tr>
           </tbody>
@@ -218,12 +218,12 @@ export default function OutboundDetail() {
       <div className="form-actions">
         {canConfirm && (
           <button className="btn-primary" onClick={() => setShowConfirmModal(true)} disabled={submitting}>
-            Confirm Outbound
+            출고 확정
           </button>
         )}
         {canArrive && (
           <button className="btn-success" onClick={handleArrive} disabled={submitting}>
-            Mark Arrived
+            배송 완료
           </button>
         )}
         {outbound.shipment?.shipmentId && (
@@ -231,21 +231,21 @@ export default function OutboundDetail() {
             className="btn-secondary"
             onClick={() => navigate(`/shipments/${outbound.shipment.shipmentId}/tracking`)}
           >
-            Track Shipment
+            배송 추적
           </button>
         )}
       </div>
 
       <div className="info-box">
-        <h3>Outbound Items</h3>
+        <h3>출고 상품</h3>
         <table className="erp-table list-table outbound-detail-items-table">
           <thead>
             <tr>
               <th>No</th>
-              <th>Product ID</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th>Amount</th>
+              <th>상품ID</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>금액</th>
             </tr>
           </thead>
           <tbody>
@@ -256,17 +256,13 @@ export default function OutboundDetail() {
                   <td title={String(item.productId)}>{item.productId}</td>
                   <td>{item.qty}</td>
                   <td>{item.unitPrice != null ? Number(item.unitPrice).toLocaleString('ko-KR') : '-'}</td>
-                  <td>
-                    {item.unitPrice != null
-                      ? Number(item.unitPrice * item.qty).toLocaleString('ko-KR')
-                      : '-'}
-                  </td>
+                  <td>{item.unitPrice != null ? Number(item.unitPrice * item.qty).toLocaleString('ko-KR') : '-'}</td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan={5} className="empty-cell">
-                  No outbound items.
+                  출고 상품이 없습니다.
                 </td>
               </tr>
             )}
@@ -277,7 +273,7 @@ export default function OutboundDetail() {
       {showConfirmModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Confirm Outbound</h3>
+            <h3>출고 확정</h3>
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -285,10 +281,10 @@ export default function OutboundDetail() {
               }}
             >
               <div className="form-group">
-                <label>Carrier *</label>
+                <label>택배사 *</label>
                 <input
                   type="text"
-                  placeholder="Type carrier"
+                  placeholder="택배사를 입력해 주세요."
                   value={confirmForm.carrierInput}
                   list={carrierDatalistId}
                   onChange={e => {
@@ -300,18 +296,15 @@ export default function OutboundDetail() {
                 />
                 <datalist id={carrierDatalistId}>
                   {carrierOptions.map(option => (
-                    <option
-                      key={option.carrierCode}
-                      value={`${option.carrierName} (${option.carrierCode})`}
-                    />
+                    <option key={option.carrierCode} value={`${option.carrierName} (${option.carrierCode})`} />
                   ))}
                 </datalist>
               </div>
               <div className="form-group">
-                <label>Tracking Number *</label>
+                <label>송장번호 *</label>
                 <input
                   type="text"
-                  placeholder="Type tracking number"
+                  placeholder="송장번호를 입력해 주세요."
                   value={confirmForm.trackingNumber}
                   onChange={e => setConfirmForm(prev => ({ ...prev, trackingNumber: e.target.value }))}
                   required
@@ -319,7 +312,7 @@ export default function OutboundDetail() {
               </div>
               <div className="modal-actions">
                 <button type="submit" disabled={submitting} className="btn-primary">
-                  {submitting ? 'Processing...' : 'Confirm'}
+                  {submitting ? '처리 중...' : '확정'}
                 </button>
                 <button
                   type="button"
@@ -327,7 +320,7 @@ export default function OutboundDetail() {
                   className="btn-secondary"
                   disabled={submitting}
                 >
-                  Cancel
+                  취소
                 </button>
               </div>
             </form>

@@ -62,17 +62,17 @@ export default function InboundDetailPage() {
       if (inboundData.storeId) {
         try {
           const storeData = await getStore(inboundData.storeId);
-          setStoreName(storeData.storeName || storeData.name || `Store ${inboundData.storeId}`);
+          setStoreName(storeData.storeName || storeData.name || `매장 ${inboundData.storeId}`);
           setStoreCode(storeData.code || '');
         } catch (storeErr) {
-          console.warn('Failed to load store info:', storeErr);
-          setStoreName(`Store ${inboundData.storeId}`);
+          console.warn('매장 정보를 불러오지 못했습니다:', storeErr);
+          setStoreName(`매장 ${inboundData.storeId}`);
           setStoreCode('');
         }
       }
     } catch (err) {
-      console.error('Failed to fetch inbound:', err);
-      alert('Failed to load inbound data.');
+      console.error('입고 조회 실패:', err);
+      alert('입고 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,8 @@ export default function InboundDetailPage() {
       }, {});
       setProductMap(nextMap);
     } catch (err) {
-      console.warn('Failed to load product details:', err);
+      console.warn('상품 상세 조회 실패:', err);
+      setProductMap({});
     }
   };
 
@@ -105,7 +106,7 @@ export default function InboundDetailPage() {
       const carriers = await getShipmentCarriers({ searchText, size: 100 });
       setCarrierOptions(Array.isArray(carriers) ? carriers : []);
     } catch (err) {
-      console.warn('Failed to load carriers:', err);
+      console.warn('택배사 목록 조회 실패:', err);
       setCarrierOptions([]);
     }
   };
@@ -116,8 +117,8 @@ export default function InboundDetailPage() {
     const parsedName = parsed ? parsed[1].trim() : raw.trim();
     const parsedCode = parsed ? parsed[2].trim() : '';
 
-    const matched = carrierOptions.find(option =>
-      option.carrierCode === parsedCode || option.carrierName === parsedName,
+    const matched = carrierOptions.find(
+      option => option.carrierCode === parsedCode || option.carrierName === parsedName,
     );
 
     setDepartForm(prev => ({
@@ -134,10 +135,10 @@ export default function InboundDetailPage() {
       const updated = await confirmInbound(inboundId);
       setInbound(updated);
       setShowConfirmModal(false);
-      alert('Inbound confirmed.');
+      alert('입고 확정이 완료되었습니다.');
     } catch (err) {
-      console.error('Inbound confirm failed:', err);
-      alert(err.response?.data?.message || 'Failed to confirm inbound.');
+      console.error('입고 확정 실패:', err);
+      alert(err.response?.data?.message || '입고 확정에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -145,7 +146,7 @@ export default function InboundDetailPage() {
 
   const handleDepart = async () => {
     if (!departForm.carrier || !departForm.trackingNumber) {
-      alert('Please enter carrier and tracking number.');
+      alert('택배사와 송장번호를 입력해 주세요.');
       return;
     }
 
@@ -160,10 +161,10 @@ export default function InboundDetailPage() {
       setInbound(prev => ({ ...prev, shipment: updated }));
       setShowDepartModal(false);
       setDepartForm(INITIAL_DEPART_FORM);
-      alert('Shipment departed.');
+      alert('배송 출발 처리가 완료되었습니다.');
     } catch (err) {
-      console.error('Depart failed:', err);
-      alert(err.response?.data?.message || 'Failed to depart shipment.');
+      console.error('배송 출발 실패:', err);
+      alert(err.response?.data?.message || '배송 출발 처리에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -175,10 +176,10 @@ export default function InboundDetailPage() {
       const updated = await cancelInbound(inboundId);
       setInbound(updated);
       setShowCancelModal(false);
-      alert('Inbound canceled.');
+      alert('입고 취소가 완료되었습니다.');
     } catch (err) {
-      console.error('Inbound cancel failed:', err);
-      alert(err.response?.data?.message || 'Failed to cancel inbound.');
+      console.error('입고 취소 실패:', err);
+      alert(err.response?.data?.message || '입고 취소에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -192,8 +193,8 @@ export default function InboundDetailPage() {
     return display === '-' ? String(item.productId) : display;
   };
 
-  if (loading) return <div className="purchase-page">Loading...</div>;
-  if (!inbound) return <div className="purchase-page">Inbound not found.</div>;
+  if (loading) return <div className="purchase-page">로딩 중...</div>;
+  if (!inbound) return <div className="purchase-page">입고 정보를 찾을 수 없습니다.</div>;
 
   const isCreated = inbound.status === 'CREATED';
   const isReadyForDepart = inbound.shipment?.status === 'READY';
@@ -204,45 +205,45 @@ export default function InboundDetailPage() {
   return (
     <div className="purchase-page">
       <div className="page-header">
-        <h2>Inbound Detail</h2>
+        <h2>입고 상세</h2>
         <button className="btn-secondary" onClick={() => navigate(-1)}>
-          Back
+          뒤로
         </button>
       </div>
 
       <div className="detail-section">
-        <h3>Basic Info</h3>
+        <h3>기본 정보</h3>
         <div className="info-grid">
           <div className="info-item">
-            <label>Inbound No.</label>
+            <label>입고번호</label>
             <span>{formatDocNumber(inbound.createdAt, inbound.inboundId)}</span>
           </div>
           <div className="info-item">
-            <label>Purchase Order No.</label>
+            <label>발주번호</label>
             <span>{formatDocNumber(inbound.purchaseOrderCreatedAt, inbound.purchaseOrderId)}</span>
           </div>
           <div className="info-item">
-            <label>Status</label>
+            <label>상태</label>
             <span className="status-badge" style={{ backgroundColor: getStatusColor(inbound.status), color: '#fff' }}>
               {getStatusLabel(inbound.status)}
             </span>
           </div>
           <div className="info-item">
-            <label>Created At</label>
+            <label>생성일시</label>
             <span>{new Date(inbound.createdAt).toLocaleString('ko-KR')}</span>
           </div>
         </div>
       </div>
 
       <div className="detail-section">
-        <h3>Destination</h3>
+        <h3>입고 대상</h3>
         <div className="info-grid">
           <div className="info-item">
-            <label>Store</label>
+            <label>매장</label>
             <span>{storeCode ? `${storeName} (${storeCode})` : storeName}</span>
           </div>
           <div className="info-item">
-            <label>Warehouse</label>
+            <label>창고</label>
             <span>{inbound.warehouseId}</span>
           </div>
         </div>
@@ -250,21 +251,21 @@ export default function InboundDetailPage() {
 
       {inbound.shipment && (
         <div className="detail-section">
-          <h3>Shipment</h3>
+          <h3>배송 정보</h3>
           <div className="info-grid">
             <div className="info-item">
-              <label>Shipment Status</label>
+              <label>배송 상태</label>
               <span>{inbound.shipment.status}</span>
             </div>
             <div className="info-item">
-              <label>Carrier</label>
+              <label>택배사</label>
               <span>
                 {inbound.shipment.carrier || '-'}
                 {inbound.shipment.carrierCode ? ` (${inbound.shipment.carrierCode})` : ''}
               </span>
             </div>
             <div className="info-item">
-              <label>Tracking Number</label>
+              <label>송장번호</label>
               <span>{inbound.shipment.trackingNumber || '-'}</span>
             </div>
           </div>
@@ -272,13 +273,13 @@ export default function InboundDetailPage() {
       )}
 
       <div className="detail-section">
-        <h3>Inbound Items</h3>
+        <h3>입고 상품</h3>
         <table className="erp-table">
           <thead>
             <tr>
               <th>No</th>
-              <th>Product (SKU)</th>
-              <th>Qty</th>
+              <th>상품명(sku)</th>
+              <th>수량</th>
             </tr>
           </thead>
           <tbody>
@@ -292,7 +293,7 @@ export default function InboundDetailPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={3}>No items.</td>
+                <td colSpan={3}>입고 상품이 없습니다.</td>
               </tr>
             )}
           </tbody>
@@ -302,7 +303,7 @@ export default function InboundDetailPage() {
       <div className="form-actions">
         {isReadyForDepart && (
           <button className="btn-primary" onClick={() => setShowDepartModal(true)}>
-            Depart Shipment
+            배송 출발
           </button>
         )}
 
@@ -316,25 +317,25 @@ export default function InboundDetailPage() {
             }}
             disabled={isConfirmedInbound || submitting}
           >
-            {isConfirmedInbound ? 'Confirmed' : 'Confirm Inbound'}
+            {isConfirmedInbound ? '입고 확정 완료' : '입고 확정'}
           </button>
         )}
 
         {isCreated && (
           <button className="btn-danger" onClick={() => setShowCancelModal(true)}>
-            Cancel Inbound
+            입고 취소
           </button>
         )}
 
         <button className="btn-secondary" onClick={() => navigate(-1)}>
-          Go Back
+          뒤로
         </button>
       </div>
 
       {showDepartModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Depart Shipment</h3>
+            <h3>배송 출발 처리</h3>
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -342,10 +343,10 @@ export default function InboundDetailPage() {
               }}
             >
               <div className="form-group">
-                <label>Carrier *</label>
+                <label>택배사 *</label>
                 <input
                   type="text"
-                  placeholder="Type carrier"
+                  placeholder="택배사를 입력해 주세요."
                   value={departForm.carrierInput}
                   list={carrierDatalistId}
                   onChange={e => {
@@ -362,10 +363,10 @@ export default function InboundDetailPage() {
                 </datalist>
               </div>
               <div className="form-group">
-                <label>Tracking Number *</label>
+                <label>송장번호 *</label>
                 <input
                   type="text"
-                  placeholder="Type tracking number"
+                  placeholder="송장번호를 입력해 주세요."
                   value={departForm.trackingNumber}
                   onChange={e => setDepartForm(prev => ({ ...prev, trackingNumber: e.target.value }))}
                   required
@@ -373,7 +374,7 @@ export default function InboundDetailPage() {
               </div>
               <div className="modal-actions">
                 <button type="submit" disabled={submitting} className="btn-primary">
-                  {submitting ? 'Processing...' : 'Depart'}
+                  {submitting ? '처리 중...' : '출발 처리'}
                 </button>
                 <button
                   type="button"
@@ -381,7 +382,7 @@ export default function InboundDetailPage() {
                   className="btn-secondary"
                   disabled={submitting}
                 >
-                  Cancel
+                  닫기
                 </button>
               </div>
             </form>
@@ -392,14 +393,14 @@ export default function InboundDetailPage() {
       {showConfirmModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Confirm Inbound</h3>
-            <p>Do you want to confirm inbound receipt now?</p>
+            <h3>입고 확정</h3>
+            <p>현재 입고 건을 확정하시겠습니까?</p>
             <div className="modal-actions">
               <button className="btn-success" onClick={handleConfirm} disabled={submitting}>
-                {submitting ? 'Processing...' : 'Confirm'}
+                {submitting ? '처리 중...' : '확정'}
               </button>
               <button className="btn-secondary" onClick={() => setShowConfirmModal(false)} disabled={submitting}>
-                Cancel
+                취소
               </button>
             </div>
           </div>
@@ -409,14 +410,14 @@ export default function InboundDetailPage() {
       {showCancelModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Cancel Inbound</h3>
-            <p>Do you want to cancel this inbound?</p>
+            <h3>입고 취소</h3>
+            <p>현재 입고 건을 취소하시겠습니까?</p>
             <div className="modal-actions">
               <button className="btn-danger" onClick={handleCancel} disabled={submitting}>
-                {submitting ? 'Processing...' : 'Cancel'}
+                {submitting ? '처리 중...' : '입고 취소'}
               </button>
               <button className="btn-secondary" onClick={() => setShowCancelModal(false)} disabled={submitting}>
-                Close
+                닫기
               </button>
             </div>
           </div>

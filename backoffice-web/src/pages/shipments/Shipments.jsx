@@ -64,7 +64,7 @@ export default function Shipments() {
       const data = await getAllStores();
       setStores(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.warn('Failed to load stores:', err);
+      console.warn('매장 목록 조회 실패:', err);
       setStores([]);
     }
   };
@@ -74,7 +74,7 @@ export default function Shipments() {
       const data = await getWarehouses(storeId || null);
       setWarehouses(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.warn('Failed to load warehouses:', err);
+      console.warn('창고 목록 조회 실패:', err);
       setWarehouses([]);
     }
   };
@@ -100,7 +100,7 @@ export default function Shipments() {
       setTotalElements(data.totalElements || 0);
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch shipments.');
+      setError('배송 목록을 조회하지 못했습니다.');
       setShipments([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -143,7 +143,7 @@ export default function Shipments() {
 
   const storeOptions = useMemo(
     () => [
-      { value: '', label: 'All' },
+      { value: '', label: '전체' },
       ...stores.map(store => ({
         value: String(store.id),
         label: store.code ? `${store.name} (${store.code})` : store.name,
@@ -154,7 +154,7 @@ export default function Shipments() {
 
   const warehouseOptions = useMemo(
     () => [
-      { value: '', label: 'All' },
+      { value: '', label: '전체' },
       ...warehouses.map(warehouse => ({
         value: String(warehouse.id ?? warehouse.warehouseId),
         label: warehouse.code ? `${warehouse.name} (${warehouse.code})` : warehouse.name,
@@ -166,7 +166,7 @@ export default function Shipments() {
   return (
     <div className="purchase-page">
       <div className="page-header">
-        <h2>Shipment List</h2>
+        <h2>배송 조회</h2>
       </div>
 
       <div className="card list-filter-card">
@@ -175,19 +175,19 @@ export default function Shipments() {
           fields={[
             {
               name: 'flowType',
-              label: 'Type',
+              label: '구분',
               type: 'select',
               value: filters.flowType,
               onChange: handleFilterChange,
               options: [
-                { value: '', label: 'All' },
-                { value: 'INBOUND', label: 'Inbound' },
-                { value: 'OUTBOUND', label: 'Outbound' },
+                { value: '', label: '전체' },
+                { value: 'INBOUND', label: '입고' },
+                { value: 'OUTBOUND', label: '출고' },
               ],
             },
             {
               name: 'storeId',
-              label: 'Store',
+              label: '매장',
               type: 'select',
               value: filters.storeId,
               onChange: handleFilterChange,
@@ -195,7 +195,7 @@ export default function Shipments() {
             },
             {
               name: 'warehouseId',
-              label: 'Warehouse',
+              label: '창고',
               type: 'select',
               value: filters.warehouseId,
               onChange: handleFilterChange,
@@ -203,18 +203,18 @@ export default function Shipments() {
             },
             {
               name: 'shipmentStatus',
-              label: 'Shipment Status',
+              label: '배송 상태',
               type: 'select',
               value: filters.shipmentStatus,
               onChange: handleFilterChange,
               options: [
-                { value: '', label: 'All' },
+                { value: '', label: '전체' },
                 ...Object.entries(SHIPMENT_STATUS).map(([key, value]) => ({ value: key, label: value.label })),
               ],
             },
             {
               name: 'createdRange',
-              label: 'Created Date',
+              label: '생성일',
               type: 'date-range',
               fromName: 'from',
               toName: 'to',
@@ -233,31 +233,31 @@ export default function Shipments() {
 
       <div className="card list-card">
         <div className="table-toolbar">
-          <span className="total-count">Total {totalElements.toLocaleString('ko-KR')} rows</span>
+          <span className="total-count">총 {totalElements.toLocaleString('ko-KR')}건</span>
         </div>
 
         <table className="erp-table list-table outbound-list-table">
           <thead>
             <tr>
-              <th>Shipment ID</th>
-              <th>Type</th>
-              <th>Ref ID</th>
-              <th>Store</th>
-              <th>Warehouse</th>
-              <th>Status</th>
-              <th>Carrier</th>
-              <th>Tracking No.</th>
-              <th>Created At</th>
+              <th>배송ID</th>
+              <th>구분</th>
+              <th>참조ID</th>
+              <th>매장</th>
+              <th>창고</th>
+              <th>상태</th>
+              <th>택배사</th>
+              <th>송장번호</th>
+              <th>생성일시</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="empty-cell">Loading...</td>
+                <td colSpan={9} className="empty-cell">로딩 중...</td>
               </tr>
             ) : shipments.length === 0 ? (
               <tr>
-                <td colSpan={9} className="empty-cell">No results.</td>
+                <td colSpan={9} className="empty-cell">조회 결과가 없습니다.</td>
               </tr>
             ) : (
               shipments.map(shipment => (
@@ -267,7 +267,7 @@ export default function Shipments() {
                   onClick={() => navigate(`/shipments/${shipment.shipmentId}/tracking`)}
                 >
                   <td>{shipment.shipmentId}</td>
-                  <td>{shipment.flowType === 'INBOUND' ? 'Inbound' : 'Outbound'}</td>
+                  <td>{shipment.flowType === 'INBOUND' ? '입고' : '출고'}</td>
                   <td>{shipment.referenceId || '-'}</td>
                   <td>
                     {shipment.storeName || '-'}

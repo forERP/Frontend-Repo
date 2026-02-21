@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchOrderDetail } from '../../api/orderApi';
+import { fetchProductDetail } from '../../api/productApi';
 import { ORDER_STATUS } from '../../constants/status';
 import '../purchase/request/purchase.css';
 import './OrderDetail.css';
@@ -10,12 +11,17 @@ export default function OrderDetail() {
   const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
+  const [productSkuMap, setProductSkuMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     loadOrderDetail();
   }, [id]);
+
+  useEffect(() => {
+    loadItemProducts();
+  }, [order]);
 
   const loadOrderDetail = async () => {
     try {
@@ -29,6 +35,48 @@ export default function OrderDetail() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadItemProducts = async () => {
+    if (!order?.items?.length) {
+      setProductSkuMap({});
+      return;
+    }
+
+    const productIds = [...new Set(order.items.map(item => item.productId).filter(Boolean))];
+    if (productIds.length === 0) {
+      setProductSkuMap({});
+      return;
+    }
+
+    try {
+      const products = await Promise.all(
+        productIds.map(async productId => {
+          try {
+            return await fetchProductDetail(productId);
+          } catch (err) {
+            console.warn('상품 조회 실패:', productId, err);
+            return null;
+          }
+        }),
+      );
+
+      const nextMap = products.filter(Boolean).reduce((acc, product) => {
+        acc[product.id] = product.sku || '';
+        return acc;
+      }, {});
+
+      setProductSkuMap(nextMap);
+    } catch (err) {
+      console.warn('주문 상품 상세 조회 실패:', err);
+      setProductSkuMap({});
+    }
+  };
+
+  const resolveProductDisplay = item => {
+    const name = item.productName || (item.productId ? `상품 ${item.productId}` : '-');
+    const sku = productSkuMap[item.productId];
+    return sku ? `${name} (${sku})` : name;
   };
 
   if (loading && !order) {
@@ -88,12 +136,12 @@ export default function OrderDetail() {
       </div>
 
       <div className="info-box">
-        <h3>주문 품목</h3>
+        <h3>주문 상품</h3>
         <table className="erp-table list-table order-detail-items-table">
           <thead>
             <tr>
               <th>No</th>
-              <th>상품ID</th>
+              <th>상품명(sku)</th>
               <th>수량</th>
               <th>단가</th>
               <th>금액</th>
@@ -104,7 +152,7 @@ export default function OrderDetail() {
               order.items.map((item, index) => (
                 <tr key={item.orderItemId || `${item.productId}-${index}`}>
                   <td>{index + 1}</td>
-                  <td title={String(item.productId)}>{item.productId}</td>
+                  <td>{resolveProductDisplay(item)}</td>
                   <td>{item.qty}</td>
                   <td>{item.unitPrice != null ? Number(item.unitPrice).toLocaleString('ko-KR') : '-'}</td>
                   <td>{item.amount != null ? Number(item.amount).toLocaleString('ko-KR') : '-'}</td>
@@ -113,7 +161,7 @@ export default function OrderDetail() {
             ) : (
               <tr>
                 <td colSpan={5} className="empty-cell">
-                  주문 품목이 없습니다.
+                  주문 상품이 없습니다.
                 </td>
               </tr>
             )}
