@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import api from '../../lib/api';
+// import api from '../../lib/api';
 import './SalesReport.css';
 
 const GROUP_OPTIONS = [
@@ -23,7 +23,6 @@ function getDefaultDateRange() {
   const from = new Date(now);
   from.setDate(from.getDate() - 30);
   const fromDate = from.toISOString().slice(0, 10);
-
   return { fromDate, toDate };
 }
 
@@ -39,98 +38,80 @@ export default function SalesReport() {
   const [groupBy, setGroupBy] = useState('product');
   const [fromDate, setFromDate] = useState(defaultFromDate);
   const [toDate, setToDate] = useState(defaultToDate);
+
   const [salesItems, setSalesItems] = useState([]);
   const [summary, setSummary] = useState(EMPTY_SUMMARY);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const requestControllerRef = useRef(null);
 
-  const fetchSalesReport = useCallback(async () => {
-    requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    requestControllerRef.current = controller;
-
-    setLoading(true);
-    setError('');
-
+  const loadSalesReport = async (params) => {
     try {
+      setLoading(true);
+      setError('');
+
       const response = await api.get('/reports/sales', {
-        params: {
-          groupBy,
-          fromDate,
-          toDate,
-        },
-        signal: controller.signal,
+        params,
       });
 
       const payload = response?.data ?? {};
+
       setSalesItems(Array.isArray(payload.items) ? payload.items : []);
       setSummary(payload.summary ?? EMPTY_SUMMARY);
     } catch (err) {
-      if (controller.signal.aborted) {
-        return;
-      }
-
       const serverMessage = err?.response?.data?.message;
-      setError(serverMessage || '매출 리포트를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      setError(serverMessage || '매출 리포트를 불러오지 못했습니다.');
+      setSalesItems([]);
+      setSummary(EMPTY_SUMMARY);
     } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  }, [groupBy, fromDate, toDate]);
+  };
 
   useEffect(() => {
-    fetchSalesReport();
+    loadSalesReport({
+      groupBy,
+      fromDate,
+      toDate,
+    });
+  }, []);
 
-    return () => {
-      requestControllerRef.current?.abort();
-    };
-  }, [fetchSalesReport]);
+  const chartData = useMemo(() => ({
+    labels: salesItems.map((item) => item.name ?? '-'),
+    datasets: [
+      {
+        label: '매출액',
+        data: salesItems.map((item) => Number(item.salesAmount ?? 0)),
+        backgroundColor: 'rgba(37, 99, 235, 0.72)',
+        borderColor: 'rgba(37, 99, 235, 1)',
+        borderWidth: 1,
+        borderRadius: 6,
+        maxBarThickness: 48,
+      },
+    ],
+  }), [salesItems]);
 
-  const chartData = useMemo(() => {
-    return {
-      labels: salesItems.map((item) => item.name ?? '-'),
-      datasets: [
-        {
-          label: '매출액',
-          data: salesItems.map((item) => Number(item.salesAmount ?? 0)),
-          backgroundColor: 'rgba(37, 99, 235, 0.72)',
-          borderColor: 'rgba(37, 99, 235, 1)',
-          borderWidth: 1,
-          borderRadius: 6,
-          maxBarThickness: 48,
-        },
-      ],
-    };
-  }, [salesItems]);
-
-  const chartOptions = useMemo(
-    () => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.dataset.label}: ${currencyFormatter.format(context.parsed.y || 0)}`,
-          },
+  const chartOptions = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top' },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `${context.dataset.label}: ${currencyFormatter.format(context.parsed.y || 0)}`,
         },
       },
-      scales: {
-        y: {
-          ticks: {
-            callback: (value) => currencyFormatter.format(Number(value)),
-          },
-          beginAtZero: true,
+    },
+    scales: {
+      y: {
+        ticks: {
+          callback: (value) => currencyFormatter.format(Number(value)),
         },
+        beginAtZero: true,
       },
-    }),
-    [],
-  );
+    },
+  }), []);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -140,7 +121,11 @@ export default function SalesReport() {
       return;
     }
 
-    fetchSalesReport();
+    loadSalesReport({
+      groupBy,
+      fromDate,
+      toDate,
+    });
   };
 
   return (
@@ -176,7 +161,11 @@ export default function SalesReport() {
         </button>
       </form>
 
-      {error && <p className="sales-report-message sales-report-message--error">{error}</p>}
+      {error && (
+        <p className="sales-report-message sales-report-message--error">
+          {error}
+        </p>
+      )}
 
       <div className="sales-report-summary">
         <article>
