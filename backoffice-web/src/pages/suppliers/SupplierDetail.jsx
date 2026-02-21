@@ -264,14 +264,6 @@ export default function SupplierDetailPage() {
                     <td>{supplier.address || '-'}</td>
                   </tr>
                   <tr>
-                    <th>좌표</th>
-                    <td>
-                      {supplier.latitude != null && supplier.longitude != null
-                        ? `위도 ${Number(supplier.latitude).toFixed(6)} / 경도 ${Number(supplier.longitude).toFixed(6)}`
-                        : '-'}
-                    </td>
-                  </tr>
-                  <tr>
                     <th>상태</th>
                     <td>
                       <span className={`status-badge ${supplier.active ? 'active' : 'inactive'}`}>
@@ -290,7 +282,7 @@ export default function SupplierDetailPage() {
                 latitude={supplier.latitude}
                 longitude={supplier.longitude}
                 title="거래처 위치"
-                emptyMessage="저장된 거래처 좌표가 없습니다."
+                emptyMessage="저장된 거래처 위치 정보가 없습니다."
               />
 
               <div className="form-buttons detail-form-buttons">

@@ -249,14 +249,6 @@ export default function WarehouseDetailPage() {
                     <td>{warehouse.address || '-'}</td>
                   </tr>
                   <tr>
-                    <th>좌표</th>
-                    <td>
-                      {warehouse.latitude != null && warehouse.longitude != null
-                        ? `위도 ${Number(warehouse.latitude).toFixed(6)} / 경도 ${Number(warehouse.longitude).toFixed(6)}`
-                        : '-'}
-                    </td>
-                  </tr>
-                  <tr>
                     <th>생성일</th>
                     <td>{warehouse.createdAt ? new Date(warehouse.createdAt).toLocaleString('ko-KR') : '-'}</td>
                   </tr>
@@ -275,7 +267,7 @@ export default function WarehouseDetailPage() {
                 latitude={warehouse.latitude}
                 longitude={warehouse.longitude}
                 title="창고 위치"
-                emptyMessage="저장된 창고 좌표가 없습니다."
+                emptyMessage="저장된 창고 위치 정보가 없습니다."
               />
 
               <div className="form-buttons detail-form-buttons">

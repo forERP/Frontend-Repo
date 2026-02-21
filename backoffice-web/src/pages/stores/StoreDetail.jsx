@@ -329,14 +329,6 @@ export default function StoreDetailPage() {
                     <td>{store.phone || '-'}</td>
                   </tr>
                   <tr>
-                    <th>좌표</th>
-                    <td>
-                      {store.latitude != null && store.longitude != null
-                        ? `위도 ${Number(store.latitude).toFixed(6)} / 경도 ${Number(store.longitude).toFixed(6)}`
-                        : '-'}
-                    </td>
-                  </tr>
-                  <tr>
                     <th>생성일</th>
                     <td>{store.createdAt ? new Date(store.createdAt).toLocaleString('ko-KR') : '-'}</td>
                   </tr>
@@ -351,7 +343,7 @@ export default function StoreDetailPage() {
                 latitude={store.latitude}
                 longitude={store.longitude}
                 title="현재 매장 위치"
-                emptyMessage="해당 매장의 좌표가 아직 저장되지 않았습니다."
+                emptyMessage="해당 매장의 위치 정보가 아직 저장되지 않았습니다."
               />
 
               <StoreGroupMap

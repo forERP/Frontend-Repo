@@ -41,48 +41,14 @@
   opacity: 0.6;
 }
 
-.map-search-results {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fff;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.map-search-result-item {
+.map-result-select {
   width: 100%;
-  border: 0;
-  background: #fff;
-  text-align: left;
   padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  cursor: pointer;
-}
-
-.map-search-result-item + .map-search-result-item {
-  border-top: 1px solid #f1f5f9;
-}
-
-.map-search-result-item:hover {
-  background: #f8fafc;
-}
-
-.map-search-result-item strong {
-  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
   color: #111827;
-}
-
-.map-search-result-item span {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.map-coordinate-text {
-  font-size: 12px;
-  color: #475569;
 }
 
 .map-error-text {

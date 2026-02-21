@@ -40,6 +40,7 @@ export default function AddressSearchMapField({
 
   const [searchKeyword, setSearchKeyword] = useState(address || '');
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedResultIndex, setSelectedResultIndex] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [mapError, setMapError] = useState('');
@@ -137,6 +138,7 @@ export default function AddressSearchMapField({
 
       if (status !== kakaoRef.current.maps.services.Status.OK) {
         setSearchResults([]);
+        setSelectedResultIndex('');
         setSearchError('주소 검색 결과가 없습니다.');
         return;
       }
@@ -144,11 +146,13 @@ export default function AddressSearchMapField({
       const normalized = (result || []).map(normalizeSearchResult).filter(Boolean);
       if (normalized.length === 0) {
         setSearchResults([]);
+        setSelectedResultIndex('');
         setSearchError('좌표로 변환 가능한 주소가 없습니다.');
         return;
       }
 
       setSearchResults(normalized);
+      setSelectedResultIndex('');
     });
   };
 
@@ -161,6 +165,7 @@ export default function AddressSearchMapField({
     onAddressChange?.(result.address);
     setSearchKeyword(result.address);
     setSearchResults([]);
+    setSelectedResultIndex('');
     setSearchError('');
   };
 
@@ -173,6 +178,21 @@ export default function AddressSearchMapField({
       latitude: null,
       longitude: null,
     });
+  };
+
+  const handleSelectChange = (event) => {
+    const { value } = event.target;
+    setSelectedResultIndex(value);
+    if (value === '') {
+      return;
+    }
+
+    const selected = searchResults[Number(value)];
+    if (!selected) {
+      return;
+    }
+
+    handleSelectResult(selected);
   };
 
   return (
@@ -194,26 +214,21 @@ export default function AddressSearchMapField({
       {mapError && <div className="map-error-text">{mapError}</div>}
 
       {searchResults.length > 0 && (
-        <div className="map-search-results">
+        <select
+          className="map-result-select"
+          value={selectedResultIndex}
+          onChange={handleSelectChange}
+          disabled={disabled}
+        >
+          <option value="">검색 결과에서 주소를 선택하세요.</option>
           {searchResults.map((result, index) => (
-            <button
-              key={`${result.address}-${result.latitude}-${result.longitude}-${index}`}
-              type="button"
-              className="map-search-result-item"
-              onClick={() => handleSelectResult(result)}
-              disabled={disabled}
-            >
-              <strong>{result.roadAddress || result.address}</strong>
-              {result.roadAddress && result.jibunAddress && <span>{result.jibunAddress}</span>}
-            </button>
+            <option key={`${result.address}-${result.latitude}-${result.longitude}-${index}`} value={index}>
+              {result.roadAddress || result.address}
+              {result.roadAddress && result.jibunAddress ? ` (${result.jibunAddress})` : ''}
+            </option>
           ))}
-        </div>
+        </select>
       )}
-
-      <div className="map-coordinate-text">
-        위도: {hasValidCoordinate(latitude, longitude) ? toNumber(latitude)?.toFixed(6) : '-'} / 경도:{' '}
-        {hasValidCoordinate(latitude, longitude) ? toNumber(longitude)?.toFixed(6) : '-'}
-      </div>
 
       <div ref={mapElementRef} className="map-preview" />
     </div>
