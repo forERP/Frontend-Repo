@@ -1,16 +1,10 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 import api from '../lib/api'
 
-/**
- * 관리자페이지 로그인
- * @param {Object} credentials - { identifier, password }
- * @returns {Promise<Object>} - { token, role, userId, name }
- */
-export const login = async (credentials) => {
+export const login = async credentials => {
   try {
-    // api instance는 요청 인터셉터가 있어서 authorization 헤더를 자동으로 추가함
-    // 로그인은 token이 없는 상태에서 호출되므로 직접 axios를 사용
-    const response = await axios.post('http://localhost:8089/api/users/login', 
+    const response = await axios.post(
+      'http://localhost:8089/api/users/login',
       {
         identifier: credentials.identifier,
         password: credentials.password,
@@ -23,8 +17,6 @@ export const login = async (credentials) => {
     )
 
     const { token, role, userId, name } = response.data
-
-    // 토큰 및 사용자 정보는 탭/창 세션 동안만 유지
     sessionStorage.setItem('accessToken', token)
     sessionStorage.setItem('userRole', role)
     sessionStorage.setItem('userId', userId)
@@ -37,25 +29,29 @@ export const login = async (credentials) => {
       name,
     }
   } catch (error) {
-    console.error('로그인 에러:', error.response?.status, error.response?.data)
+    console.error('login error:', error.response?.status, error.response?.data)
     const errorMessage = error.response?.data?.message || error.message || '로그인에 실패했습니다.'
     throw new Error(errorMessage)
   }
 }
 
-/**
- * 로그아웃
- */
-export const logout = () => {
+const clearSession = () => {
   sessionStorage.removeItem('accessToken')
   sessionStorage.removeItem('userRole')
   sessionStorage.removeItem('userId')
   sessionStorage.removeItem('userName')
 }
 
-/**
- * 현재 사용자 정보 조회
- */
+export const logout = async () => {
+  try {
+    await api.post('/api/users/logout')
+  } catch (error) {
+    console.warn('logout API call failed:', error?.response?.status || error.message)
+  } finally {
+    clearSession()
+  }
+}
+
 export const getCurrentUser = async () => {
   try {
     const response = await api.get('/api/users/me')

@@ -12,32 +12,32 @@
 
 .purchase-page .return-list-table th:nth-child(1),
 .purchase-page .return-list-table th:nth-child(2) {
-    width: 84px;
+    width: 74px;
 }
 
 .purchase-page .return-list-table th:nth-child(3) {
-    width: 128px;
+    width: 116px;
 }
 
 .purchase-page .return-list-table th:nth-child(4) {
-    width: 90px;
+    width: 76px;
 }
 
 .purchase-page .return-list-table th:nth-child(5) {
-    width: 100px;
+    width: 90px;
 }
 
 .purchase-page .return-list-table th:nth-child(6),
 .purchase-page .return-list-table th:nth-child(7) {
-    width: 88px;
+    width: 82px;
 }
 
 .purchase-page .return-list-table th:nth-child(8) {
-    width: 130px;
+    width: 116px;
 }
 
 .purchase-page .return-list-table th:nth-child(9) {
-    width: 120px;
+    width: 92px;
 }
 
 .purchase-page .return-list-table td {

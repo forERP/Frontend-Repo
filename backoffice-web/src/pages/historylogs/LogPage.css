@@ -1,0 +1,109 @@
+.log-page .list-filter-card {
+  margin-bottom: 16px;
+}
+
+.log-page .admin-log-search-form .list-search-actions,
+.log-page .inventory-log-search-form .list-search-actions {
+  grid-column: 3;
+}
+
+.log-page .admin-log-table th:nth-child(1),
+.log-page .admin-log-table td:nth-child(1) {
+  width: 220px;
+}
+
+.log-page .admin-log-table th:nth-child(2),
+.log-page .admin-log-table td:nth-child(2) {
+  width: 180px;
+}
+
+.log-page .admin-log-table th:nth-child(3),
+.log-page .admin-log-table td:nth-child(3) {
+  width: 220px;
+}
+
+.log-page .inventory-log-table th:nth-child(1),
+.log-page .inventory-log-table td:nth-child(1) {
+  width: 155px;
+}
+
+.log-page .inventory-log-table th:nth-child(2),
+.log-page .inventory-log-table td:nth-child(2) {
+  width: 88px;
+}
+
+.log-page .inventory-log-table th:nth-child(3),
+.log-page .inventory-log-table td:nth-child(3) {
+  width: 150px;
+}
+
+.log-page .inventory-log-table th:nth-child(4),
+.log-page .inventory-log-table td:nth-child(4) {
+  width: 135px;
+}
+
+.log-page .inventory-log-table th:nth-child(5),
+.log-page .inventory-log-table td:nth-child(5) {
+  width: 175px;
+}
+
+.log-page .inventory-log-table th:nth-child(6),
+.log-page .inventory-log-table td:nth-child(6) {
+  width: 105px;
+}
+
+.log-page .inventory-log-table th,
+.log-page .inventory-log-table td {
+  padding: 7px 9px !important;
+}
+
+.log-page .inventory-log-table td:nth-child(5) {
+  white-space: nowrap;
+}
+
+.log-page .log-action-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.log-page .qty-positive {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.log-page .qty-negative {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.log-page .qty-neutral {
+  color: #4b5563;
+  font-weight: 700;
+}
+
+.log-page .qty-flow-text {
+  margin-left: 8px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .log-page .admin-log-search-form .list-search-actions,
+  .log-page .inventory-log-search-form .list-search-actions {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .log-page .admin-log-search-form .list-search-actions,
+  .log-page .inventory-log-search-form .list-search-actions {
+    grid-column: 1;
+  }
+}

@@ -8,9 +8,9 @@ export default function Header({ user, menus, activeTopKey, onTopMenuClick }) {
   const dashboard = menus.find(m => m.key === 'dashboard');
   const restMenus = menus.filter(m => m.key !== 'dashboard');
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
-      logout();
+      await logout();
       navigate('/login');
     }
   };

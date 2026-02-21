@@ -26,10 +26,28 @@
 
 .purchase-page .discard-detail-actions {
     display: flex;
-    gap: 10px;
-    justify-content: flex-end;
+    gap: 12px;
+    width: 100%;
+    margin-top: 24px;
 }
 
 .purchase-page .discard-detail-actions button {
-    min-width: 110px;
+    flex: 1;
+    min-height: 42px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.purchase-page .discard-detail-actions .btn-primary {
+    background: #4f46e5;
+}
+
+.purchase-page .discard-detail-actions .btn-primary:hover:not(:disabled) {
+    background: #4038cc;
+}
+
+@media (max-width: 768px) {
+    .purchase-page .discard-detail-actions {
+        flex-direction: column;
+    }
 }
