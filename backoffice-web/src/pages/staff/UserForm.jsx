@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+ï»¿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkEmployeeCodeAvailable, createUser } from '../../api/userApi';
 import { fetchStoreDetail, fetchStores } from '../../api/storeApi';
@@ -10,6 +10,7 @@ export default function UserForm() {
   const navigate = useNavigate();
   const sessionUser = getSessionUser();
   const isStoreAdmin = isStoreAdminUser(sessionUser);
+  const scopedStoreId = isStoreAdmin && sessionUser?.storeId ? Number(sessionUser.storeId) : null;
 
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,34 +29,34 @@ export default function UserForm() {
     password: '',
     name: '',
     phoneNumber: '',
-    storeId: isStoreAdmin && sessionUser?.storeId ? String(sessionUser.storeId) : '',
+    storeId: scopedStoreId ? String(scopedStoreId) : '',
     role: 'STORE_HALL_STAFF',
   });
 
   useEffect(() => {
     loadStores();
-  }, []);
+  }, [isStoreAdmin, scopedStoreId]);
 
   const loadStores = async () => {
     try {
       setError(null);
 
-      if (isStoreAdmin && sessionUser?.storeId) {
-        const store = await fetchStoreDetail(sessionUser.storeId);
+      if (isStoreAdmin && scopedStoreId) {
+        const store = await fetchStoreDetail(scopedStoreId);
         setStores(store ? [store] : []);
-        setFormData(prev => ({ ...prev, storeId: String(sessionUser.storeId) }));
+        setFormData(prev => ({ ...prev, storeId: String(scopedStoreId) }));
         return;
       }
 
       const data = await fetchStores();
-      const normalized = data || [];
+      const normalized = Array.isArray(data) ? data : [];
       setStores(normalized);
       if (!isStoreAdmin && normalized.length) {
         setFormData(prev => ({ ...prev, storeId: String(normalized[0].id) }));
       }
     } catch (err) {
       console.error(err);
-      setError('¸ÅÀå ¸ñ·ÏÀ» ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù.');
+      setError('ë§¤ì¥ ëª©ë¡ì„ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.');
     }
   };
 
@@ -80,7 +81,7 @@ export default function UserForm() {
   const handleCheckEmployeeCode = async () => {
     const normalizedEmployeeCode = formData.employeeCode.trim();
     if (!normalizedEmployeeCode) {
-      setError('Á÷¿ø ÄÚµå¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      setError('ì§ì› ì½”ë“œë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
       return;
     }
 
@@ -94,8 +95,8 @@ export default function UserForm() {
         checkedCode: normalizedEmployeeCode,
         available,
         message: available
-          ? '»ç¿ë °¡´ÉÇÑ Á÷¿ø ÄÚµåÀÔ´Ï´Ù.'
-          : 'ÀÌ¹Ì »ç¿ë ÁßÀÎ Á÷¿ø ÄÚµåÀÔ´Ï´Ù.',
+          ? 'ì‚¬ìš© ê°€ëŠ¥í•œ ì§ì› ì½”ë“œì…ë‹ˆë‹¤.'
+          : 'ì´ë¯¸ ì‚¬ìš© ì¤‘ì¸ ì§ì› ì½”ë“œì…ë‹ˆë‹¤.',
       });
     } catch (err) {
       console.error(err);
@@ -103,7 +104,7 @@ export default function UserForm() {
         checking: false,
         checkedCode: '',
         available: false,
-        message: 'Á÷¿ø ÄÚµå Áßº¹ È®ÀÎ¿¡ ½ÇÆĞÇß½À´Ï´Ù.',
+        message: 'ì§ì› ì½”ë“œ ì¤‘ë³µ í™•ì¸ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.',
       });
     }
   };
@@ -115,32 +116,37 @@ export default function UserForm() {
     const normalizedEmployeeCode = formData.employeeCode.trim();
 
     if (!normalizedLoginId) {
-      setError('·Î±×ÀÎ ID¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      setError('ë¡œê·¸ì¸ IDë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
       return;
     }
 
     if (!normalizedEmployeeCode) {
-      setError('Á÷¿ø ÄÚµå¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      setError('ì§ì› ì½”ë“œë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
       return;
     }
 
     if (!formData.password || formData.password.length < 8) {
-      setError('ºñ¹Ğ¹øÈ£´Â 8ÀÚ ÀÌ»óÀÌ¾î¾ß ÇÕ´Ï´Ù.');
+      setError('ë¹„ë°€ë²ˆí˜¸ëŠ” 8ì ì´ìƒì´ì–´ì•¼ í•©ë‹ˆë‹¤.');
       return;
     }
 
     if (!formData.name.trim()) {
-      setError('Á÷¿ø¸íÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      setError('ì§ì›ëª…ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.');
       return;
     }
 
     if (!formData.phoneNumber.trim()) {
-      setError('ÀüÈ­¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+      setError('ì „í™”ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
       return;
     }
 
     if (!formData.storeId) {
-      setError('¸ÅÀåÀ» ¼±ÅÃÇØÁÖ¼¼¿ä.');
+      setError('ë§¤ì¥ì„ ì„ íƒí•´ì£¼ì„¸ìš”.');
+      return;
+    }
+
+    if (isStoreAdmin && (!scopedStoreId || Number(formData.storeId) !== scopedStoreId)) {
+      setError('ë§¤ì¥ ê´€ë¦¬ìëŠ” ë³¸ì¸ ë§¤ì¥ ì§ì›ë§Œ ë“±ë¡í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.');
       return;
     }
 
@@ -148,7 +154,7 @@ export default function UserForm() {
       employeeCodeCheck.checkedCode === normalizedEmployeeCode && employeeCodeCheck.available;
 
     if (!isEmployeeCodeVerified) {
-      setError('Á÷¿ø ÄÚµå Áßº¹ È®ÀÎÀ» ¿Ï·áÇØÁÖ¼¼¿ä.');
+      setError('ì§ì› ì½”ë“œ ì¤‘ë³µ í™•ì¸ì„ ì™„ë£Œí•´ì£¼ì„¸ìš”.');
       return;
     }
 
@@ -169,7 +175,7 @@ export default function UserForm() {
       navigate(`/users/${result.id}`);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Á÷¿ø µî·Ï¿¡ ½ÇÆĞÇß½À´Ï´Ù.');
+      setError(err.response?.data?.message || 'ì§ì› ë“±ë¡ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
     } finally {
       setLoading(false);
     }
@@ -178,31 +184,31 @@ export default function UserForm() {
   return (
     <div className="user-form-page">
       <div className="user-form-container">
-        <h1>Á÷¿ø µî·Ï</h1>
+        <h1>ì§ì› ë“±ë¡</h1>
 
         <div className="form-card">
           {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleSubmit} className="user-form">
             <div className="form-group">
-              <label>·Î±×ÀÎ ID *</label>
+              <label>ë¡œê·¸ì¸ ID *</label>
               <input
                 name="loginId"
                 value={formData.loginId}
                 onChange={handleChange}
-                placeholder="·Î±×ÀÎ ID¸¦ ÀÔ·ÂÇÏ¼¼¿ä"
+                placeholder="ë¡œê·¸ì¸ IDë¥¼ ì…ë ¥í•˜ì„¸ìš”"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Á÷¿ø ÄÚµå *</label>
+              <label>ì§ì› ì½”ë“œ *</label>
               <div className="input-with-action">
                 <input
                   name="employeeCode"
                   value={formData.employeeCode}
                   onChange={handleChange}
-                  placeholder="Á÷¿ø ÄÚµå"
+                  placeholder="ì§ì› ì½”ë“œ"
                   required
                 />
                 <button
@@ -211,7 +217,7 @@ export default function UserForm() {
                   onClick={handleCheckEmployeeCode}
                   disabled={employeeCodeCheck.checking || !formData.employeeCode.trim()}
                 >
-                  {employeeCodeCheck.checking ? 'È®ÀÎ Áß...' : 'Áßº¹ È®ÀÎ'}
+                  {employeeCodeCheck.checking ? 'í™•ì¸ ì¤‘...' : 'ì¤‘ë³µ í™•ì¸'}
                 </button>
               </div>
               {employeeCodeCheck.message && (
@@ -222,31 +228,31 @@ export default function UserForm() {
             </div>
 
             <div className="form-group">
-              <label>ºñ¹Ğ¹øÈ£ *</label>
+              <label>ë¹„ë°€ë²ˆí˜¸ *</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="8ÀÚ ÀÌ»ó ÀÔ·ÂÇÏ¼¼¿ä"
+                placeholder="8ì ì´ìƒ ì…ë ¥í•˜ì„¸ìš”"
                 minLength={8}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Á÷¿ø¸í *</label>
+              <label>ì§ì›ëª… *</label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Á÷¿ø¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä"
+                placeholder="ì§ì›ëª…ì„ ì…ë ¥í•˜ì„¸ìš”"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>ÀüÈ­¹øÈ£ *</label>
+              <label>ì „í™”ë²ˆí˜¸ *</label>
               <input
                 name="phoneNumber"
                 value={formData.phoneNumber}
@@ -257,7 +263,7 @@ export default function UserForm() {
             </div>
 
             <div className="form-group">
-              <label>¸ÅÀå *</label>
+              <label>ë§¤ì¥ *</label>
               <select
                 name="storeId"
                 value={formData.storeId}
@@ -265,7 +271,7 @@ export default function UserForm() {
                 required
                 disabled={isStoreAdmin}
               >
-                <option value="">¸ÅÀå ¼±ÅÃ</option>
+                <option value="">ë§¤ì¥ ì„ íƒ</option>
                 {stores.map(store => (
                   <option key={store.id} value={store.id}>
                     {store.name} ({store.code || store.storeCode || '-'})
@@ -275,7 +281,7 @@ export default function UserForm() {
             </div>
 
             <div className="form-group">
-              <label>¿ªÇÒ *</label>
+              <label>ì—­í•  *</label>
               <select name="role" value={formData.role} onChange={handleChange} required>
                 {USER_ROLE_FORM_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
@@ -287,10 +293,10 @@ export default function UserForm() {
 
             <div className="form-buttons">
               <button type="submit" disabled={loading}>
-                {loading ? 'µî·Ï Áß...' : 'µî·Ï'}
+                {loading ? 'ë“±ë¡ ì¤‘...' : 'ë“±ë¡'}
               </button>
               <button type="button" onClick={() => navigate('/users')} disabled={loading}>
-                Ãë¼Ò
+                ì·¨ì†Œ
               </button>
             </div>
           </form>
