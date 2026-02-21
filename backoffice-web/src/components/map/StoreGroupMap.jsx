@@ -87,6 +87,7 @@ export default function StoreGroupMap({
   const markersRef = useRef([]);
   const overlaysRef = useRef([]);
   const [error, setError] = useState('');
+  const [mapReady, setMapReady] = useState(false);
 
   const normalizedStorePoints = useMemo(
     () => (stores || []).map((store) => normalizeStorePoint(store, currentStoreId)).filter(Boolean),
@@ -115,10 +116,12 @@ export default function StoreGroupMap({
           center: new kakao.maps.LatLng(latitude, longitude),
           level: 7,
         });
+
+        setMapReady(true);
       } catch (err) {
         console.error(err);
         if (mounted) {
-          setError(err?.message || '매장 지도 표시 중 오류가 발생했습니다.');
+          setError(err?.message || '매장 지도를 표시하지 못했습니다.');
         }
       }
     };
@@ -132,10 +135,15 @@ export default function StoreGroupMap({
       markersRef.current = [];
       overlaysRef.current = [];
       mapRef.current = null;
+      setMapReady(false);
     };
   }, []);
 
   useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+
     if (!mapRef.current || !kakaoRef.current) {
       return;
     }
@@ -180,14 +188,14 @@ export default function StoreGroupMap({
     });
 
     mapRef.current.setBounds(bounds, 40, 40, 40, 40);
-  }, [normalizedStorePoints, normalizedWarehousePoints, showWarehouses]);
+  }, [mapReady, normalizedStorePoints, normalizedWarehousePoints, showWarehouses]);
 
   const hasStoreLocation = (stores || []).some((store) => hasValidCoordinate(store?.latitude, store?.longitude));
 
   return (
     <div className="group-map-card">
       <h3>{title}</h3>
-      {!hasStoreLocation && <p className="map-empty-text">좌표가 저장된 매장이 없어 기본 위치로 표시됩니다.</p>}
+      {!hasStoreLocation && <p className="map-empty-text">위치가 저장된 매장이 없어 기본 위치로 표시됩니다.</p>}
 
       <div className="group-map-toolbar">
         <div className="group-map-legend">

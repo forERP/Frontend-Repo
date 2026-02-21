@@ -8,6 +8,7 @@ export default function SingleLocationMap({ latitude, longitude, title = '위치
   const markerRef = useRef(null);
   const kakaoRef = useRef(null);
   const [error, setError] = useState('');
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -28,6 +29,7 @@ export default function SingleLocationMap({ latitude, longitude, title = '위치
         });
 
         markerRef.current = new kakao.maps.Marker({ map: null });
+        setMapReady(true);
       } catch (err) {
         console.error(err);
         if (mounted) {
@@ -45,10 +47,15 @@ export default function SingleLocationMap({ latitude, longitude, title = '위치
       }
       markerRef.current = null;
       mapRef.current = null;
+      setMapReady(false);
     };
   }, []);
 
   useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+
     if (!mapRef.current || !markerRef.current || !kakaoRef.current) {
       return;
     }
@@ -69,7 +76,7 @@ export default function SingleLocationMap({ latitude, longitude, title = '위치
     markerRef.current.setPosition(position);
     markerRef.current.setMap(mapRef.current);
     mapRef.current.setCenter(position);
-  }, [latitude, longitude]);
+  }, [mapReady, latitude, longitude]);
 
   if (error) {
     return <div className="map-error-text">{error}</div>;

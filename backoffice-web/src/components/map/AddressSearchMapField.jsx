@@ -44,6 +44,7 @@ export default function AddressSearchMapField({
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [mapError, setMapError] = useState('');
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     setSearchKeyword(address || '');
@@ -71,6 +72,7 @@ export default function AddressSearchMapField({
         markerRef.current = new kakao.maps.Marker({
           map: null,
         });
+        setMapReady(true);
       } catch (error) {
         console.error(error);
         if (mounted) {
@@ -88,10 +90,15 @@ export default function AddressSearchMapField({
       }
       markerRef.current = null;
       mapRef.current = null;
+      setMapReady(false);
     };
   }, []);
 
   useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+
     if (!mapRef.current || !markerRef.current || !kakaoRef.current) {
       return;
     }
@@ -111,7 +118,7 @@ export default function AddressSearchMapField({
     markerRef.current.setPosition(position);
     markerRef.current.setMap(mapRef.current);
     mapRef.current.setCenter(position);
-  }, [latitude, longitude]);
+  }, [mapReady, latitude, longitude]);
 
   const handleSearch = () => {
     if (disabled) {
