@@ -55,6 +55,8 @@
       { key: 'purchase-request-create', label: '발주 요청 생성', path: '/purchase-requests/new', permissionCode: 'PURCHASE_REQUEST_CREATE' },
       { key: 'purchase-orders', label: '발주 조회', path: '/purchase-orders', permissionCode: 'PURCHASE_ORDER_VIEW' },
       { key: 'purchase-order-detail', label: '발주 상세', path: '/purchase-orders/:orderId', hidden: true, permissionCode: 'PURCHASE_ORDER_VIEW' },
+      { key: 'purchase-approvals', label: '발주 승인 조회', path: '/purchase-approvals', hidden: true, permissionCode: 'PURCHASE_REQUEST_VIEW' },
+      { key: 'purchase-approval-detail', label: '발주 승인 상세', path: '/purchase-approvals/:id', hidden: true, permissionCode: 'PURCHASE_REQUEST_VIEW' },
       { key: 'inbounds', label: '입고 조회', path: '/inbounds', permissionCode: 'INBOUND_VIEW' },
       { key: 'inbound-detail', label: '입고 상세', path: '/inbounds/:id', hidden: true, permissionCode: 'INBOUND_VIEW' },
     ],

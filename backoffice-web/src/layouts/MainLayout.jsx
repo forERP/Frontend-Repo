@@ -7,6 +7,46 @@ import { getMenusByRole } from '../constants/menuAccess';
 import './MainLayout.css';
 import './AdminUi.css';
 
+const normalizeMenuPath = (path = '') => {
+  if (!path) return '';
+  const dynamicIndex = path.indexOf('/:');
+  if (dynamicIndex < 0) return path;
+  return path.slice(0, dynamicIndex);
+};
+
+const matchesMenuPath = (pathname, menuPath) => {
+  const normalizedPath = normalizeMenuPath(menuPath);
+  if (!normalizedPath) return false;
+  if (normalizedPath === '/') return pathname === '/';
+  return pathname === normalizedPath || pathname.startsWith(`${normalizedPath}/`);
+};
+
+const resolveTopMenuKeyByPath = (pathname, visibleMenus) => {
+  if (!pathname || pathname === '/') {
+    return 'dashboard';
+  }
+
+  for (const menu of visibleMenus) {
+    if (menu.key === 'dashboard') {
+      continue;
+    }
+
+    if (Array.isArray(menu.children) && menu.children.length > 0) {
+      const matchedChild = menu.children.some(child => matchesMenuPath(pathname, child.path));
+      if (matchedChild) {
+        return menu.key;
+      }
+      continue;
+    }
+
+    if (matchesMenuPath(pathname, menu.path)) {
+      return menu.key;
+    }
+  }
+
+  return null;
+};
+
 export default function MainLayout({ user }) {
   const location = useLocation();
   const [activeTopKey, setActiveTopKey] = useState('dashboard');
@@ -45,11 +85,19 @@ export default function MainLayout({ user }) {
   }, [activeTopKey, visibleMenus]);
 
   useEffect(() => {
-    if (location.pathname === '/') {
-      setActiveTopKey('dashboard');
-      setIsSidebarOpen(false);
+    const matchedTopKey = resolveTopMenuKeyByPath(location.pathname, visibleMenus);
+    if (!matchedTopKey) {
+      return;
     }
-  }, [location.pathname]);
+
+    setActiveTopKey(prev => (prev === matchedTopKey ? prev : matchedTopKey));
+
+    if (matchedTopKey === 'dashboard') {
+      setIsSidebarOpen(false);
+      return;
+    }
+    setIsSidebarOpen(prev => (prev ? prev : true));
+  }, [location.pathname, visibleMenus]);
 
   const activeTopMenu = useMemo(
     () => visibleMenus.find(menu => menu.key === activeTopKey),

@@ -125,8 +125,8 @@ export default function AppRouter({ user, setUser }) {
           <Route path="/purchase-requests/:id" element={<PurchaseRequestDetailPage />} />
           <Route path="/purchase-orders" element={<PurchaseOrderListPage />} />
           <Route path="/purchase-orders/:orderId" element={<PurchaseOrderDetailPage />} />
-          <Route path="/purchase-approvals" element={<PurchaseApprovalListPage />} />
-          <Route path="/purchase-approvals/:id" element={<PurchaseApprovalDetailPage />} />
+          <Route path="/purchase-approvals" element={isStoreAdmin ? <Navigate to="/purchase-requests" replace /> : <PurchaseApprovalListPage />} />
+          <Route path="/purchase-approvals/:id" element={isStoreAdmin ? <Navigate to="/purchase-requests" replace /> : <PurchaseApprovalDetailPage />} />
 
           {/* Inbound Routes */}
           <Route path="/inbounds" element={<Inbounds />} />
