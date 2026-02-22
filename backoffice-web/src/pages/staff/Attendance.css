@@ -30,6 +30,18 @@
     width: 110px;
 }
 
+.attendance-page .attendance-list-table th:nth-child(1) {
+    width: 120px;
+}
+
+.attendance-page .attendance-list-table th:nth-child(3) {
+    width: 150px;
+}
+
+.attendance-page .attendance-list-table th:nth-child(5) {
+    width: 96px;
+}
+
 .attendance-page .actions-cell {
     text-align: center;
 }
@@ -38,17 +50,11 @@
     white-space: nowrap;
 }
 
-.attendance-page .employee-name-cell {
-    min-width: 170px;
+.attendance-page .role-cell {
+    text-align: center;
 }
 
-.attendance-page .employee-name-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.attendance-page .admin-role-badge {
+.attendance-page .role-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -59,6 +65,7 @@
     font-weight: 700;
     line-height: 1;
     white-space: nowrap;
+    max-width: 100%;
 }
 
 .attendance-page .empty-cell {

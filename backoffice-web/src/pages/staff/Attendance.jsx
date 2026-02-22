@@ -11,7 +11,6 @@ const ATTENDANCE_USER_ROLES = new Set([
   'STORE_HALL_STAFF',
   'STORE_KITCHEN_STAFF',
 ])
-const ADMIN_ROLES = new Set(['HQ_ADMIN', 'STORE_ADMIN'])
 const ACTIVE_STATUS = 'ACTIVE'
 
 const ATTENDANCE_STATUS_META = {
@@ -161,6 +160,7 @@ export default function Attendance() {
               <tr>
                 <th>직원코드</th>
                 <th>직원이름</th>
+                <th>역할</th>
                 <th>매장</th>
                 <th>현재 상태</th>
                 <th className='actions-col'>상세</th>
@@ -169,13 +169,13 @@ export default function Attendance() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className='empty-cell'>
+                  <td colSpan={6} className='empty-cell'>
                     로딩 중...
                   </td>
                 </tr>
               ) : employees.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className='empty-cell'>
+                  <td colSpan={6} className='empty-cell'>
                     조회 결과가 없습니다.
                   </td>
                 </tr>
@@ -184,28 +184,23 @@ export default function Attendance() {
                   const statusKey = normalizeAttendanceStatus(statusByUserId[employee.id])
                   const statusMeta = ATTENDANCE_STATUS_META[statusKey]
                   const roleMeta = USER_ROLE[employee.role]
-                  const showAdminBadge = ADMIN_ROLES.has(toText(employee.role))
-                  const adminBadgeColor = roleMeta?.color || '#0F766E'
+                  const roleBadgeColor = roleMeta?.color || '#6B7280'
+                  const roleLabel = roleMeta?.label || employee.role || '-'
 
                   return (
                     <tr key={employee.id}>
                       <td title={employee.employeeCode || '-'}>{employee.employeeCode || '-'}</td>
-                      <td className='employee-name-cell' title={employee.name || '-'}>
-                        <div className='employee-name-wrap'>
-                          <span>{employee.name || '-'}</span>
-                          {showAdminBadge && (
-                            <span
-                              className='admin-role-badge'
-                              style={{
-                                backgroundColor: `${adminBadgeColor}22`,
-                                color: adminBadgeColor,
-                              }}
-                              title={roleMeta?.label || employee.role || '관리자'}
-                            >
-                              {roleMeta?.label || '관리자'}
-                            </span>
-                          )}
-                        </div>
+                      <td title={employee.name || '-'}>{employee.name || '-'}</td>
+                      <td className='role-cell' title={roleLabel}>
+                        <span
+                          className='role-badge'
+                          style={{
+                            backgroundColor: `${roleBadgeColor}22`,
+                            color: roleBadgeColor,
+                          }}
+                        >
+                          {roleLabel}
+                        </span>
                       </td>
                       <td title={`${employee.storeName || '-'}${employee.storeCode ? ` (${employee.storeCode})` : ''}`}>
                         {employee.storeName || '-'}
