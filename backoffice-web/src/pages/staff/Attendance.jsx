@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
+import { USER_ROLE } from '../../constants/user'
 import { getSessionUser, isStoreAdminUser } from '../../utils/auth'
 import './Attendance.css'
 
-const STAFF_ROLES = new Set(['STORE_HALL_STAFF', 'STORE_KITCHEN_STAFF'])
+const ATTENDANCE_USER_ROLES = new Set([
+  'HQ_ADMIN',
+  'STORE_ADMIN',
+  'STORE_HALL_STAFF',
+  'STORE_KITCHEN_STAFF',
+])
+const ADMIN_ROLES = new Set(['HQ_ADMIN', 'STORE_ADMIN'])
 const ACTIVE_STATUS = 'ACTIVE'
 
 const ATTENDANCE_STATUS_META = {
@@ -108,7 +115,7 @@ export default function Attendance() {
       const users = Array.isArray(response.data) ? response.data : []
 
       const staffUsers = users
-        .filter((user) => STAFF_ROLES.has(toText(user?.role)))
+        .filter((user) => ATTENDANCE_USER_ROLES.has(toText(user?.role)))
         .filter((user) => toText(user?.status) === ACTIVE_STATUS)
         .filter((user) => {
           if (scopedStoreId == null) {
@@ -176,11 +183,30 @@ export default function Attendance() {
                 employees.map((employee) => {
                   const statusKey = normalizeAttendanceStatus(statusByUserId[employee.id])
                   const statusMeta = ATTENDANCE_STATUS_META[statusKey]
+                  const roleMeta = USER_ROLE[employee.role]
+                  const showAdminBadge = ADMIN_ROLES.has(toText(employee.role))
+                  const adminBadgeColor = roleMeta?.color || '#0F766E'
 
                   return (
                     <tr key={employee.id}>
                       <td title={employee.employeeCode || '-'}>{employee.employeeCode || '-'}</td>
-                      <td title={employee.name || '-'}>{employee.name || '-'}</td>
+                      <td className='employee-name-cell' title={employee.name || '-'}>
+                        <div className='employee-name-wrap'>
+                          <span>{employee.name || '-'}</span>
+                          {showAdminBadge && (
+                            <span
+                              className='admin-role-badge'
+                              style={{
+                                backgroundColor: `${adminBadgeColor}22`,
+                                color: adminBadgeColor,
+                              }}
+                              title={roleMeta?.label || employee.role || '관리자'}
+                            >
+                              {roleMeta?.label || '관리자'}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td title={`${employee.storeName || '-'}${employee.storeCode ? ` (${employee.storeCode})` : ''}`}>
                         {employee.storeName || '-'}
                         {employee.storeCode ? ` (${employee.storeCode})` : ''}

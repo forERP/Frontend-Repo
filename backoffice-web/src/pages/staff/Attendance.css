@@ -38,6 +38,29 @@
     white-space: nowrap;
 }
 
+.attendance-page .employee-name-cell {
+    min-width: 170px;
+}
+
+.attendance-page .employee-name-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.attendance-page .admin-role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
 .attendance-page .empty-cell {
     text-align: center;
     color: #6b7280;
