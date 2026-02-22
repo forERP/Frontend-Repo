@@ -95,6 +95,8 @@ export default function StockActionPage({ mode = 'dispose' }) {
       : ''
     : selectedReason
 
+  const mealReasonForSave = isMealMode && reasonText ? `${reasonText} 식사` : reasonText
+
   const selectedWarehouse = useMemo(
     () => warehouses.find((warehouse) => String(warehouse.warehouseId) === selectedWarehouseId) || null,
     [warehouses, selectedWarehouseId],
@@ -435,7 +437,7 @@ export default function StockActionPage({ mode = 'dispose' }) {
       const created = await createDiscard({
         storeId,
         warehouseId: Number(selectedWarehouseId),
-        reason: reasonText,
+        reason: mealReasonForSave,
         items: selectedItems.map((item) => ({
           productId: item.productId,
           qty: item.qty,

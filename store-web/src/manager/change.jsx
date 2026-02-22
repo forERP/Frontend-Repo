@@ -7,7 +7,6 @@ import '../pages/css/Login.css'
 
 const STORE_CODE_LENGTH = 3
 const EMPLOYEE_CODE_LENGTH = 4
-const SUCCESS_MODAL_COUNTDOWN = 10
 
 const STATUS_LABELS = {
   NONE: '미출근',
@@ -23,7 +22,6 @@ const DEFAULT_MODAL = {
   title: '',
   message: '',
   processing: false,
-  countdown: SUCCESS_MODAL_COUNTDOWN,
   oldUserName: '-',
   oldEmployeeCode: '',
   oldAttendanceStatus: 'NONE',
@@ -83,39 +81,11 @@ export default function ChangePage() {
     navigate('/home', { replace: true })
   }
 
-  useEffect(() => {
-    if (!modal.open || modal.phase !== 'success') {
-      return
-    }
-
-    if (modal.countdown <= 0) {
-      finishShift()
-      return
-    }
-
-    const timer = setTimeout(() => {
-      setModal((prev) => {
-        if (!prev.open || prev.phase !== 'success') {
-          return prev
-        }
-
-        return { ...prev, countdown: prev.countdown - 1 }
-      })
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [modal.open, modal.phase, modal.countdown])
-
   const openModal = (payload) => {
     setModal({ ...DEFAULT_MODAL, open: true, ...payload })
   }
 
   const closeModal = () => {
-    if (modal.phase === 'success') {
-      finishShift()
-      return
-    }
-
     setModal(DEFAULT_MODAL)
   }
 
@@ -236,14 +206,7 @@ export default function ChangePage() {
         fallbackEmployeeCode: newEmployeeCode,
       })
 
-      setModal((prev) => ({
-        ...prev,
-        phase: 'success',
-        title: '교대 완료',
-        message: `${prev.oldUserName}(${prev.oldEmployeeCode}) -> ${prev.newUserName}(${prev.newEmployeeCode}) 교대가 완료되었습니다.`,
-        processing: false,
-        countdown: SUCCESS_MODAL_COUNTDOWN,
-      }))
+      finishShift()
     } catch (error) {
       setModal((prev) => ({
         ...prev,
@@ -378,11 +341,7 @@ export default function ChangePage() {
             </div>
 
             <div className='pos-modal-actions'>
-              <div className='pos-modal-actions-left'>
-                {modal.phase === 'success' && (
-                  <span className='pos-modal-countdown'>닫기 {modal.countdown}초</span>
-                )}
-              </div>
+              <div className='pos-modal-actions-left' />
 
               {modal.phase === 'confirm' && (
                 <button

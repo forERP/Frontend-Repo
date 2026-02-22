@@ -47,11 +47,17 @@ export const login = async credentials => {
     }
   } catch (error) {
     console.error('login error:', error.response?.status, error.response?.data)
-    const isForbidden = Number(error?.response?.status) === 403
-    const fallbackMessage = isForbidden
-      ? '관리자(HQ/STORE) 계정만 관리자페이지에 로그인할 수 있습니다.'
-      : '로그인에 실패했습니다.'
-    const errorMessage = error.response?.data?.message || error.message || fallbackMessage
+    const status = Number(error?.response?.status || 0)
+    const serverMessage = String(error?.response?.data?.message || '').trim()
+
+    let mappedMessage = ''
+    if (status === 403) {
+      mappedMessage = '관리자만 로그인 가능합니다.'
+    } else if (status === 400 || status === 401 || status === 404 || status === 500) {
+      mappedMessage = '아이디 또는 비밀번호가 옳지 않습니다.'
+    }
+
+    const errorMessage = mappedMessage || serverMessage || '로그인에 실패했습니다.'
     throw new Error(errorMessage)
   }
 }
@@ -80,7 +86,7 @@ export const getCurrentUser = async () => {
   try {
     const response = await api.get('/api/users/me')
     return response.data
-  } catch (error) {
+  } catch {
     throw new Error('사용자 정보를 가져올 수 없습니다.')
   }
 }
