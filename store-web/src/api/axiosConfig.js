@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearSharedPosSession, getPosAccessToken, syncSessionStorageFromShared } from './posSessionStorage';
 
 const POS_STORAGE_KEYS = [
     'accessToken',
@@ -16,6 +17,7 @@ const POS_SESSION_UPDATED_EVENT = 'pos-session-updated';
 
 function clearPosSessionStorage() {
     POS_STORAGE_KEYS.forEach((key) => sessionStorage.removeItem(key));
+    clearSharedPosSession();
     window.dispatchEvent(new Event(POS_SESSION_UPDATED_EVENT));
 }
 
@@ -34,7 +36,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config)=>{
-        const token = sessionStorage.getItem('accessToken');
+        syncSessionStorageFromShared();
+        const token = getPosAccessToken();
         if(token){
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -47,13 +50,15 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         const status = error?.response?.status;
-        const hasToken = Boolean(sessionStorage.getItem('accessToken'));
+        const hasSessionToken = Boolean(sessionStorage.getItem('accessToken'));
+        const hasToken = Boolean(getPosAccessToken());
         const requestUrl = String(error?.config?.url ?? '');
+        const isMonitorPage = window.location.pathname === '/kitchen' || window.location.pathname === '/number';
 
         if (hasToken && (status === 401 || status === 403) && !isAuthRequest(requestUrl)) {
             clearPosSessionStorage();
 
-            if (window.location.pathname !== '/login') {
+            if (!isMonitorPage && hasSessionToken && window.location.pathname !== '/login') {
                 window.location.replace('/login');
             }
         }

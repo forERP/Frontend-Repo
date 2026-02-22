@@ -198,22 +198,73 @@
   color: #334155;
 }
 
-.cancel-panel input[type='text'] {
-  height: 34px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 0 10px;
-}
-
-.discard-checkbox {
-  display: flex;
-  align-items: center;
+.reason-button-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.discard-checkbox input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
+.reason-option-btn {
+  height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reason-option-btn.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+.reason-option-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selected-reason {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.discard-toggle-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.discard-toggle-btn {
+  height: 46px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.discard-toggle-btn.active.discard {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.discard-toggle-btn.active.restore {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+}
+
+.discard-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .cancel-guide {
@@ -287,6 +338,71 @@
   cursor: not-allowed;
 }
 
+.receipt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.64);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.receipt-modal {
+  width: min(480px, calc(100vw - 28px));
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.receipt-modal h3 {
+  margin: 0;
+  font-size: 26px;
+  color: #0f172a;
+}
+
+.receipt-modal p {
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.receipt-modal-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.receipt-modal-cancel-btn,
+.receipt-modal-confirm-btn {
+  border: none;
+  border-radius: 10px;
+  height: 46px;
+  min-width: 130px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.receipt-modal-cancel-btn {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.receipt-modal-confirm-btn {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.receipt-modal-cancel-btn:disabled,
+.receipt-modal-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
   .receipt-layout {
     grid-template-columns: 1fr;
@@ -295,5 +411,18 @@
 
   .receipt-bottom {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reason-button-group,
+  .discard-toggle-group {
+    grid-template-columns: 1fr;
+  }
+
+  .receipt-modal h3 {
+    font-size: 22px;
+  }
+
+  .receipt-modal p {
+    font-size: 15px;
   }
 }

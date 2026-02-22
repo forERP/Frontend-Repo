@@ -1,18 +1,11 @@
 import api from './axiosConfig'
+import {
+  POS_STORAGE_KEYS,
+  clearSharedPosSession,
+  writeSharedPosSession,
+} from './posSessionStorage'
 
 export const POS_SESSION_UPDATED_EVENT = 'pos-session-updated'
-
-const POS_STORAGE_KEYS = [
-  'accessToken',
-  'role',
-  'userRole',
-  'userId',
-  'storeId',
-  'storeName',
-  'storeCode',
-  'userName',
-  'employeeCode',
-]
 
 export const notifyPosSessionUpdated = () => {
   window.dispatchEvent(new Event(POS_SESSION_UPDATED_EVENT))
@@ -54,6 +47,17 @@ export const setPosSessionFromLogin = async ({
   sessionStorage.setItem('storeCode', String(userData?.storeCode ?? fallbackStoreCode))
   sessionStorage.setItem('userName', String(userData?.name ?? ''))
   sessionStorage.setItem('employeeCode', String(userData?.employeeCode ?? fallbackEmployeeCode))
+  writeSharedPosSession({
+    accessToken: String(token),
+    role: String(role ?? ''),
+    userRole: String(role ?? ''),
+    userId: String(userId),
+    storeId: String(userData?.storeId ?? ''),
+    storeName: String(userData?.storeName ?? ''),
+    storeCode: String(userData?.storeCode ?? fallbackStoreCode),
+    userName: String(userData?.name ?? ''),
+    employeeCode: String(userData?.employeeCode ?? fallbackEmployeeCode),
+  })
   notifyPosSessionUpdated()
 
   return userData
@@ -69,5 +73,6 @@ export const logoutPos = async (storeCode, employeeCode) => {
 
 export const clearPosSession = () => {
   POS_STORAGE_KEYS.forEach((key) => sessionStorage.removeItem(key))
+  clearSharedPosSession()
   notifyPosSessionUpdated()
 }

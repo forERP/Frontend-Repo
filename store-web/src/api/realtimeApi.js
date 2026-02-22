@@ -1,4 +1,5 @@
 import api from './axiosConfig'
+import { getPosAccessToken, getPosStoreId, syncSessionStorageFromShared } from './posSessionStorage'
 
 const DEFAULT_EVENTS = ['connected', 'inventory.changed', 'order.changed', 'payment.changed', 'shipment.changed']
 
@@ -13,7 +14,8 @@ export const subscribePosRealtime = ({ onEvent, onError, events = DEFAULT_EVENTS
     return () => {}
   }
 
-  const token = sessionStorage.getItem('accessToken')
+  syncSessionStorageFromShared()
+  const token = getPosAccessToken()
   if (!token) {
     return () => {}
   }
@@ -21,9 +23,9 @@ export const subscribePosRealtime = ({ onEvent, onError, events = DEFAULT_EVENTS
   const params = new URLSearchParams()
   params.set('access_token', token)
 
-  const storeId = sessionStorage.getItem('storeId')
+  const storeId = getPosStoreId()
   if (storeId) {
-    params.set('storeId', storeId)
+    params.set('storeId', String(storeId))
   }
 
   const eventSource = new EventSource(`${resolveEventStreamUrl()}?${params.toString()}`)
